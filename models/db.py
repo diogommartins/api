@@ -3,11 +3,9 @@ if request.env.web2py_runtime_gae:
     db = DAL('gae')
     session.connect(request, response, db = db)
 else:
-    db = DAL('postgres://postgres:devdtic2@localhost/mobileapi')
-    #dbSie = DAL('db2://DSN=dbsmtest;UID=dbsm;PWD=htrg11sn')
-    dbSie = DAL('db2://DSN=DB2_SIE;UID=dbsm;PWD=S1&@Ufsm@App')
     from gluon import current
     current.dbSie = dbSie
+
 
 #########################################################################
 ## Here is sample code if you need for

@@ -1,0 +1,21 @@
+(dp1
+S'output'
+p2
+S'<type \'exceptions.RuntimeError\'> Failure to connect, tried 5 times:\nTraceback (most recent call last):\n  File "/home/www-data/web2py/gluon/dal.py", line 7845, in __init__\n    self._adapter = ADAPTERS[self._dbname](**kwargs)\n  File "/home/www-data/web2py/gluon/dal.py", line 688, in __call__\n    obj = super(AdapterMeta, cls).__call__(*args, **kwargs)\n  File "/home/www-data/web2py/gluon/dal.py", line 2870, in __init__\n    if do_connect: self.reconnect()\n  File "/home/www-data/web2py/gluon/dal.py", line 648, in reconnect\n    self.connection = f()\n  File "/home/www-data/web2py/gluon/dal.py", line 2868, in connector\n    return self.driver.connect(msg,**driver_args)\n  File "/usr/lib/python2.7/dist-packages/psycopg2/__init__.py", line 179, in connect\n    connection_factory=connection_factory, async=async)\nOperationalError: FATAL:  database "api" does not exist\n\n'
+p3
+sS'layer'
+p4
+S'/home/www-data/web2py/applications/api/models/1_dbconn.py'
+p5
+sS'code'
+p6
+S"# -*- coding: utf-8 -*-\n#Git ignored file\ndb = DAL('postgres://postgres:devdtic2@localhost/api')\ndbSie = DAL('db2://DSN=dbsmtest;UID=dbsm;PWD=htrg11sn')\n#dbSie = DAL('db2://DSN=DB2_SIE;UID=dbsm;PWD=S1&@Ufsm@App')"
+p7
+sS'snapshot'
+p8
+(dp9
+sS'traceback'
+p10
+S'Traceback (most recent call last):\n  File "/home/www-data/web2py/gluon/restricted.py", line 217, in restricted\n    exec ccode in environment\n  File "/home/www-data/web2py/applications/api/models/1_dbconn.py", line 3, in <module>\n    db = DAL(\'postgres://postgres:devdtic2@localhost/api\')\n  File "/home/www-data/web2py/gluon/dal.py", line 7867, in __init__\n    raise RuntimeError("Failure to connect, tried %d times:\\n%s" % (attempts, tb))\nRuntimeError: Failure to connect, tried 5 times:\nTraceback (most recent call last):\n  File "/home/www-data/web2py/gluon/dal.py", line 7845, in __init__\n    self._adapter = ADAPTERS[self._dbname](**kwargs)\n  File "/home/www-data/web2py/gluon/dal.py", line 688, in __call__\n    obj = super(AdapterMeta, cls).__call__(*args, **kwargs)\n  File "/home/www-data/web2py/gluon/dal.py", line 2870, in __init__\n    if do_connect: self.reconnect()\n  File "/home/www-data/web2py/gluon/dal.py", line 648, in reconnect\n    self.connection = f()\n  File "/home/www-data/web2py/gluon/dal.py", line 2868, in connector\n    return self.driver.connect(msg,**driver_args)\n  File "/usr/lib/python2.7/dist-packages/psycopg2/__init__.py", line 179, in connect\n    connection_factory=connection_factory, async=async)\nOperationalError: FATAL:  database "api" does not exist\n\n\n'
+p11
+s.

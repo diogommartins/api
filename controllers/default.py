@@ -11,18 +11,7 @@
 
 @auth.requires_login()
 def index():
-    pessoas = dbSie.executesql(""" SELECT DBSM.RETIRAACENTOS(P.NOME_PESSOA) AS NOME_PESSOA, 
-                                            A.SEXO, 
-                                            A.DT_NASCIMENTO, 
-                                            DBSM.RETIRAACENTOS(A.NOME_PAI) AS NOME_PAI, 
-                                            DBSM.RETIRAACENTOS(A.NOME_MAE) AS NOME_MAE
-                                    FROM DBSM.ALUNOS A LEFT JOIN DBSM.PESSOAS P ON A.ID_PESSOA = P.ID_PESSOA
-                                    WHERE P.ID_PESSOA < 1000
-                                    AND A.NOME_MAE IS NOT NULL
-                                    AND A.NOME_PAI IS NOT NULL
-                                    AND P.NOME_PESSOA IS NOT NULL""", as_dict=True)
-
-    return response.json(pessoas)
+    return dict()
 
 def user():
     """

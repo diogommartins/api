@@ -1,0 +1,21 @@
+(dp1
+S'output'
+p2
+S"<type 'exceptions.IndexError'> list index out of range"
+p3
+sS'layer'
+p4
+S'/home/www-data/web2py/applications/api/models/sie_pessoas.py'
+p5
+sS'code'
+p6
+S'# -*- coding: utf-8 -*-\ndbSie.define_table( "PESSOAS",\n                    Field("ID_CURSO", "integer"),\n                    Field("NOME_PESSOA", "integer"),\n                    Field("NOME_PESSOA_UP", "integer"),\n                    Field("NATUREZA_JURIDICA", "integer"),\n                    Field("NOME_SOCIAL", "integer"),\n                    primarykey=["ID_PESSOA"],\n                    migrate=False\n                    )'
+p7
+sS'snapshot'
+p8
+(dp9
+sS'traceback'
+p10
+S'Traceback (most recent call last):\n  File "/home/www-data/web2py/gluon/restricted.py", line 217, in restricted\n    exec ccode in environment\n  File "/home/www-data/web2py/applications/api/models/sie_pessoas.py", line 9, in <module>\n    migrate=False\n  File "/home/www-data/web2py/gluon/dal.py", line 8223, in define_table\n    table = self.lazy_define_table(tablename,*fields,**args)\n  File "/home/www-data/web2py/gluon/dal.py", line 8240, in lazy_define_table\n    table = table_class(self, tablename, *fields, **args)\n  File "/home/www-data/web2py/gluon/dal.py", line 8693, in __init__\n    and f.name ==_primarykey[0]][0]\nIndexError: list index out of range\n'
+p11
+s.

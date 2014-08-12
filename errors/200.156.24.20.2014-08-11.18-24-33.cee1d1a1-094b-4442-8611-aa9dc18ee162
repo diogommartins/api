@@ -1,0 +1,21 @@
+(dp1
+S'output'
+p2
+S"<type 'exceptions.SyntaxError'> Set: no tables selected"
+p3
+sS'layer'
+p4
+S'/home/www-data/web2py/applications/api/controllers/ALUNOS.py'
+p5
+sS'code'
+p6
+S'# -*- coding: utf-8 -*-\nfrom APIKey import APIKey\nfrom APIRequest import APIRequest\n\n@service.json\n@service.xml\ndef index():\n\tapiKey = APIKey( request.vars.API_KEY )\n\tif apiKey.auth_key:\n\t\tapiRequest = APIRequest( apiKey, request )\n\t\tresp = apiRequest.performRequest()\n\n\t\treturn dict( content=resp )\n\telse:\n\t\treturn dict( error="API Key Inv\xc3\xa1lida" )\n\n\ndef call():\n    session.forget()\n    return service()\n\n@service.json\n@service.xml\ndef count():\n\tpass\nresponse._vars=response._caller(index)\n'
+p7
+sS'snapshot'
+p8
+(dp9
+sS'traceback'
+p10
+S'Traceback (most recent call last):\n  File "/home/www-data/web2py/gluon/restricted.py", line 217, in restricted\n    exec ccode in environment\n  File "/home/www-data/web2py/applications/api/controllers/ALUNOS.py", line 26, in <module>\n  File "/home/www-data/web2py/gluon/globals.py", line 385, in <lambda>\n    self._caller = lambda f: f()\n  File "/home/www-data/web2py/applications/api/controllers/ALUNOS.py", line 11, in index\n    resp = apiRequest.performRequest()\n  File "applications/api/modules/APIRequest.py", line 25, in performRequest\n    return query.execute()\n  File "applications/api/modules/APIQuery.py", line 31, in execute\n    ret = current.dbSie( self._getQueryStatement() ).select( *self.return_fields )\n  File "/home/www-data/web2py/gluon/dal.py", line 10485, in select\n    return adapter.select(self.query,fields,attributes)\n  File "/home/www-data/web2py/gluon/dal.py", line 1869, in select\n    sql = self._select(query, fields, attributes)\n  File "/home/www-data/web2py/gluon/dal.py", line 1708, in _select\n    raise SyntaxError(\'Set: no tables selected\')\nSyntaxError: Set: no tables selected\n'
+p11
+s.

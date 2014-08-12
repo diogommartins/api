@@ -11,7 +11,49 @@
 
 @auth.requires_login()
 def index():
-    return dict()
+    import pbkdf
+    hash = pbkdf.make_hash("12330675755"+"Vinicius")
+    return dict(dados=auth.user)
+
+@request.restful()
+def rest():
+    response.view = 'generic.'+request.extension
+    def GET(*args,**vars):
+        patterns = [
+                    "/ALUNOS[ALUNOS]",
+                    "/ALUNOS/{ALUNOS.ID_ALUNO}",
+                    "/ALUNOS/ID-ALUNO/{ALUNOS.ID_ALUNO}/:field",
+                    ':auto[ALUNOS]',
+                    ':auto[CURSOS]',
+                    ':auto[CURSOS_ALUNOS]',
+                    ':auto[DISCIPLINAS]',
+                    ':auto[TAB_ESTRUTURADA]',
+                    ':auto[VERSOES_CURSOS]'
+                    ]
+        parser = dbSie.parse_as_rest(patterns,args,vars)
+        if parser.status == 200:
+            return dict(content=parser.response)
+        else:
+            raise HTTP(parser.status,parser.error)
+    return locals()
+
+@request.restful()
+def alunos():
+    response.view = 'generic.'+request.extension
+    def GET(*args,**vars):
+        patterns = [
+                    "/ALUNOS[ALUNOS]",
+                    "/ALUNOS/ID-ALUNO/{ALUNOS.ID_ALUNO}",
+                    "/ALUNOS/ID-ALUNO/{ALUNOS.ID_ALUNO}/:field",
+                    "/ALUNOS/ETNIA-ITEM/{ALUNOS.ETNIA_ITEM}/",
+                    "/ALUNOS/ETNIA-ITEM/{ALUNOS.ETNIA_ITEM}/:field",
+                    ]
+        parser = dbSie.parse_as_rest(patterns,args,vars)
+        if parser.status == 200:
+            return dict(content=parser.response)
+        else:
+            raise HTTP(parser.status,parser.error)
+    return locals()
 
 def user():
     """

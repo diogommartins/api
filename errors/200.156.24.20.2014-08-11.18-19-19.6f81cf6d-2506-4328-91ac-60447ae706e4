@@ -1,0 +1,719 @@
+(dp1
+S'output'
+p2
+S"<type 'exceptions.SyntaxError'> Set: no tables selected"
+p3
+sS'layer'
+p4
+S'/home/www-data/web2py/applications/api/controllers/ALUNOS.py'
+p5
+sS'code'
+p6
+S'# -*- coding: utf-8 -*-\nfrom APIKey import APIKey\nfrom APIRequest import APIRequest\n\n@service.json\n@service.xml\ndef index():\n\tapiKey = APIKey( request.vars.API_KEY )\n\tif apiKey.auth_key:\n\t\tapiRequest = APIRequest( apiKey, request )\n\t\tresp = apiRequest.performRequest()\n\n\t\treturn dict( content=resp )\n\telse:\n\t\treturn dict( error="API Key Inv\xc3\xa1lida" )\n\n\ndef call():\n    session.forget()\n    return service()\n\n@service.json\n@service.xml\ndef count():\n\tpass\nresponse._vars=response._caller(index)\n'
+p7
+sS'snapshot'
+p8
+(dp9
+S'exception'
+p10
+(dp11
+S'__getslice__'
+p12
+S"<method-wrapper '__getslice__' of exceptions.SyntaxError object>"
+p13
+sS'text'
+p14
+S'None'
+p15
+sS'__str__'
+p16
+S"<method-wrapper '__str__' of exceptions.SyntaxError object>"
+p17
+sS'__reduce__'
+p18
+S'<built-in method __reduce__ of exceptions.SyntaxError object>'
+p19
+sS'__dict__'
+p20
+S'{}'
+p21
+sS'__sizeof__'
+p22
+S'<built-in method __sizeof__ of exceptions.SyntaxError object>'
+p23
+sS'__init__'
+p24
+S"<method-wrapper '__init__' of exceptions.SyntaxError object>"
+p25
+sS'__setattr__'
+p26
+S"<method-wrapper '__setattr__' of exceptions.SyntaxError object>"
+p27
+sS'__reduce_ex__'
+p28
+S'<built-in method __reduce_ex__ of exceptions.SyntaxError object>'
+p29
+sS'__new__'
+p30
+S'<built-in method __new__ of type object>'
+p31
+sS'__format__'
+p32
+S'<built-in method __format__ of exceptions.SyntaxError object>'
+p33
+sS'__class__'
+p34
+S"<type 'exceptions.SyntaxError'>"
+p35
+sS'filename'
+p36
+S'None'
+p37
+sS'lineno'
+p38
+S'None'
+p39
+sS'msg'
+p40
+S"'Set: no tables selected'"
+p41
+sS'__doc__'
+p42
+S"'Invalid syntax.'"
+p43
+sS'__getitem__'
+p44
+S"<method-wrapper '__getitem__' of exceptions.SyntaxError object>"
+p45
+sS'__setstate__'
+p46
+S'<built-in method __setstate__ of exceptions.SyntaxError object>'
+p47
+sS'__getattribute__'
+p48
+S"<method-wrapper '__getattribute__' of exceptions.SyntaxError object>"
+p49
+sS'print_file_and_line'
+p50
+S'None'
+p51
+sS'args'
+p52
+S"('Set: no tables selected',)"
+p53
+sS'__subclasshook__'
+p54
+S'<built-in method __subclasshook__ of type object>'
+p55
+sS'offset'
+p56
+S'None'
+p57
+sS'__unicode__'
+p58
+S'<built-in method __unicode__ of exceptions.SyntaxError object>'
+p59
+sS'__delattr__'
+p60
+S"<method-wrapper '__delattr__' of exceptions.SyntaxError object>"
+p61
+sS'__repr__'
+p62
+S"<method-wrapper '__repr__' of exceptions.SyntaxError object>"
+p63
+sS'__hash__'
+p64
+S"<method-wrapper '__hash__' of exceptions.SyntaxError object>"
+p65
+ssS'evalue'
+p66
+S'Set: no tables selected'
+p67
+sS'request'
+p68
+cgluon.html
+XML_unpickle
+p69
+(S's?_\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">ajax</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">application</td><td style="vertical-align:top;">:</td><td><div>api</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cid</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">client</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">controller</td><td style="vertical-align:top;">:</td><td><div>ALUNOS</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cookies</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">session_id_admin</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20-7448e873-0b69-4bfb-ac04-d65a464daf21<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_api</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20-76831844-4e69-4ddc-93e3-3526deb2bb94<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">env</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">DOCUMENT_ROOT</td><td style="vertical-align:top;">:</td><td><div>/etc/apache2/htdocs</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">GATEWAY_INTERFACE</td><td style="vertical-align:top;">:</td><td><div>CGI/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTPS</td><td style="vertical-align:top;">:</td><td><div>1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT</td><td style="vertical-align:top;">:</td><td><div>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT_ENCODING</td><td style="vertical-align:top;">:</td><td><div>gzip,deflate,sdch</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT_LANGUAGE</td><td style="vertical-align:top;">:</td><td><div>pt-BR,pt;q=0.8,en-US;q=0.6,en;q=0.4</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CACHE_CONTROL</td><td style="vertical-align:top;">:</td><td><div>max-age=0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CONNECTION</td><td style="vertical-align:top;">:</td><td><div>keep-alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_COOKIE</td><td style="vertical-align:top;">:</td><td><div>__utma=91351262.1563723429.1378820505.1379351391.1379354016.5; _ga=GA1.2.1563723429.1378820505; session_id_api=200.156.24.20-76831844-4e69-4ddc-93e3-3526deb2bb94; session_id_admin=200.156.24.20-7448e873-0b69-4bfb-ac04-d65a464daf21</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_HOST</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_USER_AGENT</td><td style="vertical-align:top;">:</td><td><div>Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">PATH_INFO</td><td style="vertical-align:top;">:</td><td><div>/api/ALUNOS/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">PATH_TRANSLATED</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py/wsgihandler.py/api/ALUNOS/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">QUERY_STRING</td><td style="vertical-align:top;">:</td><td><div>ID_ALUNO=4562&amp;SEXO=M&amp;API_KEY=PBKDF2$sha256$10000$InTv75LNy8JrXuvx$Hhht/jloYXYlDWFkDVTS1qyIm7A8xIEh</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REMOTE_ADDR</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REMOTE_PORT</td><td style="vertical-align:top;">:</td><td><div>24574</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REQUEST_METHOD</td><td style="vertical-align:top;">:</td><td><div>GET</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REQUEST_URI</td><td style="vertical-align:top;">:</td><td><div>/api/ALUNOS/?ID_ALUNO=4562&amp;SEXO=M&amp;API_KEY=PBKDF2$sha256$10000$InTv75LNy8JrXuvx$Hhht/jloYXYlDWFkDVTS1qyIm7A8xIEh</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SCRIPT_FILENAME</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py/wsgihandler.py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SCRIPT_NAME</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_ADDR</td><td style="vertical-align:top;">:</td><td><div>200.156.24.169</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_ADMIN</td><td style="vertical-align:top;">:</td><td><div>[no address given]</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_NAME</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_PORT</td><td style="vertical-align:top;">:</td><td><div>443</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_PROTOCOL</td><td style="vertical-align:top;">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_SIGNATURE</td><td style="vertical-align:top;">:</td><td><div>&lt;address&gt;Apache/2.2.22 (Ubuntu) Server at sistemas.unirio.br Port 443&lt;/address&gt;\n</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_SOFTWARE</td><td style="vertical-align:top;">:</td><td><div>Apache/2.2.22 (Ubuntu)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SSL_TLS_SNI</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">app_folders</td><td style="vertical-align:top;">:</td><td><div>set([&#x27;/home/www-data/web2py/applications/api/&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">applications_parent</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">db_sessions</td><td style="vertical-align:top;">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">debugging</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">document_root</td><td style="vertical-align:top;">:</td><td><div>/etc/apache2/htdocs</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gateway_interface</td><td style="vertical-align:top;">:</td><td><div>CGI/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gluon_parent</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept</td><td style="vertical-align:top;">:</td><td><div>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept_encoding</td><td style="vertical-align:top;">:</td><td><div>gzip,deflate,sdch</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept_language</td><td style="vertical-align:top;">:</td><td><div>pt-BR,pt;q=0.8,en-US;q=0.6,en;q=0.4</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_cache_control</td><td style="vertical-align:top;">:</td><td><div>max-age=0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_connection</td><td style="vertical-align:top;">:</td><td><div>keep-alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_cookie</td><td style="vertical-align:top;">:</td><td><div>__utma=91351262.1563723429.1378820505.1379351391.1379354016.5; _ga=GA1.2.1563723429.1378820505; session_id_api=200.156.24.20-76831844-4e69-4ddc-93e3-3526deb2bb94; session_id_admin=200.156.24.20-7448e873-0b69-4bfb-ac04-d65a464daf21</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_host</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_user_agent</td><td style="vertical-align:top;">:</td><td><div>Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">https</td><td style="vertical-align:top;">:</td><td><div>1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_jython</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_pypy</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_source</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.application_group</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br|</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.callable_object</td><td style="vertical-align:top;">:</td><td><div>application</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.handler_script</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.input_chunked</td><td style="vertical-align:top;">:</td><td><div>0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.listener_host</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.listener_port</td><td style="vertical-align:top;">:</td><td><div>443</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.process_group</td><td style="vertical-align:top;">:</td><td><div>web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.request_handler</td><td style="vertical-align:top;">:</td><td><div>wsgi-script</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.script_reloading</td><td style="vertical-align:top;">:</td><td><div>1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>3</div></td></tr><tr><td><div>3</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_application_group</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br|</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_callable_object</td><td style="vertical-align:top;">:</td><td><div>application</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_handler_script</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_input_chunked</td><td style="vertical-align:top;">:</td><td><div>0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_listener_host</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_listener_port</td><td style="vertical-align:top;">:</td><td><div>443</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_process_group</td><td style="vertical-align:top;">:</td><td><div>web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_request_handler</td><td style="vertical-align:top;">:</td><td><div>wsgi-script</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_script_reloading</td><td style="vertical-align:top;">:</td><td><div>1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>3</div></td></tr><tr><td><div>3</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path_info</td><td style="vertical-align:top;">:</td><td><div>/api/ALUNOS/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path_translated</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py/wsgihandler.py/api/ALUNOS/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">query_string</td><td style="vertical-align:top;">:</td><td><div>ID_ALUNO=4562&amp;SEXO=M&amp;API_KEY=PBKDF2$sha256$10000$InTv75LNy8JrXuvx$Hhht/jloYXYlDWFkDVTS1qyIm7A8xIEh</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remote_addr</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remote_port</td><td style="vertical-align:top;">:</td><td><div>24574</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">request_method</td><td style="vertical-align:top;">:</td><td><div>GET</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">request_uri</td><td style="vertical-align:top;">:</td><td><div>/api/ALUNOS/?ID_ALUNO=4562&amp;SEXO=M&amp;API_KEY=PBKDF2$sha256$10000$InTv75LNy8JrXuvx$Hhht/jloYXYlDWFkDVTS1qyIm7A8xIEh</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">script_filename</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py/wsgihandler.py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">script_name</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_addr</td><td style="vertical-align:top;">:</td><td><div>200.156.24.169</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_admin</td><td style="vertical-align:top;">:</td><td><div>[no address given]</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_name</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_port</td><td style="vertical-align:top;">:</td><td><div>443</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_protocol</td><td style="vertical-align:top;">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_signature</td><td style="vertical-align:top;">:</td><td><div>&lt;address&gt;Apache/2.2.22 (Ubuntu) Server at sistemas.unirio.br Port 443&lt;/address&gt;\n</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_software</td><td style="vertical-align:top;">:</td><td><div>Apache/2.2.22 (Ubuntu)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">ssl_tls_sni</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_path</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_version</td><td style="vertical-align:top;">:</td><td><div>2.9.4-stable+timestamp.2014.03.05.04.44.09</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.errors</td><td style="vertical-align:top;">:</td><td><div>&lt;mod_wsgi.Log object at 0x7fedd4a46a30&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.file_wrapper</td><td style="vertical-align:top;">:</td><td><div>&lt;built-in method file_wrapper of mod_wsgi.Adapter object at 0x7fedd4be4c60&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.input</td><td style="vertical-align:top;">:</td><td><div>&lt;mod_wsgi.Input object at 0x7fedd4a50170&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.multiprocess</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.multithread</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.run_once</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.url_scheme</td><td style="vertical-align:top;">:</td><td><div>https</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>1</div></td></tr><tr><td><div>1</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_errors</td><td style="vertical-align:top;">:</td><td><div>&lt;mod_wsgi.Log object at 0x7fedd4a46a30&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_file_wrapper</td><td style="vertical-align:top;">:</td><td><div>&lt;built-in method file_wrapper of mod_wsgi.Adapter object at 0x7fedd4be4c60&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_input</td><td style="vertical-align:top;">:</td><td><div>&lt;mod_wsgi.Input object at 0x7fedd4a50170&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_multiprocess</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_multithread</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_run_once</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_url_scheme</td><td style="vertical-align:top;">:</td><td><div>https</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>1</div></td></tr><tr><td><div>1</div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">extension</td><td style="vertical-align:top;">:</td><td><div>html</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">folder</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py/applications/api/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">function</td><td style="vertical-align:top;">:</td><td><div>index</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">global_settings</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">app_folders</td><td style="vertical-align:top;">:</td><td><div>set([&#x27;/home/www-data/web2py/applications/api/&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">applications_parent</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">db_sessions</td><td style="vertical-align:top;">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">debugging</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gluon_parent</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_jython</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_pypy</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_source</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">local_hosts</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>200.156.24.169</div></td></tr><tr><td><div>::ffff:127.0.0.1</div></td></tr><tr><td><div>::1</div></td></tr><tr><td><div>w2p</div></td></tr><tr><td><div>sistemas.unirio.br</div></td></tr><tr><td><div>127.0.0.1</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_version</td><td style="vertical-align:top;">:</td><td><div>2.9.4-stable+timestamp.2014.03.05.04.44.09</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_https</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_local</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_restful</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">now</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2014, 8, 11, 18, 19, 19, 834356)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">raw_args</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">raw_extension</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">url</td><td style="vertical-align:top;">:</td><td><div>/api/ALUNOS/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">utcnow</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2014, 8, 11, 21, 19, 19, 834368)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">uuid</td><td style="vertical-align:top;">:</td><td><div>api/200.156.24.20.2014-08-11.18-19-19.6f81cf6d-2506-4328-91ac-60447ae706e4</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi</td><td style="vertical-align:top;">:</td><td><div>&lt;gluon.main.LazyWSGI object at 0x7fedd4bdee50&gt;</div></td></tr></table></div>'
+tRp70
+sS'frames'
+p71
+(lp72
+(dp73
+S'file'
+p74
+S'/home/www-data/web2py/gluon/restricted.py'
+p75
+sS'dump'
+p76
+(dp77
+S'environment'
+p78
+S"{'A': <class 'gluon.html.A'>, 'ANY_OF': <class 'gluon.validators.ANY_OF'>, 'APIKey': <class applications.api.modules.APIKey.APIKey>, 'APIRequest': <class applications.api.modules.APIRequest.APIRequest>, 'Auth': <class 'gluon.tools.Auth'>, 'B': <class 'gluon.html.B'>, 'BEAUTIFY': <class 'gluon.html.BEAUTIFY'>, 'BODY': <class 'gluon.html.BODY'>, 'BR': <class 'gluon.html.BR'>, 'BUTTON': <class 'gluon.html.BUTTON'>, ...}"
+p79
+sS'ccode'
+p80
+S'<code object <module> at 0x7fedd4ebfdb0, file "/.../applications/api/controllers/ALUNOS.py", line 2>'
+p81
+ssS'lnum'
+p82
+I217
+sS'lines'
+p83
+(dp84
+I212
+S'    try:'
+p85
+sI213
+S'        if isinstance(code, types.CodeType):'
+p86
+sI214
+S'            ccode = code'
+p87
+sI215
+S'        else:'
+p88
+sI216
+S'            ccode = compile2(code, layer)'
+p89
+sI217
+S'        exec ccode in environment'
+p90
+sI218
+S'    except HTTP:'
+p91
+sI219
+S'        raise'
+p92
+sI220
+S'    except RestrictedError:'
+p93
+sI221
+S'        # do not encapsulate (obfuscate) the original RestrictedError'
+p94
+ssS'call'
+p95
+S"(code='# -*- coding: utf-8 -*-\\nfrom APIKey import APIKe...():\\n\\tpass\\nresponse._vars=response._caller(index)\\n', environment={'A': <class 'gluon.html.A'>, 'ANY_OF': <class 'gluon.validators.ANY_OF'>, 'APIKey': <class applications.api.modules.APIKey.APIKey>, 'APIRequest': <class applications.api.modules.APIRequest.APIRequest>, 'Auth': <class 'gluon.tools.Auth'>, 'B': <class 'gluon.html.B'>, 'BEAUTIFY': <class 'gluon.html.BEAUTIFY'>, 'BODY': <class 'gluon.html.BODY'>, 'BR': <class 'gluon.html.BR'>, 'BUTTON': <class 'gluon.html.BUTTON'>, ...}, layer='/home/www-data/web2py/applications/api/controllers/ALUNOS.py')"
+p96
+sS'func'
+p97
+S'restricted'
+p98
+sa(dp99
+g74
+S'/home/www-data/web2py/applications/api/controllers/ALUNOS.py'
+p100
+sg76
+(dp101
+sg82
+I26
+sg83
+(dp102
+I16
+S''
+sI17
+S''
+sI18
+S'def call():'
+p103
+sI19
+S'    session.forget()'
+p104
+sI20
+S'    return service()'
+p105
+sI21
+S''
+sI22
+S'@service.json'
+p106
+sI23
+S'@service.xml'
+p107
+sI24
+S'def count():'
+p108
+sI25
+S'\tpass'
+p109
+ssg95
+S'()'
+p110
+sg97
+S'<module>'
+p111
+sa(dp112
+g74
+S'/home/www-data/web2py/gluon/globals.py'
+p113
+sg76
+(dp114
+S'self'
+p115
+S'undefined'
+p116
+sS'f'
+S'<function index>'
+p117
+ssg82
+I385
+sg83
+(dp118
+I384
+S'        self._vars = None'
+p119
+sI385
+S'        self._caller = lambda f: f()'
+p120
+sI386
+S'        self._view_environment = None'
+p121
+sI387
+S'        self._custom_commit = None'
+p122
+sI388
+S'        self._custom_rollback = None'
+p123
+sI389
+S''
+sI380
+S'        self.menu = []             # used by the default view layout'
+p124
+sI381
+S'        self.files = []            # used by web2py_ajax.html'
+p125
+sI382
+S'        self.generic_patterns = []  # patterns to allow generic views'
+p126
+sI383
+S"        self.delimiters = ('{{', '}}')"
+p127
+ssg95
+S'(f=<function index>)'
+p128
+sg97
+S'<lambda>'
+p129
+sa(dp130
+g74
+S'/home/www-data/web2py/applications/api/controllers/ALUNOS.py'
+p131
+sg76
+(dp132
+S'apiRequest'
+p133
+S'<applications.api.modules.APIRequest.APIRequest instance>'
+p134
+sS'resp'
+p135
+g116
+sS'apiRequest.performRequest'
+p136
+S'<bound method APIRequest.performRequest of <appl...ions.api.modules.APIRequest.APIRequest instance>>'
+p137
+ssg82
+I11
+sg83
+(dp138
+I6
+S'@service.xml'
+p139
+sI7
+S'def index():'
+p140
+sI8
+S'\tapiKey = APIKey( request.vars.API_KEY )'
+p141
+sI9
+S'\tif apiKey.auth_key:'
+p142
+sI10
+S'\t\tapiRequest = APIRequest( apiKey, request )'
+p143
+sI11
+S'\t\tresp = apiRequest.performRequest()'
+p144
+sI12
+S''
+sI13
+S'\t\treturn dict( content=resp )'
+p145
+sI14
+S'\telse:'
+p146
+sI15
+S'\t\treturn dict( error="API Key Inv\xc3\xa1lida" )'
+p147
+ssg95
+S'()'
+p148
+sg97
+S'index'
+p149
+sa(dp150
+g74
+S'/home/www-data/web2py/applications/api/modules/APIRequest.py'
+p151
+sg76
+(dp152
+S'query'
+p153
+S'<applications.api.modules.APIQuery.APIQuery instance>'
+p154
+sS'query.execute'
+p155
+S'<bound method APIQuery.execute of <applications.api.modules.APIQuery.APIQuery instance>>'
+p156
+ssg82
+I25
+sg83
+(dp157
+I20
+S'                         self.request.controller,'
+p158
+sI21
+S"                         self.parameters['valid'],"
+p159
+sI22
+S'                         self.request.vars'
+p160
+sI23
+S'                        )'
+p161
+sI24
+S'        self.saveAPIRequest()'
+p162
+sI25
+S'        return query.execute()'
+p163
+sI26
+S''
+sI27
+S'    def saveAPIRequest(self):'
+p164
+sI28
+S'        self.db.api_request.insert('
+p165
+sI29
+S'                              dt_request = self.timestamp,'
+p166
+ssg95
+S'(self=<applications.api.modules.APIRequest.APIRequest instance>)'
+p167
+sg97
+S'performRequest'
+p168
+sa(dp169
+g74
+S'/home/www-data/web2py/applications/api/modules/APIQuery.py'
+p170
+sg76
+(dp171
+S'self'
+p172
+S'<applications.api.modules.APIQuery.APIQuery instance>'
+p173
+sS').select'
+p174
+g116
+sS'ret'
+p175
+g116
+sS'global current'
+p176
+S'<thread._local object>'
+p177
+sS'current.dbSie'
+p178
+S'<DAL uri="db2://DSN=dbsmtest;UID=dbsm;PWD=htrg11sn">'
+p179
+sS'self.return_fields'
+p180
+S'[]'
+p181
+sS'self._getQueryStatement'
+p182
+S'<bound method APIQuery._getQueryStatement of <applications.api.modules.APIQuery.APIQuery instance>>'
+p183
+ssg82
+I29
+sg83
+(dp184
+I22
+S'        arr = []'
+p185
+sI23
+S'        for field in return_fields:'
+p186
+sI24
+S'            arr.append( self.table[field] )'
+p187
+sI25
+S'        return arr'
+p188
+sI26
+S''
+sI27
+S'    # Retorna as linhas com as colunas requisitadas'
+p189
+sI28
+S'    def execute(self):'
+p190
+sI29
+S'        ret = current.dbSie( self._getQueryStatement() ).select( *self.return_fields )'
+p191
+sI30
+S'        if ret:'
+p192
+sI31
+S'            return ret'
+p193
+ssg95
+S'(self=<applications.api.modules.APIQuery.APIQuery instance>)'
+p194
+sg97
+S'execute'
+p195
+sa(dp196
+g74
+S'/home/www-data/web2py/gluon/dal.py'
+p197
+sg76
+(dp198
+S'self.query'
+p199
+S'None'
+p200
+sS'adapter.select'
+p201
+S'<bound method DB2Adapter.select of <gluon.dal.DB2Adapter object>>'
+p202
+sS'fields'
+p203
+S'[]'
+p204
+sS'adapter'
+p205
+S'<gluon.dal.DB2Adapter object>'
+p206
+sS'attributes'
+p207
+g21
+sS'self'
+p208
+S'<Set None>'
+p209
+ssg82
+I10485
+sg83
+(dp210
+I10480
+S"                                    attributes.get('join',None),"
+p211
+sI10481
+S"                                    attributes.get('left',None),"
+p212
+sI10482
+S"                                    attributes.get('orderby',None),"
+p213
+sI10483
+S"                                    attributes.get('groupby',None))"
+p214
+sI10484
+S'        fields = adapter.expand_all(fields, tablenames)'
+p215
+sI10485
+S'        return adapter.select(self.query,fields,attributes)'
+p216
+sI10486
+S''
+sI10487
+S'    def nested_select(self,*fields,**attributes):'
+p217
+sI10488
+S'        return Expression(self.db,self._select(*fields,**attributes))'
+p218
+sI10489
+S''
+ssg95
+S'(self=<Set None>, *fields=[], **attributes={})'
+p219
+sg97
+S'select'
+p220
+sa(dp221
+g74
+S'/home/www-data/web2py/gluon/dal.py'
+p222
+sg76
+(dp223
+S'self._select'
+p224
+S'<bound method DB2Adapter._select of <gluon.dal.DB2Adapter object>>'
+p225
+sS'fields'
+p226
+S'[]'
+p227
+sS'self'
+p228
+S'<gluon.dal.DB2Adapter object>'
+p229
+sS'sql'
+p230
+g116
+sS'query'
+p231
+S'None'
+p232
+sS'attributes'
+p233
+g21
+ssg82
+I1869
+sg83
+(dp234
+I1864
+S''
+sI1865
+S'    def select(self, query, fields, attributes):'
+p235
+sI1866
+S'        """'
+p236
+sI1867
+S'        Always returns a Rows object, possibly empty.'
+p237
+sI1868
+S'        """'
+p238
+sI1869
+S'        sql = self._select(query, fields, attributes)'
+p239
+sI1870
+S"        cache = attributes.get('cache', None)"
+p240
+sI1871
+S"        if cache and attributes.get('cacheable',False):"
+p241
+sI1872
+S"            del attributes['cache']"
+p242
+sI1873
+S'            (cache_model, time_expire) = cache'
+p243
+ssg95
+S'(self=<gluon.dal.DB2Adapter object>, query=None, fields=[], attributes={})'
+p244
+sg97
+g220
+sa(dp245
+g74
+S'/home/www-data/web2py/gluon/dal.py'
+p246
+sg76
+(dp247
+S'builtinSyntaxError'
+p248
+S"<type 'exceptions.SyntaxError'>"
+p249
+ssg82
+I1708
+sg83
+(dp250
+I1703
+S'            for tablename in tables(field):'
+p251
+sI1704
+S'                if not tablename in tablenames:'
+p252
+sI1705
+S'                    tablenames.append(tablename)'
+p253
+sI1706
+S''
+sI1707
+S'        if len(tablenames) < 1:'
+p254
+sI1708
+S"            raise SyntaxError('Set: no tables selected')"
+p255
+sI1709
+S'        def colexpand(field):'
+p256
+sI1710
+S'            return self.expand(field, colnames=True)'
+p257
+sI1711
+S'        self._colnames = map(colexpand, fields)'
+p258
+sI1712
+S'        def geoexpand(field):'
+p259
+ssg95
+S'(self=<gluon.dal.DB2Adapter object>, query=None, fields=[], attributes={})'
+p260
+sg97
+S'_select'
+p261
+sasS'pyver'
+p262
+S'Python 2.7.3: /usr/bin/python (prefix: /usr)'
+p263
+sS'session'
+p264
+g69
+(S's\x12\n\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">auth</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">expiration</td><td style="vertical-align:top;">:</td><td><div>3600</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">hmac_key</td><td style="vertical-align:top;">:</td><td><div>454eef5d-214e-4a25-a711-d731f8fc1262</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_visit</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2014, 8, 11, 18, 19, 19, 834356)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remember</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">user</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">email</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">first_name</td><td style="vertical-align:top;">:</td><td><div>12330675755</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">id</td><td style="vertical-align:top;">:</td><td><div>1L</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_name</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">registration_id</td><td style="vertical-align:top;">:</td><td><div>12330675755</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">registration_key</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">reset_password_key</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">username</td><td style="vertical-align:top;">:</td><td><div>12330675755</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">user_groups</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">flash</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_orderby</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_query</td><td style="vertical-align:top;">:</td><td><div>dbSie.ALUNOS.ID_ALUNO&gt;0</div></td></tr></table></div>'
+tRp265
+sS'etype'
+p266
+S"<type 'exceptions.SyntaxError'>"
+p267
+sS'date'
+p268
+S'Mon Aug 11 18:19:19 2014'
+p269
+sS'response'
+p270
+g69
+(S's]\x1c\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">body</td><td style="vertical-align:top;">:</td><td><div>&lt;cStringIO.StringO object at 0x7fedd4bdcc38&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cookies</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">session_id_api</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20-76831844-4e69-4ddc-93e3-3526deb2bb94<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div>/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">delimiters</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>{{</div></td></tr><tr><td><div>}}</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">files</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">flash</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">generic_patterns</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>*</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">google_analytics_id</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">headers</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">X-Powered-By</td><td style="vertical-align:top;">:</td><td><div>web2py</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">logo</td><td style="vertical-align:top;">:</td><td><div><a class="brand" href="http://www.web2py.com/"><b>web<span>2</span>py</b>&trade;&nbsp;</a></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">menu</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div><table><tr><td><div>Home</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/api/default/index</div></td></tr><tr><td><div><table></table></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">meta</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">author</td><td style="vertical-align:top;">:</td><td><div>Your Name &lt;you@example.com&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">description</td><td style="vertical-align:top;">:</td><td><div>a cool new app</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">generator</td><td style="vertical-align:top;">:</td><td><div>Web2py Web Framework</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">keywords</td><td style="vertical-align:top;">:</td><td><div>web2py, python, framework</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">models_to_run</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>^\\w+\\.py$</div></td></tr><tr><td><div>^ALUNOS/\\w+\\.py$</div></td></tr><tr><td><div>^ALUNOS/index/\\w+\\.py$</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">postprocessing</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_client</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_compression_level</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_expires</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_key</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_data_name</td><td style="vertical-align:top;">:</td><td><div>session_data_api</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_file</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;/home/www-data/web2py/applications/api/sessions/200.156.24.20-76831844-4e69-4ddc-93e3-3526deb2bb94&#x27;, mode &#x27;rb+&#x27; at 0x7fedd4ad8c90&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_filename</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py/applications/api/sessions/200.156.24.20-76831844-4e69-4ddc-93e3-3526deb2bb94</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_hash</td><td style="vertical-align:top;">:</td><td><div>4238c22b4e9e4eda72f65da413135458</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20-76831844-4e69-4ddc-93e3-3526deb2bb94</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_name</td><td style="vertical-align:top;">:</td><td><div>session_id_api</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_locked</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_masterapp</td><td style="vertical-align:top;">:</td><td><div>api</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_new</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_storage_type</td><td style="vertical-align:top;">:</td><td><div>file</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">status</td><td style="vertical-align:top;">:</td><td><div>200</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">subtitle</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">title</td><td style="vertical-align:top;">:</td><td><div>Api</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">view</td><td style="vertical-align:top;">:</td><td><div>ALUNOS/index.html</div></td></tr></table></div>'
+tRp271
+sS'locals'
+p272
+(dp273
+S'tables'
+p274
+S'<bound method DB2Adapter.tables of <gluon.dal.DB2Adapter object>>'
+p275
+sS'tablenames_for_common_filters'
+p276
+S'[]'
+p277
+sS'fields'
+p278
+S'[]'
+p279
+sS'self'
+p280
+S'<gluon.dal.DB2Adapter object>'
+p281
+sS'tablenames'
+p282
+S'[]'
+p283
+sS'query'
+p284
+S'None'
+p285
+sS'attributes'
+p286
+g21
+sS'args_get'
+p287
+S'<built-in method get of dict object>'
+p288
+sssS'traceback'
+p289
+S'Traceback (most recent call last):\n  File "/home/www-data/web2py/gluon/restricted.py", line 217, in restricted\n    exec ccode in environment\n  File "/home/www-data/web2py/applications/api/controllers/ALUNOS.py", line 26, in <module>\n  File "/home/www-data/web2py/gluon/globals.py", line 385, in <lambda>\n    self._caller = lambda f: f()\n  File "/home/www-data/web2py/applications/api/controllers/ALUNOS.py", line 11, in index\n    resp = apiRequest.performRequest()\n  File "applications/api/modules/APIRequest.py", line 25, in performRequest\n    return query.execute()\n  File "applications/api/modules/APIQuery.py", line 29, in execute\n    ret = current.dbSie( self._getQueryStatement() ).select( *self.return_fields )\n  File "/home/www-data/web2py/gluon/dal.py", line 10485, in select\n    return adapter.select(self.query,fields,attributes)\n  File "/home/www-data/web2py/gluon/dal.py", line 1869, in select\n    sql = self._select(query, fields, attributes)\n  File "/home/www-data/web2py/gluon/dal.py", line 1708, in _select\n    raise SyntaxError(\'Set: no tables selected\')\nSyntaxError: Set: no tables selected\n'
+p290
+s.

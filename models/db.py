@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+from gluon.dal import Field
 if request.env.web2py_runtime_gae:
     db = DAL('gae')
     session.connect(request, response, db = db)
 else:
     from gluon import current
     current.dbSie = dbSie
+    current.db = db
 
 
 #########################################################################
@@ -35,4 +37,26 @@ auth.define_tables(username=True)
 auth.settings.create_user_groups=False
 
 auth.settings.login_methods=[ldap_auth(mode='uid',server='10.224.16.100', base_dn='ou=people,dc=unirio,dc=br')]
+auth.settings.actions_disabled=['register','retrieve_username','profile','lost_password']
 db.auth_user.username.label = 'CPF'
+
+db.define_table("api_request_type",
+                Field("group_id", db.auth_group),
+                Field("max_requests", "integer"),
+                Field("max_entries", "integer")
+                )
+
+db.define_table("api_auth",
+                Field("auth_key", "string"),
+                Field("user_id", db.auth_user),
+                Field("dt_creation", "datetime"),
+                Field("active", "boolean")
+                )
+
+db.define_table("api_request",
+                Field("type_id", db.api_request_type), # Está aqui porque o usuário pode estar em mais de um grupo
+                Field("dt_request", "datetime"),
+                Field("url", "string"),
+                Field("auth_key", db.api_auth, label="Key ID"),
+                Field("ip", "string")
+                )

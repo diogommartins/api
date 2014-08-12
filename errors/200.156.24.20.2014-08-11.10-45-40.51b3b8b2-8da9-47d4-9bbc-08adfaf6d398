@@ -1,0 +1,786 @@
+(dp1
+S'output'
+p2
+S"<type 'exceptions.ValueError'> SELECT  auth_user.username FROM auth_user WHERE (auth_user.id = 1);"
+p3
+sS'layer'
+p4
+S'/home/www-data/web2py/applications/api/controllers/user.py'
+p5
+sS'code'
+p6
+S'# -*- coding: utf-8 -*-\n\n@auth.requires_login()\ndef createKeyAuth():\n    from APIKey import APIKey\n    newKey = APIKey.genarateNewKeyForUser( auth.user.id )\n    form = FORM(\n                "Sua chave de API (API KEY) \xc3\xa9: ",\n                INPUT( _value=newKey, _name="apiKey", _readonly=True ),\n                INPUT( _value="Gerar nova Chave", _type="submit" )\n                )\n\n    if form.process().accepted:\n        APIKey.validateKey()\n    else:\n        return dict(form=form)\n\ndef authHistory():\n    pass\n\ndef createKeyGuest():\n    pass\nresponse._vars=response._caller(createKeyAuth)\n'
+p7
+sS'snapshot'
+p8
+(dp9
+S'exception'
+p10
+(dp11
+S'__hash__'
+p12
+S"<method-wrapper '__hash__' of exceptions.ValueError object>"
+p13
+sS'__setattr__'
+p14
+S"<method-wrapper '__setattr__' of exceptions.ValueError object>"
+p15
+sS'__reduce_ex__'
+p16
+S'<built-in method __reduce_ex__ of exceptions.ValueError object>'
+p17
+sS'__getslice__'
+p18
+S"<method-wrapper '__getslice__' of exceptions.ValueError object>"
+p19
+sS'__getitem__'
+p20
+S"<method-wrapper '__getitem__' of exceptions.ValueError object>"
+p21
+sS'__setstate__'
+p22
+S'<built-in method __setstate__ of exceptions.ValueError object>'
+p23
+sS'args'
+p24
+S"('SELECT  auth_user.username FROM auth_user WHERE (auth_user.id = 1);',)"
+p25
+sS'__reduce__'
+p26
+S'<built-in method __reduce__ of exceptions.ValueError object>'
+p27
+sS'__str__'
+p28
+S"<method-wrapper '__str__' of exceptions.ValueError object>"
+p29
+sS'__format__'
+p30
+S'<built-in method __format__ of exceptions.ValueError object>'
+p31
+sS'__getattribute__'
+p32
+S"<method-wrapper '__getattribute__' of exceptions.ValueError object>"
+p33
+sS'__class__'
+p34
+S"<type 'exceptions.ValueError'>"
+p35
+sS'__unicode__'
+p36
+S'<built-in method __unicode__ of exceptions.ValueError object>'
+p37
+sS'__delattr__'
+p38
+S"<method-wrapper '__delattr__' of exceptions.ValueError object>"
+p39
+sS'__subclasshook__'
+p40
+S'<built-in method __subclasshook__ of type object>'
+p41
+sS'__repr__'
+p42
+S"<method-wrapper '__repr__' of exceptions.ValueError object>"
+p43
+sS'__dict__'
+p44
+S'{}'
+p45
+sS'__sizeof__'
+p46
+S'<built-in method __sizeof__ of exceptions.ValueError object>'
+p47
+sS'__doc__'
+p48
+S"'Inappropriate argument value (of correct type).'"
+p49
+sS'__init__'
+p50
+S"<method-wrapper '__init__' of exceptions.ValueError object>"
+p51
+sS'__new__'
+p52
+S'<built-in method __new__ of type object>'
+p53
+ssS'evalue'
+p54
+S'SELECT  auth_user.username FROM auth_user WHERE (auth_user.id = 1);'
+p55
+sS'request'
+p56
+cgluon.html
+XML_unpickle
+p57
+(S's<`\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">ajax</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">application</td><td style="vertical-align:top;">:</td><td><div>api</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cid</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">client</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">controller</td><td style="vertical-align:top;">:</td><td><div>user</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cookies</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">session_id_admin</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20-7448e873-0b69-4bfb-ac04-d65a464daf21<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_api</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20-76831844-4e69-4ddc-93e3-3526deb2bb94<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">env</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">DOCUMENT_ROOT</td><td style="vertical-align:top;">:</td><td><div>/etc/apache2/htdocs</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">GATEWAY_INTERFACE</td><td style="vertical-align:top;">:</td><td><div>CGI/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTPS</td><td style="vertical-align:top;">:</td><td><div>1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT</td><td style="vertical-align:top;">:</td><td><div>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT_ENCODING</td><td style="vertical-align:top;">:</td><td><div>gzip,deflate,sdch</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT_LANGUAGE</td><td style="vertical-align:top;">:</td><td><div>pt-BR,pt;q=0.8,en-US;q=0.6,en;q=0.4</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CACHE_CONTROL</td><td style="vertical-align:top;">:</td><td><div>max-age=0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CONNECTION</td><td style="vertical-align:top;">:</td><td><div>keep-alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_COOKIE</td><td style="vertical-align:top;">:</td><td><div>__utma=91351262.1563723429.1378820505.1379351391.1379354016.5; _ga=GA1.2.1563723429.1378820505; session_id_api=200.156.24.20-76831844-4e69-4ddc-93e3-3526deb2bb94; session_id_admin=200.156.24.20-7448e873-0b69-4bfb-ac04-d65a464daf21</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_HOST</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_USER_AGENT</td><td style="vertical-align:top;">:</td><td><div>Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">PATH_INFO</td><td style="vertical-align:top;">:</td><td><div>/api/user/createKeyAuth</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">PATH_TRANSLATED</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py/wsgihandler.py/api/user/createKeyAuth</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">QUERY_STRING</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REMOTE_ADDR</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REMOTE_PORT</td><td style="vertical-align:top;">:</td><td><div>15857</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REQUEST_METHOD</td><td style="vertical-align:top;">:</td><td><div>GET</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REQUEST_URI</td><td style="vertical-align:top;">:</td><td><div>/api/user/createKeyAuth</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SCRIPT_FILENAME</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py/wsgihandler.py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SCRIPT_NAME</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_ADDR</td><td style="vertical-align:top;">:</td><td><div>200.156.24.169</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_ADMIN</td><td style="vertical-align:top;">:</td><td><div>[no address given]</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_NAME</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_PORT</td><td style="vertical-align:top;">:</td><td><div>443</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_PROTOCOL</td><td style="vertical-align:top;">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_SIGNATURE</td><td style="vertical-align:top;">:</td><td><div>&lt;address&gt;Apache/2.2.22 (Ubuntu) Server at sistemas.unirio.br Port 443&lt;/address&gt;\n</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_SOFTWARE</td><td style="vertical-align:top;">:</td><td><div>Apache/2.2.22 (Ubuntu)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SSL_TLS_SNI</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">app_folders</td><td style="vertical-align:top;">:</td><td><div>set([&#x27;/home/www-data/web2py/applications/jic/&#x27;, &#x27;/home/www-data/web2py/applications/api/&#x27;, &#x27;/home/www-data/web2py/applications/admin/&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">applications_parent</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">db_sessions</td><td style="vertical-align:top;">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">debugging</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">document_root</td><td style="vertical-align:top;">:</td><td><div>/etc/apache2/htdocs</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gateway_interface</td><td style="vertical-align:top;">:</td><td><div>CGI/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gluon_parent</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept</td><td style="vertical-align:top;">:</td><td><div>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept_encoding</td><td style="vertical-align:top;">:</td><td><div>gzip,deflate,sdch</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept_language</td><td style="vertical-align:top;">:</td><td><div>pt-BR,pt;q=0.8,en-US;q=0.6,en;q=0.4</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_cache_control</td><td style="vertical-align:top;">:</td><td><div>max-age=0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_connection</td><td style="vertical-align:top;">:</td><td><div>keep-alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_cookie</td><td style="vertical-align:top;">:</td><td><div>__utma=91351262.1563723429.1378820505.1379351391.1379354016.5; _ga=GA1.2.1563723429.1378820505; session_id_api=200.156.24.20-76831844-4e69-4ddc-93e3-3526deb2bb94; session_id_admin=200.156.24.20-7448e873-0b69-4bfb-ac04-d65a464daf21</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_host</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_user_agent</td><td style="vertical-align:top;">:</td><td><div>Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">https</td><td style="vertical-align:top;">:</td><td><div>1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_jython</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_pypy</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_source</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">local_hosts</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>200.156.24.169</div></td></tr><tr><td><div>::ffff:127.0.0.1</div></td></tr><tr><td><div>::1</div></td></tr><tr><td><div>w2p</div></td></tr><tr><td><div>sistemas.unirio.br</div></td></tr><tr><td><div>127.0.0.1</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.application_group</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br|</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.callable_object</td><td style="vertical-align:top;">:</td><td><div>application</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.handler_script</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.input_chunked</td><td style="vertical-align:top;">:</td><td><div>0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.listener_host</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.listener_port</td><td style="vertical-align:top;">:</td><td><div>443</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.process_group</td><td style="vertical-align:top;">:</td><td><div>web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.request_handler</td><td style="vertical-align:top;">:</td><td><div>wsgi-script</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.script_reloading</td><td style="vertical-align:top;">:</td><td><div>1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi.version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>3</div></td></tr><tr><td><div>3</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_application_group</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br|</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_callable_object</td><td style="vertical-align:top;">:</td><td><div>application</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_handler_script</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_input_chunked</td><td style="vertical-align:top;">:</td><td><div>0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_listener_host</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_listener_port</td><td style="vertical-align:top;">:</td><td><div>443</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_process_group</td><td style="vertical-align:top;">:</td><td><div>web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_request_handler</td><td style="vertical-align:top;">:</td><td><div>wsgi-script</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_script_reloading</td><td style="vertical-align:top;">:</td><td><div>1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">mod_wsgi_version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>3</div></td></tr><tr><td><div>3</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path_info</td><td style="vertical-align:top;">:</td><td><div>/api/user/createKeyAuth</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path_translated</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py/wsgihandler.py/api/user/createKeyAuth</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">query_string</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remote_addr</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remote_port</td><td style="vertical-align:top;">:</td><td><div>15857</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">request_method</td><td style="vertical-align:top;">:</td><td><div>GET</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">request_uri</td><td style="vertical-align:top;">:</td><td><div>/api/user/createKeyAuth</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">script_filename</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py/wsgihandler.py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">script_name</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_addr</td><td style="vertical-align:top;">:</td><td><div>200.156.24.169</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_admin</td><td style="vertical-align:top;">:</td><td><div>[no address given]</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_name</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_port</td><td style="vertical-align:top;">:</td><td><div>443</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_protocol</td><td style="vertical-align:top;">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_signature</td><td style="vertical-align:top;">:</td><td><div>&lt;address&gt;Apache/2.2.22 (Ubuntu) Server at sistemas.unirio.br Port 443&lt;/address&gt;\n</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_software</td><td style="vertical-align:top;">:</td><td><div>Apache/2.2.22 (Ubuntu)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">ssl_tls_sni</td><td style="vertical-align:top;">:</td><td><div>sistemas.unirio.br</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_path</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_version</td><td style="vertical-align:top;">:</td><td><div>2.9.4-stable+timestamp.2014.03.05.04.44.09</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.errors</td><td style="vertical-align:top;">:</td><td><div>&lt;mod_wsgi.Log object at 0x7fa641acd2b0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.file_wrapper</td><td style="vertical-align:top;">:</td><td><div>&lt;built-in method file_wrapper of mod_wsgi.Adapter object at 0x7fa641f75828&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.input</td><td style="vertical-align:top;">:</td><td><div>&lt;mod_wsgi.Input object at 0x7fa6423858f0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.multiprocess</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.multithread</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.run_once</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.url_scheme</td><td style="vertical-align:top;">:</td><td><div>https</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>1</div></td></tr><tr><td><div>1</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_errors</td><td style="vertical-align:top;">:</td><td><div>&lt;mod_wsgi.Log object at 0x7fa641acd2b0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_file_wrapper</td><td style="vertical-align:top;">:</td><td><div>&lt;built-in method file_wrapper of mod_wsgi.Adapter object at 0x7fa641f75828&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_input</td><td style="vertical-align:top;">:</td><td><div>&lt;mod_wsgi.Input object at 0x7fa6423858f0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_multiprocess</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_multithread</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_run_once</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_url_scheme</td><td style="vertical-align:top;">:</td><td><div>https</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>1</div></td></tr><tr><td><div>1</div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">extension</td><td style="vertical-align:top;">:</td><td><div>html</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">folder</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py/applications/api/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">function</td><td style="vertical-align:top;">:</td><td><div>createKeyAuth</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">global_settings</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">app_folders</td><td style="vertical-align:top;">:</td><td><div>set([&#x27;/home/www-data/web2py/applications/jic/&#x27;, &#x27;/home/www-data/web2py/applications/api/&#x27;, &#x27;/home/www-data/web2py/applications/admin/&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">applications_parent</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">db_sessions</td><td style="vertical-align:top;">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">debugging</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gluon_parent</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_jython</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_pypy</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_source</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">local_hosts</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>200.156.24.169</div></td></tr><tr><td><div>::ffff:127.0.0.1</div></td></tr><tr><td><div>::1</div></td></tr><tr><td><div>w2p</div></td></tr><tr><td><div>sistemas.unirio.br</div></td></tr><tr><td><div>127.0.0.1</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_version</td><td style="vertical-align:top;">:</td><td><div>2.9.4-stable+timestamp.2014.03.05.04.44.09</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_https</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_local</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_restful</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">now</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2014, 8, 11, 10, 45, 40, 4701)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">raw_args</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">raw_extension</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">url</td><td style="vertical-align:top;">:</td><td><div>/api/user/createKeyAuth</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">utcnow</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2014, 8, 11, 13, 45, 40, 4718)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">uuid</td><td style="vertical-align:top;">:</td><td><div>api/200.156.24.20.2014-08-11.10-45-40.51b3b8b2-8da9-47d4-9bbc-08adfaf6d398</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi</td><td style="vertical-align:top;">:</td><td><div>&lt;gluon.main.LazyWSGI object at 0x7fa641ab8610&gt;</div></td></tr></table></div>'
+tRp58
+sS'frames'
+p59
+(lp60
+(dp61
+S'file'
+p62
+S'/home/www-data/web2py/gluon/restricted.py'
+p63
+sS'dump'
+p64
+(dp65
+S'environment'
+p66
+S"{'A': <class 'gluon.html.A'>, 'ANY_OF': <class 'gluon.validators.ANY_OF'>, 'Auth': <class 'gluon.tools.Auth'>, 'B': <class 'gluon.html.B'>, 'BEAUTIFY': <class 'gluon.html.BEAUTIFY'>, 'BODY': <class 'gluon.html.BODY'>, 'BR': <class 'gluon.html.BR'>, 'BUTTON': <class 'gluon.html.BUTTON'>, 'CAT': <class 'gluon.html.CAT'>, 'CENTER': <class 'gluon.html.CENTER'>, ...}"
+p67
+sS'ccode'
+p68
+S'<code object <module> at 0x7fa641abd030, file "/...py/applications/api/controllers/user.py", line 3>'
+p69
+ssS'lnum'
+p70
+I217
+sS'lines'
+p71
+(dp72
+I212
+S'    try:'
+p73
+sI213
+S'        if isinstance(code, types.CodeType):'
+p74
+sI214
+S'            ccode = code'
+p75
+sI215
+S'        else:'
+p76
+sI216
+S'            ccode = compile2(code, layer)'
+p77
+sI217
+S'        exec ccode in environment'
+p78
+sI218
+S'    except HTTP:'
+p79
+sI219
+S'        raise'
+p80
+sI220
+S'    except RestrictedError:'
+p81
+sI221
+S'        # do not encapsulate (obfuscate) the original RestrictedError'
+p82
+ssS'call'
+p83
+S"(code='# -*- coding: utf-8 -*-\\n\\n@auth.requires_login()\\n...s\\nresponse._vars=response._caller(createKeyAuth)\\n', environment={'A': <class 'gluon.html.A'>, 'ANY_OF': <class 'gluon.validators.ANY_OF'>, 'Auth': <class 'gluon.tools.Auth'>, 'B': <class 'gluon.html.B'>, 'BEAUTIFY': <class 'gluon.html.BEAUTIFY'>, 'BODY': <class 'gluon.html.BODY'>, 'BR': <class 'gluon.html.BR'>, 'BUTTON': <class 'gluon.html.BUTTON'>, 'CAT': <class 'gluon.html.CAT'>, 'CENTER': <class 'gluon.html.CENTER'>, ...}, layer='/home/www-data/web2py/applications/api/controllers/user.py')"
+p84
+sS'func'
+p85
+S'restricted'
+p86
+sa(dp87
+g62
+S'/home/www-data/web2py/applications/api/controllers/user.py'
+p88
+sg64
+(dp89
+sg70
+I23
+sg71
+(dp90
+I13
+S'    if form.process().accepted:'
+p91
+sI14
+S'        APIKey.validateKey()'
+p92
+sI15
+S'    else:'
+p93
+sI16
+S'        return dict(form=form)'
+p94
+sI17
+S''
+sI18
+S'def authHistory():'
+p95
+sI19
+S'    pass'
+p96
+sI20
+S''
+sI21
+S'def createKeyGuest():'
+p97
+sI22
+S'    pass'
+p98
+ssg83
+S'()'
+p99
+sg85
+S'<module>'
+p100
+sa(dp101
+g62
+S'/home/www-data/web2py/gluon/globals.py'
+p102
+sg64
+(dp103
+S'self'
+p104
+S'undefined'
+p105
+sS'f'
+S'<function createKeyAuth>'
+p106
+ssg70
+I385
+sg71
+(dp107
+I384
+S'        self._vars = None'
+p108
+sI385
+S'        self._caller = lambda f: f()'
+p109
+sI386
+S'        self._view_environment = None'
+p110
+sI387
+S'        self._custom_commit = None'
+p111
+sI388
+S'        self._custom_rollback = None'
+p112
+sI389
+S''
+sI380
+S'        self.menu = []             # used by the default view layout'
+p113
+sI381
+S'        self.files = []            # used by web2py_ajax.html'
+p114
+sI382
+S'        self.generic_patterns = []  # patterns to allow generic views'
+p115
+sI383
+S"        self.delimiters = ('{{', '}}')"
+p116
+ssg83
+S'(f=<function createKeyAuth>)'
+p117
+sg85
+S'<lambda>'
+p118
+sa(dp119
+g62
+S'/home/www-data/web2py/gluon/tools.py'
+p120
+sg64
+(dp121
+S'action'
+p122
+S'<function createKeyAuth>'
+p123
+sS'a'
+S'()'
+p124
+sS'b'
+g45
+ssg70
+I3259
+sg71
+(dp125
+I3254
+S'                    flag = condition'
+p126
+sI3255
+S'                if not flag:'
+p127
+sI3256
+S'                    current.session.flash = self.messages.access_denied'
+p128
+sI3257
+S'                    return call_or_redirect('
+p129
+sI3258
+S'                        self.settings.on_failed_authorization)'
+p130
+sI3259
+S'                return action(*a, **b)'
+p131
+sI3260
+S'            f.__doc__ = action.__doc__'
+p132
+sI3261
+S'            f.__name__ = action.__name__'
+p133
+sI3262
+S'            f.__dict__.update(action.__dict__)'
+p134
+sI3263
+S'            return f'
+p135
+ssg83
+S'(*a=(), **b={})'
+p136
+sg85
+S'f'
+sa(dp137
+g62
+S'/home/www-data/web2py/applications/api/controllers/user.py'
+p138
+sg64
+(dp139
+S'newKey'
+p140
+g105
+sS'auth.user.id'
+p141
+S'1L'
+p142
+sS'APIKey'
+p143
+S'<class applications.api.modules.APIKey.APIKey>'
+p144
+sS'auth.user'
+p145
+S"<Row {'username': '12330675755', 'first_name': '...word_key': '', 'registration_key': '', 'id': 1L}>"
+p146
+sS'global auth'
+p147
+S'<gluon.tools.Auth object>'
+p148
+sS'APIKey.genarateNewKeyForUser'
+p149
+S'<function genarateNewKeyForUser>'
+p150
+ssg70
+I6
+sg71
+(dp151
+I2
+S''
+sI3
+S'@auth.requires_login()'
+p152
+sI4
+S'def createKeyAuth():'
+p153
+sI5
+S'    from APIKey import APIKey'
+p154
+sI6
+S'    newKey = APIKey.genarateNewKeyForUser( auth.user.id )'
+p155
+sI7
+S'    form = FORM('
+p156
+sI8
+S'                "Sua chave de API (API KEY) \xc3\xa9: ",'
+p157
+sI9
+S'                INPUT( _value=newKey, _name="apiKey", _readonly=True ),'
+p158
+sI10
+S'                INPUT( _value="Gerar nova Chave", _type="submit" )'
+p159
+sI11
+S'                )'
+p160
+ssg83
+S'()'
+p161
+sg85
+S'createKeyAuth'
+p162
+sa(dp163
+g62
+S'/home/www-data/web2py/applications/api/modules/APIKey.py'
+p164
+sg64
+(dp165
+S'builtinstaticmethod'
+p166
+S"<type 'staticmethod'>"
+p167
+ssg70
+I33
+sg71
+(dp168
+I32
+S'    def genarateNewKeyForUser( user_id ):'
+p169
+sI33
+S'        apiUser = db( db.auth_user.id==user_id ).select( db.auth_user.username ).first()'
+p170
+sI34
+S'        if apiUser:'
+p171
+sI35
+S'            newKey = pbkdf.make_hash( apiUser.username )'
+p172
+sI36
+S'            previousApiKey = db( db.api_auth.user_id==user_id, db.api_auth.active==True ).select().first()'
+p173
+sI37
+S'            #Se existir, invalida chave anterior'
+p174
+sI28
+S'    def checkKeyForUser( apiKey, user_id ):'
+p175
+sI29
+S'        pass'
+p176
+sI30
+S''
+sI31
+S'    @staticmethod'
+p177
+ssg83
+S'(user_id=1L)'
+p178
+sg85
+S'genarateNewKeyForUser'
+p179
+sa(dp180
+g62
+S'/home/www-data/web2py/gluon/dal.py'
+p181
+sg64
+(dp182
+S'self.query'
+p183
+S'<Query (auth_user.id = 1)>'
+p184
+sS'adapter.select'
+p185
+S'<bound method PostgreSQLAdapter.select of <gluon.dal.PostgreSQLAdapter object>>'
+p186
+sS'fields'
+p187
+S'[<gluon.dal.Field object>]'
+p188
+sS'adapter'
+p189
+S'<gluon.dal.PostgreSQLAdapter object>'
+p190
+sS'attributes'
+p191
+g45
+sS'self'
+p192
+S'<Set (auth_user.id = 1)>'
+p193
+ssg70
+I10485
+sg71
+(dp194
+I10480
+S"                                    attributes.get('join',None),"
+p195
+sI10481
+S"                                    attributes.get('left',None),"
+p196
+sI10482
+S"                                    attributes.get('orderby',None),"
+p197
+sI10483
+S"                                    attributes.get('groupby',None))"
+p198
+sI10484
+S'        fields = adapter.expand_all(fields, tablenames)'
+p199
+sI10485
+S'        return adapter.select(self.query,fields,attributes)'
+p200
+sI10486
+S''
+sI10487
+S'    def nested_select(self,*fields,**attributes):'
+p201
+sI10488
+S'        return Expression(self.db,self._select(*fields,**attributes))'
+p202
+sI10489
+S''
+ssg83
+S'(self=<Set (auth_user.id = 1)>, *fields=[<gluon.dal.Field object>], **attributes={})'
+p203
+sg85
+S'select'
+p204
+sa(dp205
+g62
+S'/home/www-data/web2py/gluon/dal.py'
+p206
+sg64
+(dp207
+S'fields'
+p208
+S'[<gluon.dal.Field object>]'
+p209
+sS'self'
+p210
+S'<gluon.dal.PostgreSQLAdapter object>'
+p211
+sS'attributes'
+p212
+g45
+sS'self._select_aux'
+p213
+S'<bound method PostgreSQLAdapter._select_aux of <gluon.dal.PostgreSQLAdapter object>>'
+p214
+sS'sql'
+p215
+S"'SELECT  auth_user.username FROM auth_user WHERE (auth_user.id = 1);'"
+p216
+ssg70
+I1882
+sg71
+(dp217
+I1877
+S'            return cache_model('
+p218
+sI1878
+S'                key,'
+p219
+sI1879
+S'                lambda self=self,args=args:self._select_aux(*args),'
+p220
+sI1880
+S'                time_expire)'
+p221
+sI1881
+S'        else:'
+p222
+sI1882
+S'            return self._select_aux(sql,fields,attributes)'
+p223
+sI1883
+S''
+sI1884
+S'    def _count(self, query, distinct=None):'
+p224
+sI1885
+S'        tablenames = self.tables(query)'
+p225
+sI1886
+S'        if query:'
+p226
+ssg83
+S'(self=<gluon.dal.PostgreSQLAdapter object>, query=<Query (auth_user.id = 1)>, fields=[<gluon.dal.Field object>], attributes={})'
+p227
+sg85
+g204
+sa(dp228
+g62
+S'/home/www-data/web2py/gluon/dal.py'
+p229
+sg64
+(dp230
+S'self'
+p231
+S'<gluon.dal.PostgreSQLAdapter object>'
+p232
+sS'self.execute'
+p233
+S'<bound method PostgreSQLAdapter.execute of <gluon.dal.PostgreSQLAdapter object>>'
+p234
+sS'sql'
+p235
+S"'SELECT  auth_user.username FROM auth_user WHERE (auth_user.id = 1);'"
+p236
+ssg70
+I1847
+sg71
+(dp237
+I1842
+S''
+sI1843
+S'    def _select_aux(self,sql,fields,attributes):'
+p238
+sI1844
+S'        args_get = attributes.get'
+p239
+sI1845
+S"        cache = args_get('cache',None)"
+p240
+sI1846
+S'        if not cache:'
+p241
+sI1847
+S'            self.execute(sql)'
+p242
+sI1848
+S'            rows = self._fetchall()'
+p243
+sI1849
+S'        else:'
+p244
+sI1850
+S'            (cache_model, time_expire) = cache'
+p245
+sI1851
+S"            key = self.uri + '/' + sql + '/rows'"
+p246
+ssg83
+S"(self=<gluon.dal.PostgreSQLAdapter object>, sql='SELECT  auth_user.username FROM auth_user WHERE (auth_user.id = 1);', fields=[<gluon.dal.Field object>], attributes={})"
+p247
+sg85
+S'_select_aux'
+p248
+sa(dp249
+g62
+S'/home/www-data/web2py/gluon/dal.py'
+p250
+sg64
+(dp251
+S'a'
+S"('SELECT  auth_user.username FROM auth_user WHERE (auth_user.id = 1);',)"
+p252
+sS'self'
+p253
+S'<gluon.dal.PostgreSQLAdapter object>'
+p254
+sS'b'
+g45
+sS'self.log_execute'
+p255
+S'<bound method PostgreSQLAdapter.log_execute of <gluon.dal.PostgreSQLAdapter object>>'
+p256
+ssg70
+I1969
+sg71
+(dp257
+I1964
+S'        self.db._timings.append((command,time.time()-t0))'
+p258
+sI1965
+S'        del self.db._timings[:-TIMINGSSIZE]'
+p259
+sI1966
+S'        return ret'
+p260
+sI1967
+S''
+sI1968
+S'    def execute(self, *a, **b):'
+p261
+sI1969
+S'        return self.log_execute(*a, **b)'
+p262
+sI1970
+S''
+sI1971
+S'    def represent(self, obj, fieldtype):'
+p263
+sI1972
+S'        field_is_type = fieldtype.startswith'
+p264
+sI1973
+S'        if isinstance(obj, CALLABLETYPES):'
+p265
+ssg83
+S"(self=<gluon.dal.PostgreSQLAdapter object>, *a=('SELECT  auth_user.username FROM auth_user WHERE (auth_user.id = 1);',), **b={})"
+p266
+sg85
+S'execute'
+p267
+sa(dp268
+g62
+S'/home/www-data/web2py/gluon/dal.py'
+p269
+sg64
+(dp270
+S'a'
+S"('SELECT  auth_user.username FROM auth_user WHERE (auth_user.id = 1);',)"
+p271
+sS'self'
+p272
+S'<gluon.dal.PostgreSQLAdapter object>'
+p273
+sS'self.connection'
+p274
+S'None'
+p275
+sS'builtinValueError'
+p276
+S"<type 'exceptions.ValueError'>"
+p277
+ssg70
+I1954
+sg71
+(dp278
+I1952
+S''
+sI1953
+S'    def log_execute(self, *a, **b):'
+p279
+sI1954
+S'        if not self.connection: raise ValueError(a[0])'
+p280
+sI1955
+S'        if not self.connection: return None'
+p281
+sI1956
+S'        command = a[0]'
+p282
+sI1957
+S"        if hasattr(self,'filter_sql_command'):"
+p283
+sI1958
+S'            command = self.filter_sql_command(command)'
+p284
+sI1949
+S'    def create_sequence_and_triggers(self, query, table, **args):'
+p285
+sI1950
+S'        self.execute(query)'
+p286
+sI1951
+S''
+ssg83
+S"(self=<gluon.dal.PostgreSQLAdapter object>, *a=('SELECT  auth_user.username FROM auth_user WHERE (auth_user.id = 1);',), **b={})"
+p287
+sg85
+S'log_execute'
+p288
+sasS'pyver'
+p289
+S'Python 2.7.3: /usr/bin/python (prefix: /usr)'
+p290
+sS'session'
+p291
+g57
+(S's\x0c\n\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">auth</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">expiration</td><td style="vertical-align:top;">:</td><td><div>3600</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">hmac_key</td><td style="vertical-align:top;">:</td><td><div>454eef5d-214e-4a25-a711-d731f8fc1262</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_visit</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2014, 8, 11, 10, 44, 49, 523364)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remember</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">user</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">email</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">first_name</td><td style="vertical-align:top;">:</td><td><div>12330675755</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">id</td><td style="vertical-align:top;">:</td><td><div>1L</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_name</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">registration_id</td><td style="vertical-align:top;">:</td><td><div>12330675755</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">registration_key</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">reset_password_key</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">username</td><td style="vertical-align:top;">:</td><td><div>12330675755</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">user_groups</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">flash</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_orderby</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_query</td><td style="vertical-align:top;">:</td><td><div>db.auth_user.id&gt;0</div></td></tr></table></div>'
+tRp292
+sS'etype'
+p293
+S"<type 'exceptions.ValueError'>"
+p294
+sS'date'
+p295
+S'Mon Aug 11 10:45:40 2014'
+p296
+sS'response'
+p297
+g57
+(S'sg\x1c\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">body</td><td style="vertical-align:top;">:</td><td><div>&lt;cStringIO.StringO object at 0x7fa64237f490&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cookies</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">session_id_api</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20-76831844-4e69-4ddc-93e3-3526deb2bb94<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div>/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">delimiters</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>{{</div></td></tr><tr><td><div>}}</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">files</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">flash</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">generic_patterns</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>*</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">google_analytics_id</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">headers</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">X-Powered-By</td><td style="vertical-align:top;">:</td><td><div>web2py</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">logo</td><td style="vertical-align:top;">:</td><td><div><a class="brand" href="http://www.web2py.com/"><b>web<span>2</span>py</b>&trade;&nbsp;</a></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">menu</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div><table><tr><td><div>Home</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/api/default/index</div></td></tr><tr><td><div><table></table></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">meta</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">author</td><td style="vertical-align:top;">:</td><td><div>Your Name &lt;you@example.com&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">description</td><td style="vertical-align:top;">:</td><td><div>a cool new app</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">generator</td><td style="vertical-align:top;">:</td><td><div>Web2py Web Framework</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">keywords</td><td style="vertical-align:top;">:</td><td><div>web2py, python, framework</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">models_to_run</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>^\\w+\\.py$</div></td></tr><tr><td><div>^user/\\w+\\.py$</div></td></tr><tr><td><div>^user/createKeyAuth/\\w+\\.py$</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">postprocessing</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_client</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_compression_level</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_expires</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_key</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_data_name</td><td style="vertical-align:top;">:</td><td><div>session_data_api</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_file</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;/home/www-data/web2py/applications/api/sessions/200.156.24.20-76831844-4e69-4ddc-93e3-3526deb2bb94&#x27;, mode &#x27;rb+&#x27; at 0x7fa6418615d0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_filename</td><td style="vertical-align:top;">:</td><td><div>/home/www-data/web2py/applications/api/sessions/200.156.24.20-76831844-4e69-4ddc-93e3-3526deb2bb94</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_hash</td><td style="vertical-align:top;">:</td><td><div>573a36c391c7654db7896c6f351df1ca</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id</td><td style="vertical-align:top;">:</td><td><div>200.156.24.20-76831844-4e69-4ddc-93e3-3526deb2bb94</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_name</td><td style="vertical-align:top;">:</td><td><div>session_id_api</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_locked</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_masterapp</td><td style="vertical-align:top;">:</td><td><div>api</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_new</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_storage_type</td><td style="vertical-align:top;">:</td><td><div>file</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">status</td><td style="vertical-align:top;">:</td><td><div>200</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">subtitle</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">title</td><td style="vertical-align:top;">:</td><td><div>Api</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">view</td><td style="vertical-align:top;">:</td><td><div>user/createKeyAuth.html</div></td></tr></table></div>'
+tRp298
+sS'locals'
+p299
+(dp300
+S'a'
+S"('SELECT  auth_user.username FROM auth_user WHERE (auth_user.id = 1);',)"
+p301
+sS'self'
+p302
+S'<gluon.dal.PostgreSQLAdapter object>'
+p303
+sS'b'
+g45
+sssS'traceback'
+p304
+S'Traceback (most recent call last):\n  File "/home/www-data/web2py/gluon/restricted.py", line 217, in restricted\n    exec ccode in environment\n  File "/home/www-data/web2py/applications/api/controllers/user.py", line 23, in <module>\n  File "/home/www-data/web2py/gluon/globals.py", line 385, in <lambda>\n    self._caller = lambda f: f()\n  File "/home/www-data/web2py/gluon/tools.py", line 3259, in f\n    return action(*a, **b)\n  File "/home/www-data/web2py/applications/api/controllers/user.py", line 6, in createKeyAuth\n    newKey = APIKey.genarateNewKeyForUser( auth.user.id )\n  File "applications/api/modules/APIKey.py", line 33, in genarateNewKeyForUser\n    apiUser = db( db.auth_user.id==user_id ).select( db.auth_user.username ).first()\n  File "/home/www-data/web2py/gluon/dal.py", line 10485, in select\n    return adapter.select(self.query,fields,attributes)\n  File "/home/www-data/web2py/gluon/dal.py", line 1882, in select\n    return self._select_aux(sql,fields,attributes)\n  File "/home/www-data/web2py/gluon/dal.py", line 1847, in _select_aux\n    self.execute(sql)\n  File "/home/www-data/web2py/gluon/dal.py", line 1969, in execute\n    return self.log_execute(*a, **b)\n  File "/home/www-data/web2py/gluon/dal.py", line 1954, in log_execute\n    if not self.connection: raise ValueError(a[0])\nValueError: SELECT  auth_user.username FROM auth_user WHERE (auth_user.id = 1);\n'
+p305
+s.

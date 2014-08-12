@@ -15,7 +15,7 @@
   <!-- Always force latest IE rendering engine
        (even in intranet) & Chrome Frame
        Remove this if you use the .htaccess -->
-	   
+
   <meta charset="utf-8" />
 
   <!-- http://dev.w3.org/html5/markup/meta.name.html -->
@@ -78,7 +78,6 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        {{=response.logo or ''}}
         <ul id="navbar" class="nav pull-right">{{='auth' in globals() and auth.navbar(mode="dropdown") or ''}}</ul>
         <div class="{{='nav-collapse' if is_mobile else 'nav'}}">
           {{if response.menu:}}
@@ -155,12 +154,12 @@
       <script src="{{=URL('static','js/dd_belatedpng.js')}}"></script>
       <script> DD_belatedPNG.fix('img, .png_bg'); //fix any <img> or .png_bg background-images </script>
       <![endif]-->
-  
+
   {{if response.google_analytics_id:}}
   <script src="{{=URL('static','js/analytics.min.js')}}"></script>
   <script type="text/javascript">
   analytics.initialize({
-    'Google Analytics':{trackingId:'{{=response.google_analytics_id}}'} 
+    'Google Analytics':{trackingId:'{{=response.google_analytics_id}}'}
   });</script>
   {{pass}}
   <script src="{{=URL('static','js/share.js',vars=dict(static=URL('static','images')))}}"></script>

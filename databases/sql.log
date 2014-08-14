@@ -385,3 +385,152 @@ success!
 timestamp: 2014-08-11T20:19:08.440990
 ALTER TABLE api_request_type ADD max_entries INTEGER;
 success!
+timestamp: 2014-08-12T13:41:57.988027
+CREATE TABLE auth_user(
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(128),
+    last_name VARCHAR(128),
+    email VARCHAR(512),
+    username VARCHAR(128),
+    password VARCHAR(512),
+    registration_key VARCHAR(512),
+    reset_password_key VARCHAR(512),
+    registration_id VARCHAR(512)
+);
+timestamp: 2014-08-12T13:42:18.314865
+CREATE TABLE auth_user(
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(128),
+    last_name VARCHAR(128),
+    email VARCHAR(512),
+    username VARCHAR(128),
+    password VARCHAR(512),
+    registration_key VARCHAR(512),
+    reset_password_key VARCHAR(512),
+    registration_id VARCHAR(512)
+);
+timestamp: 2014-08-12T13:43:26.368432
+CREATE TABLE auth_user(
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(128),
+    last_name VARCHAR(128),
+    email VARCHAR(512),
+    username VARCHAR(128),
+    password VARCHAR(512),
+    registration_key VARCHAR(512),
+    reset_password_key VARCHAR(512),
+    registration_id VARCHAR(512)
+);
+faked!
+timestamp: 2014-08-12T13:43:26.369791
+CREATE TABLE auth_group(
+    id SERIAL PRIMARY KEY,
+    role VARCHAR(512),
+    description TEXT
+);
+faked!
+timestamp: 2014-08-12T13:43:26.371095
+CREATE TABLE auth_membership(
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE
+);
+faked!
+timestamp: 2014-08-12T13:43:26.372534
+CREATE TABLE auth_permission(
+    id SERIAL PRIMARY KEY,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE,
+    name VARCHAR(512),
+    table_name VARCHAR(512),
+    record_id INTEGER
+);
+faked!
+timestamp: 2014-08-12T13:43:26.373724
+CREATE TABLE auth_event(
+    id SERIAL PRIMARY KEY,
+    time_stamp TIMESTAMP,
+    client_ip VARCHAR(512),
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    origin VARCHAR(512),
+    description TEXT
+);
+faked!
+timestamp: 2014-08-12T13:43:26.374746
+CREATE TABLE auth_cas(
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    created_on TIMESTAMP,
+    service VARCHAR(512),
+    ticket VARCHAR(512),
+    renew CHAR(1)
+);
+faked!
+timestamp: 2014-08-12T13:43:26.375699
+CREATE TABLE api_request_type(
+    id SERIAL PRIMARY KEY,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE,
+    max_requests INTEGER,
+    max_entries INTEGER
+);
+faked!
+timestamp: 2014-08-12T13:43:26.377088
+CREATE TABLE api_auth(
+    id SERIAL PRIMARY KEY,
+    auth_key VARCHAR(512),
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    dt_creation TIMESTAMP,
+    active CHAR(1)
+);
+faked!
+timestamp: 2014-08-12T13:43:26.378050
+CREATE TABLE api_request(
+    id SERIAL PRIMARY KEY,
+    type_id INTEGER REFERENCES api_request_type (id) ON DELETE CASCADE,
+    dt_request TIMESTAMP,
+    url VARCHAR(512),
+    auth_key INTEGER REFERENCES api_auth (id) ON DELETE CASCADE,
+    ip VARCHAR(512)
+);
+faked!
+timestamp: 2014-08-12T17:10:26.835901
+ALTER TABLE api_request ADD key_id INTEGER REFERENCES api_auth (id) ON DELETE CASCADE;
+timestamp: 2014-08-12T17:10:26.841515
+ALTER TABLE api_request DROP COLUMN auth_key;
+timestamp: 2014-08-12T17:13:41.625797
+ALTER TABLE api_request DROP COLUMN auth_key;
+timestamp: 2014-08-12T17:16:19.112982
+ALTER TABLE api_request DROP COLUMN key_id;
+timestamp: 2014-08-12T17:17:35.764895
+ALTER TABLE api_request DROP COLUMN key_id;
+timestamp: 2014-08-12T17:18:11.462929
+ALTER TABLE api_request DROP COLUMN key_id;
+timestamp: 2014-08-12T17:18:14.879915
+ALTER TABLE api_request DROP COLUMN key_id;
+timestamp: 2014-08-12T17:18:56.528649
+CREATE TABLE api_request(
+    id SERIAL PRIMARY KEY,
+    type_id INTEGER REFERENCES api_request_type (id) ON DELETE CASCADE,
+    dt_request TIMESTAMP,
+    url VARCHAR(512),
+    auth_key INTEGER REFERENCES api_auth (id) ON DELETE CASCADE,
+    ip VARCHAR(512)
+);
+timestamp: 2014-08-12T17:40:05.591100
+CREATE TABLE DIARIO_CLASSE(
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL,
+    CURSO_DO_ALUNO VARCHAR(512),
+    COD_DISCIPLINA VARCHAR(512),
+    NOME_DISCIPLINA VARCHAR(512),
+    NOME_DOCENTE VARCHAR(512),
+    PAPEL_DOCENTE VARCHAR(512),
+    ANO INT,
+    PERIODO INT,
+    PERIODO_ITEM INT,
+    DESCRICAO VARCHAR(512),
+    SITUACAO_ITEM INT,
+    COD_TURMA VARCHAR(512),
+    HORA_INICIO_AULA TIME,
+    HORA_FIM_AULA TIME,
+    DIA_DE_AULA VARCHAR(512),
+    TIPO_DE_AULA VARCHAR(512)
+);

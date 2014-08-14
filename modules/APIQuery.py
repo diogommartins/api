@@ -3,7 +3,7 @@ from gluon import current
 
 class APIQuery():
     ENTRIES_PER_QUERY_DEFAULT = 10
-    ENTRIES_PER_QUERY_MAX = 100
+    ENTRIES_PER_QUERY_MAX = 5000
 
     def __init__( self, tablename, fields, request_vars, return_fields=None ):
         self.table = current.dbSie[tablename]
@@ -54,9 +54,12 @@ class APIQuery():
     def execute(self):
         conditions = self._getQueryStatement()
         recordsSubset = self._getRecordsSubset()
-
-        count = current.dbSie( *conditions ).count()
-        ret = current.dbSie( *conditions ).select( limitby=recordsSubset, *self.return_fields )
+        if conditions:
+            count = current.dbSie( *conditions ).count()
+            ret = current.dbSie( *conditions ).select( limitby=recordsSubset, *self.return_fields )
+        else:
+            count = current.dbSie( self.table ).count()
+            ret = current.dbSie( self.table ).select( limitby=recordsSubset, *self.return_fields )
 
         if ret:
             return { "count" : count, "content" : ret, "subset" : recordsSubset }

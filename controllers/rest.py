@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 @request.restful()
-def index():
+def request():
     response.view = 'generic.' + request.extension #
     def GET(*args,**vars):
         patterns = [

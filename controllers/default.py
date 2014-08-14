@@ -9,11 +9,18 @@
 ## - call exposes all registered services (none by default)
 #########################################################################
 
-@auth.requires_login()
 def index():
-    import pbkdf
-    hash = pbkdf.make_hash("12330675755"+"Vinicius")
-    return dict(dados=auth.user)
+    accessPermissions = db( db.auth_group ).select( db.auth_group.role ).as_list()
+    avaiableData = dbSie.tables
+    avaiableFields = []
+    for table in avaiableData:
+        avaiableFields.append( {table : dbSie[table].fields} )
+
+    return dict(
+                accessPermissions=accessPermissions,
+                avaiableData = avaiableData,
+                avaiableFields = avaiableFields
+                )
 
 @request.restful()
 def rest():

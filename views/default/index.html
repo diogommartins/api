@@ -1,1 +1,84 @@
-{{=dados}}
+{{extend 'layout.html'}}
+<div id='api-text-container'>
+    <h2>Bem vindo a API UNIRIO</h2>
+
+    <p>Esta API disponibiliza, de forma pública, dados que são gerados pela Universidade Federal
+    do Estado do Rio de Janeiro. A publicação dos <b>dados em formato aberto</b> permite que
+    qualquer pessoa ou sistema desenvolva suas próprias aplicações ou visualizações
+    para promover uma constante melhoria de serviço através da inovação, criatividade e transparência
+    pública, permitindo uma maior interação da comunidade com a
+    <a href='http://www.unirio.br/dtic'>Diretoria de Tenologia da Informação e Comunicação</a> (DTIC) da UNIRIO.</p>
+
+    <p>Segundo a definição da <a href="http://opendefinition.org/">Open Knowledge Foundation</a>, dados são
+    abertos quando qualquer pessoa pode livremente usá-los, reutilizá-los e
+    redistribuí-los. Isso geralmente é satisfeito pela publicação dos dados em
+    formato aberto e sob uma licença aberta.</p>
+
+    <p>Os dados abertos também são pautados pelas três leis e oito princípios.</p>
+
+    <ul>
+       <li>Se o dado não pode ser encontrado e indexado na Web, ele não existe;</li>
+       <li>Se não estiver aberto e disponível em formato compreensível por máquina, ele não pode ser reaproveitado;</li>
+       <li>Se algum dispositivo legal não permitir sua replicação, ele não é útil.</li>
+    </ul>
+
+    <h2>Permissões de Acesso</h2>
+
+    <p>Permissões de acesso liberam possibilidades de visualizações a dados restritos,
+    assim como definem a quantidade de requisições diárias que podem ser feitas ao servidor.</p>
+    <p>Atualmente, as permissões são as seguintes:</p>
+    {{ =UL(*accessPermissions) }}
+
+    <h3>Quem pode ter acesso a que?</h3>
+    <p>Professores</p>
+
+    <h3>Como ter acesso a mais dados?</h3>
+
+    <h2>Sintaxe</h2>
+
+    <h2>Dados Disponibilizados</h2>
+    <table>
+        <tr>
+            <td>ALUNOS:</td>
+            <td> Dados de alunos da Universidade<td>
+        </tr>
+        <tr>
+            <td>AREAS_CONHECIMENTO</td>
+        </tr>
+        <tr>
+            <td>CIDADES</td>
+        </tr>
+        <tr>
+            <td>CURSOS</td>
+            <td>Dados de cursos</td>
+        </tr>
+        <tr>
+            <td>CURSOS_ALUNOS</td>
+            <td>Associações de ALUNOS em CURSOS</tr>
+        <tr>
+            <td>DIARIO_CLASSE</td>
+            <td>Associações de ALUNOS em matrículas em DISCIPLINAS</td>
+        </tr>
+        <tr>
+            <td>DISCIPLINAS</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>TAB_ESTRUTURADA</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>V_FORMA_INGRESSO</td>
+            <td></td>
+        </tr>
+        <tr><td>V_SERVIDORES</td><td></td></tr>
+        <tr>
+        <td>VERSOES_CURSOS</td>
+        <td>Um curso possui várias versões ao longo tempo. Aqui você encontra todas elas e se a mesma está corrente ou não</td>
+        </tr>
+    </table>
+
+    {{=BEAUTIFY(avaiableFields)}}
+
+
+</div>

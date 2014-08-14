@@ -1,3 +1,15 @@
+#api-text-container{
+    width:700px;
+    margin:0px auto;
+}
+
+#api-text-container h2{
+    margin:25px -10px;
+}
+#api-text-container h3{
+    font-size:14pt;
+}
+
 /** these MUST stay **/
 a {text-decoration:none; white-space:nowrap}
 a:hover {text-decoration:underline}
@@ -315,3 +327,6 @@ li.w2p_grid_breadcrumb_elem {
 .ie-lte8 div.flash{ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#222222', endColorstr='#000000', GradientType=0 ); }
 .ie-lte8 div.flash:hover {filter:alpha(opacity=25);}
 .ie9 #w2p_query_panel {padding-bottom:2px}
+
+
+

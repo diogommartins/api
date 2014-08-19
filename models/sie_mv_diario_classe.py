@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-dbSie.define_table("DIARIO_CLASSE",
+dbSie.define_table("MV_DIARIO_CLASSE",
                    Field("CURSO_DO_ALUNO", "string", length=10),
                    Field("ID_ALUNO", "integer"),
                    Field("COD_ATIV_CURRIC", "string"),

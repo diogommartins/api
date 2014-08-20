@@ -5,6 +5,8 @@ from APIQuery import APIQuery
 from datetime import datetime
 
 class APIRequest():
+    validSufixes = ('_MIN', '_MAX', '_BET')
+
     def __init__( self, apiKey, request ):
         self.request = request
         self.db = current.db
@@ -18,7 +20,7 @@ class APIRequest():
     def performRequest(self):
         query = APIQuery(
                          self.request.controller,
-                         self.parameters['valid'],
+                         self.parameters,
                          self.request.vars
                         )
         self.saveAPIRequest()
@@ -35,11 +37,28 @@ class APIRequest():
 
     # Método que verifica se os parâmetros passados são válidos ou não
     def _validateFields(self):
-        fields = { "valid" : [], "invalid" : [] }
+        fields = { "valid" : [], "special" : [], "invalid" : [] }
         for k, v in self.request.vars.iteritems():
             if k in self.dbSie[self.request.controller].fields:
-                fields['valid'].append(k)
+                fields['valid'].append( k )
+            elif self._isValidFieldWithSufix( k ):
+                fields['special'].append( k )
             else:
-                fields['invalid'].append(k)
+                fields['invalid'].append( k )
 
         return fields
+
+    def _isValidFieldWithSufix(self, field):
+        if self.specialFieldChop(field):
+            field = self.specialFieldChop(field)
+            if field in self.dbSie[self.request.controller].fields:
+                return True
+        return False
+
+    # Método para cortar e validar o sufixo de uma string de field caso ela termine com _MIN ou _MAX, etc e
+    @staticmethod
+    def specialFieldChop(field):
+        DEFAULT_SUFIX_SIZE = 4
+        if field.endswith( APIRequest.validSufixes ):
+            return field[:-DEFAULT_SUFIX_SIZE]
+        return False

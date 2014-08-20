@@ -9,7 +9,13 @@
 ## - call exposes all registered services (none by default)
 #########################################################################
 
+
 def index():
+    from TableBeautify import *
+    response.title = 'API UNIRIO'
+
+    tableBeautify = TableBeautify( dbSie.tables )
+
     accessPermissions = db( db.auth_group ).select( db.auth_group.role ).as_list()
     avaiableData = dbSie.tables
     avaiableFields = []
@@ -19,8 +25,13 @@ def index():
     return dict(
                 accessPermissions=accessPermissions,
                 avaiableData = avaiableData,
-                avaiableFields = avaiableFields
+                avaiableFields = avaiableFields,
+                tabelas = tableBeautify.beautifyDatabaseTables()
                 )
+
+#página com os créditos
+def sobre():
+    pass
 
 @request.restful()
 def rest():

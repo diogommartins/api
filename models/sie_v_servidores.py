@@ -1,8 +1,8 @@
 # DESC_SITUACAO = [aposentado, ativo, instituidor de pensao]
 
 #  View or materialized query table "DBSM.V_SERVIDORES" cannot be used because it has been marked inoperative.
+# Field("NOME_FUNCIONARIO", "string", length=80),
 dbSie.define_table( "V_SERVIDORES",
-                    Field("NOME_FUNCIONARIO", "string", length=80),
                     Field("MATR_EXTERNA", "integer"),
                     Field("ID_CONTRATO_RH", "integer"),
                     Field("SEXO", "string", length=1),

@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 @auth.requires_login()
 def index():
-    options = []
-    options.append( A("teste") )
-    return dict(opt=options)
+    apiKeysGrid = SQLFORM.grid( ( db.api_auth.user_id==auth.user.id ),
+                                 fields= (db.api_auth.auth_key, db.api_auth.dt_creation, db.api_auth.active),
+                                 deletable=False,
+                                 create=False,
+                                 editable=False,
+                                 searchable=False,
+                                 maxtextlength=160,
+                                 csv=False )
+
+    return dict( apiKeysGrid=apiKeysGrid )
 
 @auth.requires_login()
 def createKeyAuth():
@@ -23,19 +30,9 @@ def createKeyAuth():
 
     if form.process().accepted:
         apiKey.genarateNewKeyForUser( auth.user.id )
-        redirect(request.referer, client_side=True)
+        redirect(URL('user','index'), client_side=True)
 
     return dict(form=form)
-
-def authHistory():
-    grid = SQLFORM.grid( ( db.api_auth.user_id==auth.user.id ),
-                         fields= (db.api_auth.auth_key, db.api_auth.dt_creation, db.api_auth.active),
-                         deletable=False,
-                         create=False,
-                         editable=False,
-                         csv=False )
-
-    return dict(grid=grid)
 
 def createKeyGuest():
     pass

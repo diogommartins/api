@@ -107,7 +107,7 @@
     <table class='CSSTableGenerator'>
         <tr>
             <td>Type</td>
-            <td>Description</td>t
+            <td>Description</td>
             <td>Usage</td>
         </tr>
         <tr>
@@ -133,8 +133,9 @@
         </tr>
         <tr>
             <td><span class='type_date'>Date</span></td>
-            <td>Formatos do tipo date são definidos pelo padrão <code>YYYY-MM-dd</code>. Fields do tipo
-            data podem ser utilizados juntamente com os sufixos <code>_MIN</code> e <code>_MAX</code></td>
+            <td>Formatos do tipo date são definidos pelo <a href='http://www.w3.org/TR/NOTE-datetime'>padrão</a>
+            <code>YYYY-MM-dd</code> ANO-M. Fields do tipo data podem ser utilizados juntamente com os sufixos
+            <code>_MIN</code> e <code>_MAX</code></td>
             <td>
                 <code>&DT_NASCIMENTO=<span class='type_date'>1980-01-01</span></code><br />
                 <code>&DT_NASCIMENTO_MIN=<span class='type_date'>1980-01-01</span></code><br />
@@ -143,13 +144,24 @@
         </tr>
         <tr>
             <td><span class='type_time'>Time</span></td>
-            <td>Description</td>
-            <td>Extra</td>
+            <td>Formatos de tempo são definidos pelo padrão <code>HH:MM:SS</code> e também podem ser utilizados
+            juntamente com os sufixos <code>_MIN</code> e <code>_MAX</code></td>
+            <td>
+                <code>&HR_INICIO_AULA=<span class='type_time'>08:00:00</span></code><br />
+                <code>&HR_INICIO_AULA_MIN=<span class='type_time'>08:00:00</span></code><br />
+                <code>&HR_INICIO_AULA_MAX=<span class='type_time'>08:00:00</span></code><br />
+            </td>
         </tr>
         <tr>
             <td><span class='type_float'>Float</span></td>
-            <td>Description</td>
-            <td>Extra</td>
+            <td>Field do tipo float (ponto flutuante), ou números reais, são caracterizados
+            pela presença do caracter ponto <code>.</code> para separação de casas decimais. Fields do tipo
+            float podem ser utilizados juntamente com os sufixos <code>_MIN</code> e <code>_MAX</code></td>
+            <td>
+                <code>&VL_CONTRIBUICAO=<span class='type_float'>6000.50</span></code><br />
+                <code>&VL_CONTRIBUICAO_MIN=<span class='type_float'>7500.75</span></code><br />
+                <code>&VL_CONTRIBUICAO_MAX=<span class='type_float'>8000.8</span></code><br />
+            </td>
         </tr>
     </table>
 

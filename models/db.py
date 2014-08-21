@@ -34,6 +34,7 @@ mail.settings.login = 'username:password'      # your credentials or None
 
 ## create all tables needed by auth if not custom tables
 auth.define_tables(username=True)
+auth.settings.everybody_group_id = 6
 auth.settings.create_user_groups=False
 
 auth.settings.login_methods=[ldap_auth(mode='uid',server='10.224.16.100', base_dn='ou=people,dc=unirio,dc=br')]

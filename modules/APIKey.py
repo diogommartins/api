@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import pbkdf
+from AESCipher import AESCipher
 from gluon import current
 from datetime import datetime
 
 class APIKey():
+
     def __init__(self, hash=None):
         self.hash = hash
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -17,7 +18,8 @@ class APIKey():
             return authKeyOwner.user_id
 
     def _makeHash( self, username ):
-        return pbkdf.make_hash( username + self.timestamp )
+        aes = AESCipher()
+        return aes.encrypt( username + self.timestamp )
 
     # Gera uma nova chave valida para o usuario, inutiliza a anterior e retorna a mesma
     def genarateNewKeyForUser( self, user_id ):
@@ -51,7 +53,6 @@ class APIKey():
                               (current.db.api_auth.auth_key == self.hash)
                               & (current.db.api_auth.active == True)
                               ).select().first()
-
         return auth_key if auth_key else None
 
     def isValidKey(self):
@@ -60,7 +61,7 @@ class APIKey():
     @staticmethod
     def isValidKey( hash ):
         auth_key = current.db(
-                              (current.db.api_auth.auth_key == hash)
+                              (current.db.api_auth.auth_key == """'"""+ hash + """'""")
                               & (current.db.api_auth.active == True)
                               ).select().first()
 

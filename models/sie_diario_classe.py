@@ -2,7 +2,7 @@
 dbSie.define_table("DIARIO_CLASSE",
                    Field("CURSO_DO_ALUNO", "string", length=10),
                    Field("ID_ALUNO", "integer"),
-                   Field("NOME_FUNCIONARIO", "string"),
+                   Field("NOME_DOCENTE", "string"),
                    Field("PAPEL_DOCENTE", "string"),
                    Field("ANO", "integer"),
                    Field("PERIODO", "integer"),

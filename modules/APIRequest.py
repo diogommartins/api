@@ -6,6 +6,12 @@ from datetime import datetime
 
 class APIRequest():
     validSufixes = ('_MIN', '_MAX', '_BET')
+    validResponseFormats = {
+                           'JSON' : 'generic.json',
+                           'XML' : 'generic.xml',
+                           'HTML' : 'generic.html',
+                           'DEFAULT' : 'generic.html'
+                           }
 
     def __init__( self, apiKey, request ):
         self.request = request
@@ -24,6 +30,7 @@ class APIRequest():
                          self.request.vars
                         )
         self.saveAPIRequest()
+        self._defineReturnType()
         return query.execute()
 
     def saveAPIRequest(self):
@@ -34,6 +41,13 @@ class APIRequest():
                               auth_key = self.apiKey.auth_key.id
                               )
         self.db.commit()
+
+    def _defineReturnType(self):
+        format = self.request.vars.FORMAT
+        if format in APIRequest.validResponseFormats:
+            current.response.view = APIRequest.validResponseFormats[ format ]
+        else:
+            current.response.view = APIRequest.validResponseFormats[ 'DEFAULT' ]
 
     # Método que verifica se os parâmetros passados são válidos ou não
     def _validateFields(self):

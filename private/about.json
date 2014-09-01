@@ -1,0 +1,6 @@
+{
+    "title" : "API UNIRIO",
+    "description" : "RESTful WebAPI para consulta a dados da UNIRIO.",
+    "auth_req" : true,
+    "author" : "Diogo Magalhães Martins"
+}

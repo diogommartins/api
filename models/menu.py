@@ -29,7 +29,16 @@ response.menu = [
     (T('Sobre'), False, URL('default', 'sobre'), [])
 ]
 
-DEVELOPMENT_MENU = True
+adminMenu = [('Administração', False, False,
+                 [
+                  ('Gerar nova chave de sistema', False, URL('user', 'createNewSystemKey')),
+                 ])]
+
+
+if auth.has_membership('Desenvolvedor'):
+    response.menu += adminMenu
+
+DEVELOPMENT_MENU = False
 
 #########################################################################
 ## provide shortcuts for development. remove in production

@@ -36,3 +36,39 @@ def createKeyAuth():
 
 def createKeyGuest():
     pass
+
+#===============================================================================
+# Utilizado para gerar novas chaves para Sistemas
+# TODO: melhorar a aparência desta porra porque está uma merda
+#===============================================================================
+@auth.requires( auth.has_membership('Desenvolvedor') )
+def createNewSystemKey():
+    key = ''
+
+    # Retorna todos os usuários cadastrados como sistemas
+    sistemas = db( (db.auth_user.id==db.auth_membership.user_id)
+                   &(db.auth_membership.group_id==4) ).select( db.auth_user.id, db.auth_user.first_name )
+
+    form = FORM(
+                SELECT( [OPTION(sistema.first_name, _value=sistema.id) for sistema in sistemas] ,_name='user_id'),
+                INPUT( _value="Gerar nova Chave", _type="submit" )
+                )
+    if form.process().accepted:
+        from APIKey import APIKey
+        apiKey = APIKey()
+        currentAPIKey = APIKey.getCurrentActiveKeyForUser( form.vars.user_id )
+
+        #Se ainda não existir uma chave válida
+        if not currentAPIKey:
+            currentAPIKey = apiKey.genarateNewKeyForUser( auth.user_id )
+
+        key = currentAPIKey
+
+    return dict( form=form, key=key )
+
+
+
+
+
+
+

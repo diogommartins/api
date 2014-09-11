@@ -66,9 +66,17 @@ def createNewSystemKey():
 
     return dict( form=form, key=key )
 
-
-
-
-
-
-
+#===============================================================================
+# Requer uma chave válida
+#===============================================================================
+def ldapLogin():
+    from APIKey import APIKey
+    response.view = 'generic.json'
+    if APIKey.isValidKey( request.vars.API_KEY ):
+        user = auth.login_bare( request.vars.username, request.vars.password )
+        if not user:
+            return False
+        else:
+            return True
+    else:
+        return {'error' : 'Chave Inválida', 'sql': db._lastsql}

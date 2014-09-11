@@ -61,9 +61,9 @@ class APIKey():
     @staticmethod
     def isValidKey( hash ):
         auth_key = current.db(
-                              (current.db.api_auth.auth_key == """'"""+ hash + """'""")
-                              & (current.db.api_auth.active == True)
-                              ).select().first()
+                              (current.db.api_auth.auth_key == hash)
+                              &(current.db.api_auth.active == True)
+                              ).select( current.db.api_auth.id ).first()
 
         return auth_key if auth_key else False
 

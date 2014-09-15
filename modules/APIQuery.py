@@ -28,11 +28,10 @@ class APIQuery():
         # Trata condições especiais
         for special_field in self.special_fields:
             field = self.specialFieldChop( special_field )
-            if self.table[field].type == 'date':
-                if special_field.endswith('_MIN'):
-                    conditions.append( self.table[field] > self.request_vars[special_field] )
-                elif special_field.endswith('_MAX'):
-                    conditions.append( self.table[field] < self.request_vars[special_field] )
+            if special_field.endswith('_MIN'):
+                conditions.append( self.table[field] > self.request_vars[special_field] )
+            elif special_field.endswith('_MAX'):
+                conditions.append( self.table[field] < self.request_vars[special_field] )
 
         return conditions
 
@@ -75,8 +74,8 @@ class APIQuery():
         conditions = self._getQueryStatement()
         recordsSubset = self._getRecordsSubset()
         if conditions:
-            count = current.dbSie( *conditions ).count()
-            ret = current.dbSie( *conditions ).select( limitby=recordsSubset, *self.return_fields )
+            count = current.dbSie( reduce(lambda a,b:(a&b), conditions ) ).count()
+            ret = current.dbSie( reduce(lambda a,b:(a&b), conditions ) ).select( limitby=recordsSubset, *self.return_fields )
         else:
             count = current.dbSie( self.table ).count()
             ret = current.dbSie( self.table ).select( limitby=recordsSubset, *self.return_fields )

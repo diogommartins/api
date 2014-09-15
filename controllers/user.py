@@ -71,12 +71,15 @@ def createNewSystemKey():
 #===============================================================================
 def ldapLogin():
     from APIKey import APIKey
+    from SIEUser import *
+
     response.view = 'generic.json'
     if APIKey.isValidKey( request.vars.API_KEY ):
         user = auth.login_bare( request.vars.username, request.vars.password )
         if not user:
-            return False
+            return { 'error' : 'Usuário ou senha inválido.' }
         else:
-            return True
+            sieUser = SIEUser()
+            return sieUser.pessoaForCPF( user )
     else:
-        return {'error' : 'Chave Inválida', 'sql': db._lastsql}
+        return { 'error' : 'Chave Inválida', 'request' : request.vars }

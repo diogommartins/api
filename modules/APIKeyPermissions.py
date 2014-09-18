@@ -27,3 +27,22 @@ class APIKeyPermissions():
                 raise Exception( "Número máximo de requisições esgotado." )
         else:
             raise Exception( "Chave inativa" )
+
+    #===========================================================================
+    # Condição para
+    #===========================================================================
+    def conditionsToRequestContentFromTable(self, table):
+        conditions = [ (self.db.api_group_restrictions.role_group == self.group_id),
+                       (self.db.api_group_restrictions.table == table),
+                       (self.db.api_group_restrictions.all != True) ]
+        return conditions
+
+    #===========================================================================
+    #
+    #===========================================================================
+    def conditionsToRequestContentFromTableColumns(self, table, columns):
+        return [ ( (self.db.api_group_restrictions.column == column)
+                   &(self.db.api_group_restrictions.role_group == self.group_id)
+                   &(self.db.api_group_restrictions.table==table)
+                   ) for column in columns ]
+

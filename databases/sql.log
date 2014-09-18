@@ -534,3 +534,243 @@ CREATE TABLE DIARIO_CLASSE(
     DIA_DE_AULA VARCHAR(512),
     TIPO_DE_AULA VARCHAR(512)
 );
+timestamp: 2014-09-18T10:03:25.685800
+CREATE TABLE auth_user(
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(128),
+    last_name VARCHAR(128),
+    email VARCHAR(512),
+    username VARCHAR(128),
+    password VARCHAR(512),
+    registration_key VARCHAR(512),
+    reset_password_key VARCHAR(512),
+    registration_id VARCHAR(512)
+);
+timestamp: 2014-09-18T10:03:39.177802
+CREATE TABLE auth_user(
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(128),
+    last_name VARCHAR(128),
+    email VARCHAR(512),
+    username VARCHAR(128),
+    password VARCHAR(512),
+    registration_key VARCHAR(512),
+    reset_password_key VARCHAR(512),
+    registration_id VARCHAR(512)
+);
+faked!
+timestamp: 2014-09-18T10:03:39.178812
+CREATE TABLE auth_group(
+    id SERIAL PRIMARY KEY,
+    role VARCHAR(512),
+    description TEXT
+);
+faked!
+timestamp: 2014-09-18T10:03:39.179767
+CREATE TABLE auth_membership(
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE
+);
+faked!
+timestamp: 2014-09-18T10:03:39.180821
+CREATE TABLE auth_permission(
+    id SERIAL PRIMARY KEY,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE,
+    name VARCHAR(512),
+    table_name VARCHAR(512),
+    record_id INTEGER
+);
+faked!
+timestamp: 2014-09-18T10:03:39.182008
+CREATE TABLE auth_event(
+    id SERIAL PRIMARY KEY,
+    time_stamp TIMESTAMP,
+    client_ip VARCHAR(512),
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    origin VARCHAR(512),
+    description TEXT
+);
+faked!
+timestamp: 2014-09-18T10:03:39.183065
+CREATE TABLE auth_cas(
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    created_on TIMESTAMP,
+    service VARCHAR(512),
+    ticket VARCHAR(512),
+    renew CHAR(1)
+);
+faked!
+timestamp: 2014-09-18T10:03:39.184093
+CREATE TABLE api_request_type(
+    id SERIAL PRIMARY KEY,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE,
+    max_requests INTEGER,
+    max_entries INTEGER
+);
+faked!
+timestamp: 2014-09-18T10:03:39.185064
+CREATE TABLE api_auth(
+    id SERIAL PRIMARY KEY,
+    auth_key VARCHAR(512),
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    dt_creation TIMESTAMP,
+    active CHAR(1)
+);
+faked!
+timestamp: 2014-09-18T10:03:39.186119
+CREATE TABLE api_request(
+    id SERIAL PRIMARY KEY,
+    type_id INTEGER REFERENCES api_request_type (id) ON DELETE CASCADE,
+    dt_request TIMESTAMP,
+    url VARCHAR(512),
+    auth_key INTEGER REFERENCES api_auth (id) ON DELETE CASCADE,
+    ip VARCHAR(512)
+);
+faked!
+timestamp: 2014-09-18T10:03:39.187077
+CREATE TABLE api_group_restrictions(
+    id SERIAL PRIMARY KEY,
+    table VARCHAR(512),
+    column VARCHAR(512),
+    all CHAR(1),
+    role_group INTEGER REFERENCES auth_group (id) ON DELETE CASCADE
+);
+faked!
+timestamp: 2014-09-18T10:04:07.109103
+CREATE TABLE auth_user(
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(128),
+    last_name VARCHAR(128),
+    email VARCHAR(512),
+    username VARCHAR(128),
+    password VARCHAR(512),
+    registration_key VARCHAR(512),
+    reset_password_key VARCHAR(512),
+    registration_id VARCHAR(512)
+);
+faked!
+timestamp: 2014-09-18T10:04:07.110140
+CREATE TABLE auth_group(
+    id SERIAL PRIMARY KEY,
+    role VARCHAR(512),
+    description TEXT
+);
+faked!
+timestamp: 2014-09-18T10:04:07.111099
+CREATE TABLE auth_membership(
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE
+);
+faked!
+timestamp: 2014-09-18T10:04:07.112151
+CREATE TABLE auth_permission(
+    id SERIAL PRIMARY KEY,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE,
+    name VARCHAR(512),
+    table_name VARCHAR(512),
+    record_id INTEGER
+);
+faked!
+timestamp: 2014-09-18T10:04:07.113264
+CREATE TABLE auth_event(
+    id SERIAL PRIMARY KEY,
+    time_stamp TIMESTAMP,
+    client_ip VARCHAR(512),
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    origin VARCHAR(512),
+    description TEXT
+);
+faked!
+timestamp: 2014-09-18T10:04:07.114680
+CREATE TABLE auth_cas(
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    created_on TIMESTAMP,
+    service VARCHAR(512),
+    ticket VARCHAR(512),
+    renew CHAR(1)
+);
+faked!
+timestamp: 2014-09-18T10:04:07.115713
+CREATE TABLE api_request_type(
+    id SERIAL PRIMARY KEY,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE,
+    max_requests INTEGER,
+    max_entries INTEGER
+);
+faked!
+timestamp: 2014-09-18T10:04:07.116679
+CREATE TABLE api_auth(
+    id SERIAL PRIMARY KEY,
+    auth_key VARCHAR(512),
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    dt_creation TIMESTAMP,
+    active CHAR(1)
+);
+faked!
+timestamp: 2014-09-18T10:04:07.117699
+CREATE TABLE api_request(
+    id SERIAL PRIMARY KEY,
+    type_id INTEGER REFERENCES api_request_type (id) ON DELETE CASCADE,
+    dt_request TIMESTAMP,
+    url VARCHAR(512),
+    auth_key INTEGER REFERENCES api_auth (id) ON DELETE CASCADE,
+    ip VARCHAR(512)
+);
+faked!
+timestamp: 2014-09-18T10:04:07.118637
+CREATE TABLE api_group_restrictions(
+    id SERIAL PRIMARY KEY,
+    table VARCHAR(512),
+    column VARCHAR(512),
+    all CHAR(1),
+    role_group INTEGER REFERENCES auth_group (id) ON DELETE CASCADE
+);
+faked!
+timestamp: 2014-09-18T10:04:24.272084
+CREATE TABLE auth_user(
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(128),
+    last_name VARCHAR(128),
+    email VARCHAR(512),
+    username VARCHAR(128),
+    password VARCHAR(512),
+    registration_key VARCHAR(512),
+    reset_password_key VARCHAR(512),
+    registration_id VARCHAR(512)
+);
+timestamp: 2014-09-18T10:05:07.796183
+CREATE TABLE auth_user(
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(128),
+    last_name VARCHAR(128),
+    email VARCHAR(512),
+    username VARCHAR(128),
+    password VARCHAR(512),
+    registration_key VARCHAR(512),
+    reset_password_key VARCHAR(512),
+    registration_id VARCHAR(512)
+);
+timestamp: 2014-09-18T10:06:39.677159
+CREATE TABLE auth_user(
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(128),
+    last_name VARCHAR(128),
+    email VARCHAR(512),
+    username VARCHAR(128),
+    password VARCHAR(512),
+    registration_key VARCHAR(512),
+    reset_password_key VARCHAR(512),
+    registration_id VARCHAR(512)
+);
+timestamp: 2014-09-18T10:14:49.662669
+CREATE TABLE api_group_restrictions(
+    id SERIAL PRIMARY KEY,
+    table VARCHAR(512),
+    column VARCHAR(512),
+    all CHAR(1),
+    role_group INTEGER REFERENCES auth_group (id) ON DELETE CASCADE
+);

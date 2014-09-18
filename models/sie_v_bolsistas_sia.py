@@ -11,5 +11,6 @@ dbSie.define_table("V_BOLSISTAS_SIA",
                    Field("COD_BOLSA", "string"),
                    Field("ID_BOLSA", "integer"),
                    primarykey=['ID_CURSO_ALUNO'],
-                   migrate=False
+                   migrate=False,
+                   rname='DBSM.V_BOLSISTAS_SIA'
                    )

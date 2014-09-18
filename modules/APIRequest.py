@@ -23,21 +23,23 @@ class APIRequest():
         self.apiKey = apiKey # APIKey
         self.parameters = self._validateFields()
         self.table = request.controller
+        self.return_fields = self._validateReturnFields()
 
     #===========================================================================
     # Método principal, define a ordem e forma de execução de uma requisição a API
     # Return: depende do tipo de dado requisitado. Padrão é validResponseFormats['DEFAULT']
     #===========================================================================
     def performRequest(self):
+
         query = APIQuery(
                          self.request.controller,
                          self.parameters,
-                         self.request.vars
-                        )
-        self.saveAPIRequest()
-
-        self._defineReturnType()
-        return query.execute()
+                         self.request.vars,
+                         self.return_fields
+                        )           # Cria nova query com os parâmetros processados em APIRequest
+        self.saveAPIRequest()       # Gera log da query
+        self._defineReturnType()    # Define qual view será usada
+        return query.execute()      # Executa e retorna a query
 
     #===========================================================================
     # Salva a requisição feita pelo usuário no banco. Utilizado para auditoria
@@ -66,16 +68,28 @@ class APIRequest():
     # Método que verifica se os parâmetros passados são válidos ou não
     #==========================================================================
     def _validateFields(self):
-        fields = { "valid" : [], "special" : [], "invalid" : [] }
+        fields = { "valid" : [], "special" : [] }
         for k, v in self.request.vars.iteritems():
             if k in self.dbSie[self.request.controller].fields:
                 fields['valid'].append( k )
             elif self._isValidFieldWithSufix( k ):
                 fields['special'].append( k )
-            else:
-                fields['invalid'].append( k )
 
         return fields
+
+    #===========================================================================
+    # Método para verificar se os parâmetros de retorno passados são válidos
+    #
+    # Retorna uma lista com os FIELDS válidos ou uma lista vazia, que é interpretada
+    # como todas as colunas
+    #===========================================================================
+    def _validateReturnFields(self):
+        if self.request.vars["FIELDS"]:
+            requestedFields = self.request.vars["FIELDS"].split(",")
+            # Retorna uma lista contendo somente os itens da lista que forem colunas na tabela requisitada
+            return[ field for field in requestedFields if field in self.dbSie[self.request.controller].fields ]
+        else:
+            return[]
 
     #===========================================================================
     # Tipos especiais como Datas e Floats podem ser utilizados com o sufixo _MIN

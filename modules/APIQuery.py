@@ -10,7 +10,7 @@ class APIQuery():
         self.fields = fields['valid']
         self.special_fields = fields['special']
         self.request_vars = request_vars
-        self.return_fields = (self._getReturnFields( return_fields )) if return_fields else []
+        self.return_fields = return_fields
 
     # Gera diferentes tipos de consultas para tipos de dados diferentes
     # Return: List
@@ -44,11 +44,12 @@ class APIQuery():
         return False
 
     # Return: List
-    def _getReturnFields(self, return_fields):
-        arr = []
-        for field in return_fields:
-            arr.append( self.table[field] )
-        return arr
+    def _getReturnTableFields(self):
+        if len( self.return_fields ) > 0:
+            return [ self.table[field] for field in set(self.return_fields) ]
+        else:
+            return [ self.table.ALL ]
+
 
     # Retorna a tupla do limite
     # Return: Tuple
@@ -75,10 +76,10 @@ class APIQuery():
         recordsSubset = self._getRecordsSubset()
         if conditions:
             count = current.dbSie( reduce(lambda a,b:(a&b), conditions ) ).count()
-            ret = current.dbSie( reduce(lambda a,b:(a&b), conditions ) ).select( limitby=recordsSubset, *self.return_fields )
+            ret = current.dbSie( reduce(lambda a,b:(a&b), conditions ) ).select( *self._getReturnTableFields(), limitby=recordsSubset )
         else:
             count = current.dbSie( self.table ).count()
-            ret = current.dbSie( self.table ).select( limitby=recordsSubset, *self.return_fields )
+            ret = current.dbSie( self.table ).select( limitby=recordsSubset, *self._getReturnTableFields() )
 
         if ret:
             return { "count" : count, "content" : ret, "subset" : recordsSubset }

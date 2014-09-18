@@ -61,3 +61,26 @@ db.define_table("api_request",
                 Field("auth_key", db.api_auth, label="Key ID"),
                 Field("ip", "string")
                 )
+#===============================================================================
+#
+# Field table    Tabela modelada pela qual será restringida
+# Field column   Coluna da tabela
+# Field all      Caso a restrição seja aplicável a todas as colunas, recebe True
+# Field group    auth_user_group de uma API KEY
+#
+# Ex:
+#    table    = PESSOAS
+#    column   = NOME_PESSOA
+#    group    = Aluno
+#
+#    Na tabela PESSOAS, o campo NOME_PESSOA tem restrição de acesso na qual
+#    usuários ['Aluno', 'Sistema Convidado', 'Convidado'] não podem acessar e
+#    ['Professor', 'Servidor', 'Sistema', 'Desenvolvedor'] podem.
+#
+#===============================================================================
+db.define_table("api_group_restrictions",
+                Field("table", "string"),
+                Field("column", "string"),
+                Field("all", "boolean"),
+                Field("role_group", db.auth_group)
+                )

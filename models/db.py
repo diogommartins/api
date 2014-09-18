@@ -79,8 +79,8 @@ db.define_table("api_request",
 #
 #===============================================================================
 db.define_table("api_group_restrictions",
-                Field("table", "string"),
-                Field("column", "string"),
-                Field("all", "boolean"),
-                Field("role_group", db.auth_group)
+                Field("table_name", "string"),
+                Field("column_name", "string"),
+                Field("all_columns", "boolean"),
+                Field("group_id", db.auth_group)
                 )

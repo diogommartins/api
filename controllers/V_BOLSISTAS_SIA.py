@@ -13,8 +13,6 @@ def index():
             apiRequest = APIRequest( apiKey, request )
             resp = apiRequest.performRequest()
             return resp
-        else:
-            return dict( error="" )
     else:
         return dict( error="API Key Inválida ou Inativa" )
 

@@ -2,24 +2,28 @@
 from gluon import current
 from gluon.html import *
 class TableBeautify():
-    def __init__(self, tables):
+    excludedTables = ['COLUMNS']
+
+    def __init__(self, tables, descriptions):
         self.tables = tables
         self.dbSie = current.dbSie
+        self.descriptions = self._formatTableColumnsDescriptions(descriptions)
 
     def beautifyDatabaseTables(self):
         tables = []
         for tableName in self.tables:
-            tables.append( self.printTable(tableName) )
+            if tableName not in self.excludedTables:
+                tables.append( self.printTable(tableName) )
         return tables
 
     # Para uma determinada tabela, returna um TABLE Helper
     def printTable(self, tableName):
         table = TABLE(
-                      THEAD(TR(TH(tableName), _colspan=2, _class='tableName'),
-                            TR(TH('Field'), TH('Type'), TH('Description'))
-                            ),
-                      self._formatTableRows(tableName),
-                      _id='table_' + tableName
+                      THEAD( TR(TH(tableName,_colspan=3)) ),
+                      THEAD( TR(TH('Field'), TH('Type'), TH('Description') ) ),
+                      TBODY( self._formatTableRows(tableName) ),
+                      _id='table_' + tableName,
+                      _class='tableDescriptions'
                       )
         return table
 
@@ -28,5 +32,26 @@ class TableBeautify():
         rows = []
         for field in self.dbSie[tableName].fields:
             fieldDataType = self.dbSie[tableName][field].type
-            rows.append( TR( TD(field),TD(fieldDataType),TD('A ser implementado.'), _class="row_type_" + fieldDataType) )
+            rows.append( TR( TD(field),
+                             TD(fieldDataType, _class="row_type_" + fieldDataType),
+                             TD( self._getFieldDescription(tableName, field) )) )
         return rows
+
+    #===========================================================================
+    #
+    #===========================================================================
+    def _formatTableColumnsDescriptions(self, descriptions):
+        tableColumnsDescriptions = {}
+        for row in descriptions:
+            if row.TABNAME in tableColumnsDescriptions:
+                tableColumnsDescriptions[row.TABNAME].update( {row.COLNAME : row.REMARKS} )
+            else:
+                tableColumnsDescriptions.update( {row.TABNAME : { row.COLNAME : row.REMARKS }} )
+
+        return tableColumnsDescriptions
+
+    def _getFieldDescription(self, tableName, field):
+        if tableName in self.descriptions:
+            if field in self.descriptions[tableName]:
+                return self.descriptions[tableName][field]
+        return "Sem descrição"

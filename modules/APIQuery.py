@@ -28,10 +28,11 @@ class APIQuery():
         # Trata condições especiais
         for special_field in self.special_fields:
             field = self.specialFieldChop( special_field )
-            if special_field.endswith('_MIN'):
-                conditions.append( self.table[field] > self.request_vars[special_field] )
-            elif special_field.endswith('_MAX'):
-                conditions.append( self.table[field] < self.request_vars[special_field] )
+            if field:
+                if special_field.endswith('_MIN'):
+                    conditions.append( self.table[field] > self.request_vars[special_field] )
+                elif special_field.endswith('_MAX'):
+                    conditions.append( self.table[field] < self.request_vars[special_field] )
 
         return conditions
 

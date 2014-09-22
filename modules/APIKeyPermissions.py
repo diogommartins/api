@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from gluon import current
+from gluon import current, HTTP
 
 class APIKeyPermissions():
     def __init__( self, request ):
@@ -22,32 +22,32 @@ class APIKeyPermissions():
                 if self._hasPermissionToRequestFields():
                     return True
                 else:
-                    raise Exception( "APIKey não possui permissão para acessar o recurso requisitado." )
+                    raise HTTP(403,"APIKey não possui permissão para acessar o recurso requisitado." )
             else:
-                raise Exception( "Número máximo de requisições esgotado." )
+                raise HTTP(429, "Número máximo de requisições esgotado." )
         else:
-            raise Exception( "Chave inativa" )
+            raise HTTP(403, "Chave inativa" )
 
     #===========================================================================
-    # Caso FIELDS tenham sido especificados, verificará os pedidos, caso nao,
-    # verifica-se a permissão para ALL
+    # Caso FIELDS tenham sido especificados, verificará se existe alguma proibição
+    # de acesso a dados na tabela ou nas colunas requisitadas
     #
-    #
-    #
-    # TODO : DOCUMENTAAAAAAARRRRRRRRR
-    #
-    #
+    # Caso FIELDS não tenha sido especificado, considera-se que a requisição deseja
+    # acessar a todo o conteúdo da tabela. Então, verifica-se se existe restrição em
+    # pelo menos uma das coluna da tabela
     #
     #===========================================================================
     def _hasPermissionToRequestFields(self):
         requestedFields = self.request.vars["FIELDS"].split(",") if self.request.vars["FIELDS"] else []
         if len( requestedFields ) > 0:
             validFields = self._validateReturnFields( requestedFields )
-            dontHavePermission = self.db( self.conditionsToForbidRequestContentFromTableOrColumns(self.request.controller, validFields) ).select( self.db.api_group_restrictions.id )
+            dontHavePermission = self.db( self.conditionsToForbidRequestContentFromTableOrColumns(self.request.controller, validFields) ).select( self.db.api_group_restrictions.id,
+                                                                                                                                                  cache=(cache.ram, 3600) )
             if dontHavePermission:
                 return False
         else:
-            dontHavePermission = self.db( self.conditionsToRequestAnyContentFromTable(self.request.controller) ).select( self.db.api_group_restrictions.id )
+            dontHavePermission = self.db( self.conditionsToForbidRequestAnyContentFromTable(self.request.controller) ).select( self.db.api_group_restrictions.id,
+                                                                                                                         cache=(cache.ram, 3600) )
             if dontHavePermission:
                 return False
         return True
@@ -91,7 +91,7 @@ class APIKeyPermissions():
     #===========================================================================
     # Condição para proibição de acesso a pelo menos uma coluna de uma tabela
     #===========================================================================
-    def conditionsToRequestAnyContentFromTable(self, table):
+    def conditionsToForbidRequestAnyContentFromTable(self, table):
         conditions = [ (self.db.api_group_restrictions.table_name==table),
                        (self.db.api_group_restrictions.group_id == self.key.group_id) ]
 

@@ -51,46 +51,50 @@
     onde o exemplo URL_BASE<code>&LMIN=100</code>, seria equivalente a consulta:<br />
     <code>http://{{=request.env.server_name}}/api/ALUNOS?API_KEY=PBKDF2$sha256$10000$InTv75LNy8JrXuvx$Hhht/jloYXYlDWFkDVTS1qyIm7A8xIEh<b>&LMIN=100</b></code>
 
-    <table class='CSSTableGenerator'>
-        <tr>
-            <td>Param</td>
-            <td>Description</td>
-            <td>Usage</td>
-        </tr>
-        <tr>
-            <td>LMIN</td>
-            <td>Dada uma determinada consulta, <b>LMIN</b> diz para a API que salte
-            uma determinada quantidade de linhas. <code>Default = 0</code>. Funciona em
-            conjunto com <code>LMAX</code></td>
-            <td><code>&LMIN=<span class='type_integer'>integer</span></code></td>
-        </tr>
-        <tr>
-            <td>LMAX</td>
-            <td>Ao utilizar <b>LMAX</b>, dizemos a API que limite a quantidade de
-            resultados. Note que o valor máximo possível será sempre limitado ao
-            teto permitido para a sua <code>API_KEY</code>. Caso um valor maior
-            do que este seja passado, o valor máximo então será atribuído. Funciona em
-            conjunto com <code>LMIN</code></td>
-            <td><code>&LMAX=<span class='type_integer'>integer</span></td>
-        </tr>
-        <tr>
-            <td>ORDERBY</td>
-            <td>Ordena os resultados da consulta por um determinado <code>Field</code>
-            (ver descrição detalha de dados). Funciona em conjunto com o parâmetro <code>SORT</code> </td>
-            <td><code>&ORDERBY=<span class='type_string'>string</span></td>
-        </tr>
-        <tr>
-            <td>SORT</td>
-            <td>Utilizada em conjunto com o parâmetro <code>ORDERBY</code>, pode
-            receber o valor <code class='type_string'>ASC</code> para ordenação <b>crescente</b>
-            ou <code class='type_string'>DESC</code> para <b>decrescente</b>.</td>
-            <td><code>&SORT=<span class='type_string'>string</span></td>
-        </tr>
-        <tr>
-            <td>FORMAT</td>
-            <td>O tipo de visualização padrão dos dados é <code>HTML</code>. Formatos disponíveis são: <code>JSON</code> e <code>XML</code></td>
-            <td><code>&FORMAT=<span class='type_string'>string</span></td>
-        </tr>
+    <table>
+        <thead>
+            <tr>
+                <th>Param</th>
+                <th>Description</th>
+                <th>Usage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>LMIN</td>
+                <td>Dada uma determinada consulta, <b>LMIN</b> diz para a API que salte
+                uma determinada quantidade de linhas. <code>Default = 0</code>. Funciona em
+                conjunto com <code>LMAX</code></td>
+                <td><code>&LMIN=<span class='type_integer'>integer</span></code></td>
+            </tr>
+            <tr>
+                <td>LMAX</td>
+                <td>Ao utilizar <b>LMAX</b>, dizemos a API que limite a quantidade de
+                resultados. Note que o valor máximo possível será sempre limitado ao
+                teto permitido para a sua <code>API_KEY</code>. Caso um valor maior
+                do que este seja passado, o valor máximo então será atribuído. Funciona em
+                conjunto com <code>LMIN</code></td>
+                <td><code>&LMAX=<span class='type_integer'>integer</span></td>
+            </tr>
+            <tr>
+                <td>ORDERBY</td>
+                <td>Ordena os resultados da consulta por um determinado <code>Field</code>
+                (ver descrição detalha de dados). Funciona em conjunto com o parâmetro <code>SORT</code> </td>
+                <td><code>&ORDERBY=<span class='type_string'>string</span></td>
+            </tr>
+            <tr>
+                <td>SORT</td>
+                <td>Utilizada em conjunto com o parâmetro <code>ORDERBY</code>, pode
+                receber o valor <code class='type_string'>ASC</code> para ordenação <b>crescente</b>
+                ou <code class='type_string'>DESC</code> para <b>decrescente</b>.</td>
+                <td><code>&SORT=<span class='type_string'>string</span></td>
+            </tr>
+            <tr>
+                <td>FORMAT</td>
+                <td>O tipo de visualização padrão dos dados é <code>HTML</code>. Formatos disponíveis são: <code>JSON</code> e <code>XML</code></td>
+                <td><code>&FORMAT=<span class='type_string'>string</span></td>
+            </tr>
+        </tbody>
     </table>
 
     <p><b>Lembre-se:</b> Parâmetros são descritos pela seguinte estrutura:
@@ -104,125 +108,133 @@
     ( veja os Fields disponívels para cada Endpoint <a href='#descr_fields'>aqui</a> )
     e tipo de dado <code>Type</code> de cada um.</p>
 
-    <table class='CSSTableGenerator'>
-        <tr>
-            <td>Type</td>
-            <td>Description</td>
-            <td>Usage</td>
-        </tr>
-        <tr>
-            <td><span class='type_string'>String</span></td>
-            <td>Valores do tipo String (texto), utilizam-se de busca do tipo "está
-            contido em". Ou seja, o valor passado para o parâmetro não precisa necessariamente
-            ser idêntico ao que se espera no campo, ele só precisa estar presente.
-            Em uma consulta por DISCIPLINAS cujo parâmetro NOME_DISCIPLIMA contenha a paralava
-            <span class='type_string'>CaLCulO</span>, teríamos como resultado não somente "Cálculo",
-            mas também 'Cálculo 1', 'Calculo 2', 'Calculo Diferencial Estrogonófico', etc.
-            Note que esta busca é <code>case insensitive</code>, ou seja, letras maíúsculas e
-            minúsculas são tratadas da mesma forma.</td>
-            <td><code>&NOME_DISCIPLINA=<span class='type_string'>CaLCulO</span></code></td>
-        </tr>
-        <tr>
-            <td><span class='type_integer'>Integer</span></td>
-            <td>Ao enviar um valor para um parâmetro do tipo inteiro, serão retornadas
-             todas as linhas em que o <code>Field</code> contenha exatamente aquele
-             valor numérico inteiro. Por exemplo, se quisermos retornar todos os alunos
-             de cor branca, pediremos por todas as entradas do <code>Endpoint</code> ALUNOS
-              com <code>Field</code> ETNIA_ITEM igual a <b><span class='type_integer'>1</span></b></td>
-            <td><code>&ETNIA_ITEM=<span class='type_integer'>1</span></code></td>
-        </tr>
-        <tr>
-            <td><span class='type_date'>Date</span></td>
-            <td>Formatos do tipo date são definidos pelo <a href='http://www.w3.org/TR/NOTE-datetime'>padrão</a>
-            <code>YYYY-MM-dd</code> ANO-M. Fields do tipo data podem ser utilizados juntamente com os sufixos
-            <code>_MIN</code> e <code>_MAX</code></td>
-            <td>
-                <code>&DT_NASCIMENTO=<span class='type_date'>1980-01-01</span></code><br />
-                <code>&DT_NASCIMENTO_MIN=<span class='type_date'>1980-01-01</span></code><br />
-                <code>&DT_NASCIMENTO_MAX=<span class='type_date'>1980-01-01</span></code><br />
-            </td>
-        </tr>
-        <tr>
-            <td><span class='type_time'>Time</span></td>
-            <td>Formatos de tempo são definidos pelo padrão <code>HH:MM:SS</code> e também podem ser utilizados
-            juntamente com os sufixos <code>_MIN</code> e <code>_MAX</code></td>
-            <td>
-                <code>&HR_INICIO_AULA=<span class='type_time'>08:00:00</span></code><br />
-                <code>&HR_INICIO_AULA_MIN=<span class='type_time'>08:00:00</span></code><br />
-                <code>&HR_INICIO_AULA_MAX=<span class='type_time'>08:00:00</span></code><br />
-            </td>
-        </tr>
-        <tr>
-            <td><span class='type_float'>Float</span></td>
-            <td>Field do tipo float (ponto flutuante), ou números reais, são caracterizados
-            pela presença do caracter ponto <code>.</code> para separação de casas decimais. Fields do tipo
-            float podem ser utilizados juntamente com os sufixos <code>_MIN</code> e <code>_MAX</code></td>
-            <td>
-                <code>&VL_CONTRIBUICAO=<span class='type_float'>6000.50</span></code><br />
-                <code>&VL_CONTRIBUICAO_MIN=<span class='type_float'>7500.75</span></code><br />
-                <code>&VL_CONTRIBUICAO_MAX=<span class='type_float'>8000.8</span></code><br />
-            </td>
-        </tr>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Usage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class='type_string'>String</span></td>
+                <td>Valores do tipo String (texto), utilizam-se de busca do tipo "está
+                contido em". Ou seja, o valor passado para o parâmetro não precisa necessariamente
+                ser idêntico ao que se espera no campo, ele só precisa estar presente.
+                Em uma consulta por DISCIPLINAS cujo parâmetro NOME_DISCIPLIMA contenha a paralava
+                <span class='type_string'>CaLCulO</span>, teríamos como resultado não somente "Cálculo",
+                mas também 'Cálculo 1', 'Calculo 2', 'Calculo Diferencial Estrogonófico', etc.
+                Note que esta busca é <code>case insensitive</code>, ou seja, letras maíúsculas e
+                minúsculas são tratadas da mesma forma.</td>
+                <td><code>&NOME_DISCIPLINA=<span class='type_string'>CaLCulO</span></code></td>
+            </tr>
+            <tr>
+                <td><span class='type_integer'>Integer</span></td>
+                <td>Ao enviar um valor para um parâmetro do tipo inteiro, serão retornadas
+                 todas as linhas em que o <code>Field</code> contenha exatamente aquele
+                 valor numérico inteiro. Por exemplo, se quisermos retornar todos os alunos
+                 de cor branca, pediremos por todas as entradas do <code>Endpoint</code> ALUNOS
+                  com <code>Field</code> ETNIA_ITEM igual a <b><span class='type_integer'>1</span></b></td>
+                <td><code>&ETNIA_ITEM=<span class='type_integer'>1</span></code></td>
+            </tr>
+            <tr>
+                <td><span class='type_date'>Date</span></td>
+                <td>Formatos do tipo date são definidos pelo <a href='http://www.w3.org/TR/NOTE-datetime'>padrão</a>
+                <code>YYYY-MM-dd</code> ANO-M. Fields do tipo data podem ser utilizados juntamente com os sufixos
+                <code>_MIN</code> e <code>_MAX</code></td>
+                <td>
+                    <code>&DT_NASCIMENTO=<span class='type_date'>1980-01-01</span></code><br />
+                    <code>&DT_NASCIMENTO_MIN=<span class='type_date'>1980-01-01</span></code><br />
+                    <code>&DT_NASCIMENTO_MAX=<span class='type_date'>1980-01-01</span></code><br />
+                </td>
+            </tr>
+            <tr>
+                <td><span class='type_time'>Time</span></td>
+                <td>Formatos de tempo são definidos pelo padrão <code>HH:MM:SS</code> e também podem ser utilizados
+                juntamente com os sufixos <code>_MIN</code> e <code>_MAX</code></td>
+                <td>
+                    <code>&HR_INICIO_AULA=<span class='type_time'>08:00:00</span></code><br />
+                    <code>&HR_INICIO_AULA_MIN=<span class='type_time'>08:00:00</span></code><br />
+                    <code>&HR_INICIO_AULA_MAX=<span class='type_time'>08:00:00</span></code><br />
+                </td>
+            </tr>
+            <tr>
+                <td><span class='type_float'>Float</span></td>
+                <td>Field do tipo float (ponto flutuante), ou números reais, são caracterizados
+                pela presença do caracter ponto <code>.</code> para separação de casas decimais. Fields do tipo
+                float podem ser utilizados juntamente com os sufixos <code>_MIN</code> e <code>_MAX</code></td>
+                <td>
+                    <code>&VL_CONTRIBUICAO=<span class='type_float'>6000.50</span></code><br />
+                    <code>&VL_CONTRIBUICAO_MIN=<span class='type_float'>7500.75</span></code><br />
+                    <code>&VL_CONTRIBUICAO_MAX=<span class='type_float'>8000.8</span></code><br />
+                </td>
+            </tr>
+        </tbody>
     </table>
 
     <!-- Termina Sintaxe -->
 
 
     <h2>Dados Disponibilizados</h2>
-    <table class='CSSTableGenerator'>
-        <tr>
-            <td>Endpoint</td>
-            <td>Represents</td>
-        </tr>
-        <tr>
-            <td><a href='#table_ALUNOS'>/ALUNOS</a></td>
-            <td> Dados de alunos da Universidade</td>
-        </tr>
-        <tr>
-            <td><a href='#table_AREAS_CONHECIMENTO'>/AREAS_CONHECIMENTO</a></td>
-            <td>Áreas do conhecimento do CNPQ</td>
-        </tr>
-        <tr>
-            <td><a href='#table_CIDADES'>/CIDADES</a></td>
-            <td>Todas as cidades do Brasil, seus respectivos códigos, nomes e UFs ao qual pertencem</td>
-        </tr>
-        <tr>
-            <td><a href='#table_CURSOS'>/CURSOS</a></td>
-            <td>Dados de cursos</td>
-        </tr>
-        <tr>
-            <td><a href='#table_CURSOS_ALUNOS'>/CURSOS_ALUNOS</a></td>
-            <td>Associações de ALUNOS em CURSOS</tr>
-        <tr>
-            <td><a href='#table_DIARIO_CLASSE'>/DIARIO_CLASSE</a></td>
-            <td>Associações de ALUNOS em matrículas em DISCIPLINAS</td>
-        </tr>
-        <tr>
-            <td><a href='#table_DISCIPLINAS'>/DISCIPLINAS</a></td>
-            <td>Todas as disciplinas que estão sendo ou foram ofertadas, sua
-            unidade associada, Cargas Horária teórica e prática correspondentes,
-            área do conhecimento correpondente a disciplina,créditos e situação
-            (Ativida ou Inativa)</td>
-        </tr>
-        <tr>
-            <td><a href='#table_TAB_ESTRUTURADA'>/TAB_ESTRUTURADA</a></td>
-            <td>Serve como dicionário, contendo metadados para campos _ITEM e _TAB de outros Endpoints</td>
-        </tr>
-        <tr>
-            <td><a href='#table_V_FORMA_INGRESSO'>/V_FORMA_INGRESSO</a></td>
-            <td>Contém todas as formas de ingresso, atualamente ativas ou não, da UNIRIO.</td>
-        </tr>
-        <tr>
-            <td><a href='#table_V_SERVIDORES'>/V_SERVIDORES</a></td>
-            <td>Disponibiliza uma visão geral de todos os servidores situação
-            (ativo, afastado, aposentado...), unidade de lotação, função, data
-            de ingresso na UNIRIo, data de saída, aposentadoria, matrícula SIAPE,
-             etnia, tipo de jornada de trabalho, estado civil, sexo, etc </td>
-        </tr>
-        <tr>
-            <td><a href='#table_VERSOES_CURSOS'>/VERSOES_CURSOS</td>
-            <td>Um curso possui várias versões ao longo tempo. Aqui você encontra todas elas e se a mesma está corrente ou não</td>
-        </tr>
+    <table>
+        <thead>
+            <tr>
+                <th>Endpoint</th>
+                <th>Represents</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><a href='#table_ALUNOS'>/ALUNOS</a></td>
+                <td> Dados de alunos da Universidade</td>
+            </tr>
+            <tr>
+                <td><a href='#table_AREAS_CONHECIMENTO'>/AREAS_CONHECIMENTO</a></td>
+                <td>Áreas do conhecimento do CNPQ</td>
+            </tr>
+            <tr>
+                <td><a href='#table_CIDADES'>/CIDADES</a></td>
+                <td>Todas as cidades do Brasil, seus respectivos códigos, nomes e UFs ao qual pertencem</td>
+            </tr>
+            <tr>
+                <td><a href='#table_CURSOS'>/CURSOS</a></td>
+                <td>Dados de cursos</td>
+            </tr>
+            <tr>
+                <td><a href='#table_CURSOS_ALUNOS'>/CURSOS_ALUNOS</a></td>
+                <td>Associações de ALUNOS em CURSOS</tr>
+            <tr>
+                <td><a href='#table_DIARIO_CLASSE'>/DIARIO_CLASSE</a></td>
+                <td>Associações de ALUNOS em matrículas em DISCIPLINAS</td>
+            </tr>
+            <tr>
+                <td><a href='#table_DISCIPLINAS'>/DISCIPLINAS</a></td>
+                <td>Todas as disciplinas que estão sendo ou foram ofertadas, sua
+                unidade associada, Cargas Horária teórica e prática correspondentes,
+                área do conhecimento correpondente a disciplina,créditos e situação
+                (Ativida ou Inativa)</td>
+            </tr>
+            <tr>
+                <td><a href='#table_TAB_ESTRUTURADA'>/TAB_ESTRUTURADA</a></td>
+                <td>Serve como dicionário, contendo metadados para campos _ITEM e _TAB de outros Endpoints</td>
+            </tr>
+            <tr>
+                <td><a href='#table_V_FORMA_INGRESSO'>/V_FORMA_INGRESSO</a></td>
+                <td>Contém todas as formas de ingresso, atualamente ativas ou não, da UNIRIO.</td>
+            </tr>
+            <tr>
+                <td><a href='#table_V_SERVIDORES'>/V_SERVIDORES</a></td>
+                <td>Disponibiliza uma visão geral de todos os servidores situação
+                (ativo, afastado, aposentado...), unidade de lotação, função, data
+                de ingresso na UNIRIo, data de saída, aposentadoria, matrícula SIAPE,
+                 etnia, tipo de jornada de trabalho, estado civil, sexo, etc </td>
+            </tr>
+            <tr>
+                <td><a href='#table_VERSOES_CURSOS'>/VERSOES_CURSOS</td>
+                <td>Um curso possui várias versões ao longo tempo. Aqui você encontra todas elas e se a mesma está corrente ou não</td>
+            </tr>
+        </tbody>
     </table>
     <h3 id='descr_fields'>Descrição detelhada dos campos</h3>
     {{for tabela in tabelas:}}

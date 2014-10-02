@@ -3,10 +3,10 @@ from gluon import current, HTTP
 
 class APIKeyPermissions():
     def __init__( self, request ):
-        self.request = request
-        self.http_method = self.request.env.request_method
-        self.hash = self.request.vars.API_KEY
         self.db = current.db
+        self.request = request
+        self.http_method = self.HTTPMethodWithName( self.request.env.request_method )
+        self.hash = self.request.vars.API_KEY
         #=======================================================================
         # key pode ser nula ou ter as propriedades:
         #
@@ -15,15 +15,27 @@ class APIKeyPermissions():
         #=======================================================================
         self.key = self.db( self.db.v_api_calls.auth_key == self.hash ).select().first()
 
+    #===========================================================================
+    # Dado um determinado método, retorna o seu ID, caso o mesmo seja suportado pela API
+    #===========================================================================
+    def HTTPMethodWithName(self, method):
+        validMethod = self.db( self.db.api_methods.http_method==method ).select( self.db.api_methods.id, cache=(current.cache.ram, 36000) ).first()
+        if validMethod:
+            return validMethod.id
+        else:
+            raise HTTP(405, "Método requisitado não é suportado.")
+
+    #==========================================================================
     # Se chave estiver ativa e a quantidade de requisições aidna não estrapolou o limite diário
     # Return: Boolean
+    #==========================================================================
     def canPerformAPICall(self):
         if self.key.active:
             if (self.key.total_requests < self.key.max_requests):
                 if self._hasPermissionToRequestFields():
                     return True
                 else:
-                    raise HTTP(403,"APIKey não possui permissão para acessar o recurso requisitado." )
+                    raise HTTP(403,"APIKey não possui permissão para acessar o recurso requisitado.")
             else:
                 raise HTTP(429, "Número máximo de requisições esgotado." )
         else:

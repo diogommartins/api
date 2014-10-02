@@ -41,16 +41,16 @@ class APIKeyPermissions():
         requestedFields = self.request.vars["FIELDS"].split(",") if self.request.vars["FIELDS"] else []
         if len( requestedFields ) > 0:
             validFields = self._validateReturnFields( requestedFields )
-            dontHavePermission = self.db( self.conditionsToForbidRequestContentFromTableOrColumns(self.request.controller, validFields) ).select( self.db.api_group_restrictions.id,
-                                                                                                                                                  cache=(cache.ram, 3600) )
-            if dontHavePermission:
-                return False
+            hasPermission = self.db( self.conditionsToRequestContentFromTableOrColumns(self.request.controller, validFields) ).select( self.db.api_group_restrictions.id,
+                                                                                                                                                  cache=(current.cache.ram, 3600) )
+            if hasPermission:
+                return True
         else:
-            dontHavePermission = self.db( self.conditionsToForbidRequestAnyContentFromTable(self.request.controller) ).select( self.db.api_group_restrictions.id,
-                                                                                                                         cache=(cache.ram, 3600) )
-            if dontHavePermission:
-                return False
-        return True
+            hasPermission = self.db( self.conditionsToRequestAnyContentFromTable(self.request.controller) ).select( self.db.api_group_restrictions.id,
+                                                                                                                         cache=(current.cache.ram, 3600) )
+            if hasPermission:
+                return True
+        return False
 
 
     #===========================================================================
@@ -63,14 +63,14 @@ class APIKeyPermissions():
     def _validateReturnFields(self, fields):
         return[ field for field in fields if field in current.dbSie[self.request.controller].fields ]
 
-    def conditionsToForbidRequestContentFromTableOrColumns(self, table, columns):
-        return ( self.conditionsToForbidRequestContentFromTable(table)
+    def conditionsToRequestContentFromTableOrColumns(self, table, columns):
+        return ( self.conditionsToRequestContentFromTable(table)
                  |self.conditionsToRequestContentFromTableColumns(table, columns) )
 
     #===========================================================================
     # Condição para proibição total em uma tabela
     #===========================================================================
-    def conditionsToForbidRequestContentFromTable(self, table):
+    def conditionsToRequestContentFromTable(self, table):
         conditions = [ (self.db.api_group_restrictions.group_id == self.key.group_id),
                        (self.db.api_group_restrictions.table_name == table),
                        (self.db.api_group_restrictions.all_columns == True) ]
@@ -91,7 +91,7 @@ class APIKeyPermissions():
     #===========================================================================
     # Condição para proibição de acesso a pelo menos uma coluna de uma tabela
     #===========================================================================
-    def conditionsToForbidRequestAnyContentFromTable(self, table):
+    def conditionsToRequestAnyContentFromTable(self, table):
         conditions = [ (self.db.api_group_restrictions.table_name==table),
                        (self.db.api_group_restrictions.group_id == self.key.group_id) ]
 

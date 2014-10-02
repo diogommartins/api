@@ -61,26 +61,37 @@ db.define_table("api_request",
                 Field("auth_key", db.api_auth, label="Key ID"),
                 Field("ip", "string")
                 )
+
+db.define_table("api_methods",
+                Field("http_method", "string")
+                )
+
 #===============================================================================
 #
-# Field table    Tabela modelada pela qual será restringida
-# Field column   Coluna da tabela
-# Field all      Caso a restrição seja aplicável a todas as colunas, recebe True
-# Field group    auth_user_group de uma API KEY
+# Field table_name        Tabela modelada pela qual será restringida
+# Field column_name       Coluna da tabela
+# Field all_columns      Caso a restrição seja aplicável a todas as colunas, recebe True
+# Field group_id            auth_user_group de uma API KEY
 #
 # Ex:
-#    table    = PESSOAS
-#    column   = NOME_PESSOA
-#    group    = Aluno
+#    table_name    = PESSOAS
+#    column_name   = NOME_PESSOA
+#    group_id      = Aluno
+#
+#
 #
 #    Na tabela PESSOAS, o campo NOME_PESSOA tem restrição de acesso na qual
 #    usuários ['Aluno', 'Sistema Convidado', 'Convidado'] não podem acessar e
 #    ['Professor', 'Servidor', 'Sistema', 'Desenvolvedor'] podem.
 #
 #===============================================================================
-db.define_table("api_group_restrictions",
+db.define_table("api_group_permissions",
                 Field("table_name", "string"),
-                Field("column_name", "string"),
+                Field("column_name", "string", notnull=False),
+                Field("http_method", db.api_methods),
                 Field("all_columns", "boolean"),
-                Field("group_id", db.auth_group)
+                Field("group_id", db.auth_group),
+                Field("unique_validator", unique=True, compute=lambda r: r.table_name + r.column_name + str(r.http_method) + str(r.group_id) )
                 )
+
+db.api_group_permissions.http_method.requires = IS_IN_DB( db, db.api_methods.id, '%(http_method)s' )

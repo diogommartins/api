@@ -8,13 +8,11 @@ from APIKeyPermissions import APIKeyPermissions
 def index():
     apiKey = APIKey( request.vars.API_KEY )
     if apiKey.auth_key:
-        keyPermissions = APIKeyPermissions( request.vars.API_KEY )
+        keyPermissions = APIKeyPermissions( request )
         if keyPermissions.canPerformAPICall():
             apiRequest = APIRequest( apiKey, request )
             resp = apiRequest.performRequest()
             return resp
-        else:
-            return dict( error="" )
     else:
         return dict( error="API Key Inválida ou Inativa" )
 

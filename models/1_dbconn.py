@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
 #Git ignored file
-db = DAL('postgres://postgres:devdtic2@sistemas.unirio.br/api', migrate=False, fake_migrate_all=True)
+db = DAL('postgres://postgres:devdtic2@sistemas.unirio.br/api')
 dbSie = DAL('db2://DSN=dbsmtest;UID=dbsm;PWD=htrg11sn', db_codec='latin1')
 #dbSie = DAL('db2://DSN=DB2_SIE;UID=dbsm;PWD=S1&@Ufsm@App')

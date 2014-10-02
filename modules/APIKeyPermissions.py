@@ -4,6 +4,7 @@ from gluon import current, HTTP
 class APIKeyPermissions():
     def __init__( self, request ):
         self.request = request
+        self.http_method = self.request.env.request_method
         self.hash = self.request.vars.API_KEY
         self.db = current.db
         #=======================================================================
@@ -41,12 +42,12 @@ class APIKeyPermissions():
         requestedFields = self.request.vars["FIELDS"].split(",") if self.request.vars["FIELDS"] else []
         if len( requestedFields ) > 0:
             validFields = self._validateReturnFields( requestedFields )
-            hasPermission = self.db( self.conditionsToRequestContentFromTableOrColumns(self.request.controller, validFields) ).select( self.db.api_group_restrictions.id,
+            hasPermission = self.db( self.conditionsToRequestContentFromTableColumns(self.request.controller, validFields) ).select( self.db.api_group_permissions.id,
                                                                                                                                                   cache=(current.cache.ram, 3600) )
             if hasPermission:
                 return True
         else:
-            hasPermission = self.db( self.conditionsToRequestAnyContentFromTable(self.request.controller) ).select( self.db.api_group_restrictions.id,
+            hasPermission = self.db( self.conditionsToRequestAnyContentFromTable(self.request.controller) ).select( self.db.api_group_permissions.id,
                                                                                                                          cache=(current.cache.ram, 3600) )
             if hasPermission:
                 return True
@@ -63,7 +64,7 @@ class APIKeyPermissions():
     def _validateReturnFields(self, fields):
         return[ field for field in fields if field in current.dbSie[self.request.controller].fields ]
 
-    def conditionsToRequestContentFromTableOrColumns(self, table, columns):
+    def conditionsToRequestContentFromTableWithColumns(self, table, columns):
         return ( self.conditionsToRequestContentFromTable(table)
                  |self.conditionsToRequestContentFromTableColumns(table, columns) )
 
@@ -71,9 +72,10 @@ class APIKeyPermissions():
     # Condição para proibição total em uma tabela
     #===========================================================================
     def conditionsToRequestContentFromTable(self, table):
-        conditions = [ (self.db.api_group_restrictions.group_id == self.key.group_id),
-                       (self.db.api_group_restrictions.table_name == table),
-                       (self.db.api_group_restrictions.all_columns == True) ]
+        conditions = [ (self.db.api_group_permissions.group_id == self.key.group_id),
+                       (self.db.api_group_permissions.table_name == table),
+                       (self.db.api_group_permissions.http_method == self.http_method)
+                       (self.db.api_group_permissions.all_columns == True) ]
 
         return reduce(lambda a,b:(a&b), conditions )
 
@@ -81,9 +83,10 @@ class APIKeyPermissions():
     # Condição para proibição em uma lista de colunas
     #===========================================================================
     def conditionsToRequestContentFromTableColumns(self, table, columns):
-        conditions = [ ( (self.db.api_group_restrictions.column_name == column)
-                         &(self.db.api_group_restrictions.group_id == self.key.group_id)
-                         &(self.db.api_group_restrictions.table_name==table)
+        conditions = [ ( (self.db.api_group_permissions.column_name == column)
+                         &(self.db.api_group_permissions.group_id == self.key.group_id)
+                         &(self.db.api_group_permissions.table_name==table)
+                         &(self.db.api_group_permissions.http_method == self.http_method)
                          ) for column in columns ]
 
         return reduce(lambda a,b:(a|b), conditions )
@@ -92,7 +95,8 @@ class APIKeyPermissions():
     # Condição para proibição de acesso a pelo menos uma coluna de uma tabela
     #===========================================================================
     def conditionsToRequestAnyContentFromTable(self, table):
-        conditions = [ (self.db.api_group_restrictions.table_name==table),
-                       (self.db.api_group_restrictions.group_id == self.key.group_id) ]
+        conditions = [ (self.db.api_group_permissions.table_name==table),
+                       (self.db.api_group_permissions.group_id == self.key.group_id),
+                       (self.db.api_group_permissions.http_method == self.http_method) ]
 
         return reduce(lambda a,b:(a&b), conditions )

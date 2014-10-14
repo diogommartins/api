@@ -13,6 +13,12 @@ class APIRequest():
                            'HTML' : 'generic.html',
                            'DEFAULT' : 'generic.html'
                            }
+    validContentTypes = {
+                         'JSON' : 'text/json',
+                         'XML' : 'text/xml',
+                         'HTML' : 'text/html',
+                         'DEFAULT' : 'text/html'
+                         }
 
     def __init__( self, apiKey, request ):
         self.request = request
@@ -61,8 +67,10 @@ class APIRequest():
         format = self.request.vars.FORMAT
         if format in APIRequest.validResponseFormats:
             current.response.view = APIRequest.validResponseFormats[ format ]
+            current.response.headers['Content-Type'] = APIRequest.validContentTypes[ format ]
         else:
             current.response.view = APIRequest.validResponseFormats[ 'DEFAULT' ]
+            current.response.headers['Content-Type'] = APIRequest.validContentTypes[ 'DEFAULT' ]
 
     #==========================================================================
     # Método que verifica se os parâmetros passados são válidos ou não

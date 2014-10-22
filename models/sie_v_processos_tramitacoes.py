@@ -2,6 +2,7 @@
 dbSie.define_table("V_PROCESSOS_TRAMITACOES",
                    Field("NUM_PROCESSO", "string"),
                    Field("DT_ENVIO", "string"),
+                   Field("DESCR_FLUXO", "string"),
                    Field("DT_RECEBIMENTO", "string"),
                    Field("ID_ORIGEM", "integer"),
                    Field("TIPO_ORIGEM", "integer"),

@@ -44,7 +44,7 @@ class APIKey():
 
     @staticmethod
     def getCurrentActiveKeyForUser( user_id ):
-        api_auth = current.db( (current.db.api_auth.user_id == user_id) and (current.db.api_auth.active==True) ).select().first()
+        api_auth = current.db( (current.db.api_auth.user_id == user_id) & (current.db.api_auth.active==True) ).select().first()
         if api_auth:
             return api_auth.auth_key
 

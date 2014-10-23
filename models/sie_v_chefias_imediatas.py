@@ -1,0 +1,21 @@
+# -*- coding: utf-8 -*-
+dbSie.define_table("V_CHEFIAS_IMEDIATAS",
+                   Field("NOME_SERVIDOR", "string"),
+                   Field("CARGO_SERVIDOR", "string"),
+                   Field("ID_UNIDADE", "integer"),
+                   Field("UNIDADE_EXERCICIO_SERVIDOR", "string"),
+                   Field("UNIDADE_EXERCICIO_CHEFIA", "string"),
+                   Field("CHEFIA_TITULAR", "string"),
+                   Field("CHEFIA_SUBSTITUTA", "string"),
+                   Field("SIAPE_SERVIDOR", "integer"),
+                   Field("SIAPE_CHEFIA_TITULAR", "integer"),
+                   Field("SIAPE_CHEFIA_SUBST", "integer"),
+                   Field("CPF_SERVIDOR_MASCARA", "string"),
+                   Field("CPF_SERVIDOR", "string"),
+                   Field("EMAIL_SERVIDOR", "string"),
+                   Field("EMAIL_CHEFIA_TITULAR", "string"),
+                   Field("EMAIL_CHEFIA_SUBST", "string"),
+                   primarykey=["SIAPE_SERVIDOR", "SIAPE_CHEFIA_TITULAR"],
+                   migrate=False,
+                   rname="DBSM.V_CHEFIAS_IMEDIATAS"
+                   )

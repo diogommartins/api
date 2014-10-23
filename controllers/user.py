@@ -66,6 +66,9 @@ def createNewSystemKey():
         #Se ainda não existir uma chave válida
         if not currentAPIKey:
             currentAPIKey = apiKey.genarateNewKeyForUser(form.vars.user_id)
+            response.flash = "Nova chave gerada"
+        else:
+            response.flash = "Uma chave já existe para sistema " + form.vars.user_id
 
         key = currentAPIKey
 

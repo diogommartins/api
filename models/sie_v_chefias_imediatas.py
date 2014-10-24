@@ -15,7 +15,7 @@ dbSie.define_table("V_CHEFIAS_IMEDIATAS",
                    Field("EMAIL_SERVIDOR", "string"),
                    Field("EMAIL_CHEFIA_TITULAR", "string"),
                    Field("EMAIL_CHEFIA_SUBST", "string"),
-                   primarykey=["SIAPE_SERVIDOR", "SIAPE_CHEFIA_TITULAR"],
+                   primarykey=["SIAPE_SERVIDOR"],
                    migrate=False,
                    rname="DBSM.V_CHEFIAS_IMEDIATAS"
                    )

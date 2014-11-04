@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from gluon import current
+from gluon import current, HTTP
 from APIKey import APIKey
 from APIQuery import APIQuery
 from datetime import datetime
@@ -46,7 +46,11 @@ class APIRequest():
         :return: Nome original do controller requisitado
         """
         pathList = self.request.env.PATH_INFO.split("/")
-        return pathList[len(pathList)-1]
+        table = pathList[len(pathList)-1]
+        if table in current.dbSie:
+            return table
+        else:
+            raise HTTP(404, 'Recurso requisitado é inválido: ' + table)
 
     # ===========================================================================
     # Método principal, define a ordem e forma de execução de uma requisição a API

@@ -29,8 +29,24 @@ class APIRequest():
 
         self.apiKey = apiKey  # APIKey
         self.parameters = self._validateFields()
-        self.table = request.controller
+        self.tablename = self._controllerForRewritedURL()
         self.return_fields = self._validateReturnFields()
+
+    def _controllerForRewritedURL(self):
+        """
+        O método retorna o nome do controller requisitado, antes do URL Rewrite realizado
+        pelo `routes.py`. Na API, um controller é mapeado diretamente a uma tabela modelado
+        e esse nome é utilizado para reconhecer qual tabela foi originalmente requisitada
+
+        Ex.:
+            Dada uma requisição `https://sistemas.unirio.br/api/DOC_PESSOAS?API_KEY=xyz`
+            request.env.PATH_INFO == '/api/DOC_PESSOAS' -> 'DOC_PESSOAS'
+
+        :rtype : str
+        :return: Nome original do controller requisitado
+        """
+        pathList = self.request.env.PATH_INFO.split("/")
+        return pathList[len(pathList)-1]
 
     # ===========================================================================
     # Método principal, define a ordem e forma de execução de uma requisição a API
@@ -39,7 +55,7 @@ class APIRequest():
     def performRequest(self):
 
         query = APIQuery(
-            self.request.controller,
+            self.tablename,
             self.parameters,
             self.request.vars,
             self.return_fields
@@ -79,7 +95,7 @@ class APIRequest():
     def _validateFields(self):
         fields = {"valid": [], "special": []}
         for k, v in self.request.vars.iteritems():
-            if k in self.dbSie[self.request.controller].fields:
+            if k in self.dbSie[self.tablename].fields:
                 fields['valid'].append(k)
             elif self._isValidFieldWithSufix(k):
                 fields['special'].append(k)
@@ -96,7 +112,7 @@ class APIRequest():
         if self.request.vars["FIELDS"]:
             requestedFields = self.request.vars["FIELDS"].split(",")
             # Retorna uma lista contendo somente os itens da lista que forem colunas na tabela requisitada
-            return [field for field in requestedFields if field in self.dbSie[self.request.controller].fields]
+            return [field for field in requestedFields if field in self.dbSie[self.tablename].fields]
         else:
             return []
 
@@ -108,7 +124,7 @@ class APIRequest():
     def _isValidFieldWithSufix(self, field):
         if self.specialFieldChop(field):
             field = self.specialFieldChop(field)
-            if field in self.dbSie[self.request.controller].fields:
+            if field in self.dbSie[self.tablename].fields:
                 return True
         return False
 

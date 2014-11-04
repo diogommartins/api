@@ -53,7 +53,6 @@ class APIRequest():
     # Return: depende do tipo de dado requisitado. Padrão é validResponseFormats['DEFAULT']
     #===========================================================================
     def performRequest(self):
-
         query = APIQuery(
             self.tablename,
             self.parameters,
@@ -64,11 +63,12 @@ class APIRequest():
         self._defineReturnType()  # Define qual view será usada
         return query.execute()  # Executa e retorna a query
 
-    #===========================================================================
-    # Salva a requisição feita pelo usuário no banco. Utilizado para auditoria
-    # e limitar a quantidade de requisições por API KEY
-    #===========================================================================
     def saveAPIRequest(self):
+        """
+        Salva a requisição feita pelo usuário no banco.
+        Utilizado para auditoria e limitar a quantidade de requisições por API KEY
+
+        """
         self.db.api_request.insert(
             dt_request=self.timestamp,
             url=self.request.env.request_uri,
@@ -77,10 +77,13 @@ class APIRequest():
         )
         self.db.commit()
 
-    #===============================================================================
-    # Define o formato de resposta (HTML,XML,JSON,..) de acordo com o parâmetro requisitado pelo usuário
-    #===============================================================================
     def _defineReturnType(self):
+        """
+        Define o formato de resposta (HTML,XML,JSON,..) de acordo com o parâmetro
+        requisitado pelo usuário, setando a view correspondente que será utilizada
+        e o Content-Type adequado.
+
+        """
         format = self.request.vars.FORMAT
         if format in APIRequest.validResponseFormats:
             current.response.view = APIRequest.validResponseFormats[format]
@@ -89,10 +92,20 @@ class APIRequest():
             current.response.view = APIRequest.validResponseFormats['DEFAULT']
             current.response.headers['Content-Type'] = APIRequest.validContentTypes['DEFAULT']
 
-    #==========================================================================
-    # Método que verifica se os parâmetros passados são válidos ou não
-    #==========================================================================
+
     def _validateFields(self):
+        """
+        Método que verifica se os parâmetros passados são válidos ou não. Um dicionário
+        com duas chaves é retornado:
+
+        `valid` uma lista de campos cujos nomes estão contidos na lista de colunas da
+        tabela requisitada
+        `special` uma lista de campos cujos nomes, com um sufixo válido, estão contidos
+        na lista de colunas da tabela requisitada
+
+        :rtype : dict
+        :return: Um dicionário contendo os campos válidos
+        """
         fields = {"valid": [], "special": []}
         for k, v in self.request.vars.iteritems():
             if k in self.dbSie[self.tablename].fields:
@@ -102,13 +115,14 @@ class APIRequest():
 
         return fields
 
-    #===========================================================================
-    # Método para verificar se os parâmetros de retorno passados são válidos
-    #
-    # Retorna uma lista com os FIELDS válidos ou uma lista vazia, que é interpretada
-    # como todas as colunas
-    #===========================================================================
     def _validateReturnFields(self):
+        """
+        Método para verificar se os parâmetros de retorno passados são válidos.
+        Retorna uma lista com os FIELDS válidos ou uma lista vazia, que é interpretada
+        como todas as colunas.
+
+        :rtype : list
+        """
         if self.request.vars["FIELDS"]:
             requestedFields = self.request.vars["FIELDS"].split(",")
             # Retorna uma lista contendo somente os itens da lista que forem colunas na tabela requisitada
@@ -116,24 +130,29 @@ class APIRequest():
         else:
             return []
 
-    #===========================================================================
-    # Tipos especiais como Datas e Floats podem ser utilizados com o sufixo _MIN
-    # _MAX, etc. Esse método verifica se o campo passado está dentro desta categoria
-    # Return: Boolean
-    #===========================================================================
     def _isValidFieldWithSufix(self, field):
+        """
+        Campos especiais são strings contidas na lista de colunas de uma tabela,
+        acrescidas de um sufixo válido, como _MIN, _MAX, etc. Esse método verifica
+        se o campo passado está dentro desta categoria.
+
+        :rtype : bool
+        :param field: Uma string reference a um campo
+        :return: True se for um campo um campo válido, acrescido de um sufixo válido
+        """
         if self.specialFieldChop(field):
             field = self.specialFieldChop(field)
             if field in self.dbSie[self.tablename].fields:
                 return True
-        return False
 
-    #===========================================================================
-    # Método para cortar e validar o sufixo de uma string de field caso ela
-    # termine com _MIN ou _MAX, etc e
-    #===========================================================================
     @staticmethod
     def specialFieldChop(field):
+        """
+        Dada uma string fornecida como entrada, o método valida o sufixo e retorna
+        o campo correspondente, sem o sufixo.
+
+        :param field: Uma string reference a um campo, com sufixo
+        :return: Uma string relativa a um campo, sem sufixo
+        """
         if field.endswith(APIRequest.validSufixes):
             return field[:-APIRequest.DEFAULT_SUFIX_SIZE]
-        return False

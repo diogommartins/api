@@ -1,0 +1,96 @@
+.important{
+    background-color: #FFB9B8;
+    font-weight: bold;
+    margin: 20px;
+    padding:10px;
+}
+
+fieldset{
+    margin:15px 0;
+}
+label{
+    display:inline;
+}
+
+.dadosServidor label, .anexo2 label{
+    display:block;
+}
+
+.navbar{
+    background: #0081c2;
+}
+
+.navbar-inverse .navbar-inner{
+    background: #0081c2;
+    border-color: #0081c2;
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-weight: 300;
+
+}
+
+.navbar-inverse .brand, .navbar-inverse .nav>li>a{
+    color: #ffffff;
+    font-weight: bold;
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-weight: 300;
+}
+
+.navbar-inverse .nav li.dropdown.open>.dropdown-toggle, .navbar-inverse .nav li.dropdown.active>.dropdown-toggle, .navbar-inverse .nav li.dropdown.open.active>.dropdown-toggle {
+    color: #ffffff;
+    background-color: #3677a9;
+    border-color:#0081c2;
+}
+
+h1, h2, h3{
+    color: #3677a9;
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-weight: 300;
+}
+
+h3{
+    color:black;
+}
+
+.mastheader h1{
+    font-weight: 200;
+    padding-top: 20px;
+}
+
+span.big-header-letter{
+    font-size:62pt;
+    font-weight: 50;
+    color:#ccc;
+}
+
+a.brand:hover{
+    color: #ccc;
+}
+
+footer, #footer, .footer{
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    color: #777;
+}
+#footer-leftdiv{
+    float:left;
+    width: 40%;
+}
+
+.footer-content{
+    position: relative;
+    float: right;
+    bottom: auto;
+    width: 50%;
+}
+
+img.desaturate {
+    -webkit-filter: grayscale(100%) brightness(120%);
+    -moz-filter: grayscale(100%) brightness(120%);
+    filter: grayscale(100%) brightness(120%);
+
+}
+
+img.desaturate:hover{
+    -webkit-filter: grayscale(0%);
+    -moz-filter: grayscale(0%);
+    filter: grayscale(0%);
+}

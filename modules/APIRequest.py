@@ -29,10 +29,11 @@ class APIRequest():
 
         self.apiKey = apiKey  # APIKey
         self.parameters = self._validateFields()
-        self.tablename = self._controllerForRewritedURL()
+        self.tablename = self.controllerForRewritedURL()
         self.return_fields = self._validateReturnFields()
 
-    def _controllerForRewritedURL(self):
+    @staticmethod
+    def controllerForRewritedURL():
         """
         O método retorna o nome do controller requisitado, antes do URL Rewrite realizado
         pelo `routes.py`. Na API, um controller é mapeado diretamente a uma tabela modelado
@@ -45,18 +46,20 @@ class APIRequest():
         :rtype : str
         :return: Nome original do controller requisitado
         """
-        pathList = self.request.env.PATH_INFO.split("/")
+        pathList = current.request.env.PATH_INFO.split("/")
         table = pathList[len(pathList)-1]
         if table in current.dbSie:
             return table
         else:
             raise HTTP(404, 'Recurso requisitado é inválido: ' + table)
 
-    # ===========================================================================
-    # Método principal, define a ordem e forma de execução de uma requisição a API
-    # Return: depende do tipo de dado requisitado. Padrão é validResponseFormats['DEFAULT']
-    #===========================================================================
+
     def performRequest(self):
+        """
+        Método principal, define a ordem e forma de execução de uma requisição a API
+
+        :return: depende do tipo de dado requisitado. Padrão é validResponseFormats['DEFAULT']
+        """
         query = APIQuery(
             self.tablename,
             self.parameters,

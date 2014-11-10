@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import APIRequest
 from gluon import current, HTTP
 
 
@@ -15,6 +16,7 @@ class APIKeyPermissions():
         # total_requests
         #=======================================================================
         self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select().first()
+        self.tablename = APIRequest.controllerForRewritedURL()
 
     # ===========================================================================
     # Dado um determinado método, retorna o seu ID, caso o mesmo seja suportado pela API
@@ -57,13 +59,13 @@ class APIKeyPermissions():
         if len(requestedFields) > 0:
             validFields = self._validateReturnFields(requestedFields)
             hasPermission = self.db(
-                self.conditionsToRequestContentFromTableColumns(self.request.controller, validFields)).select(
+                self.conditionsToRequestContentFromTableColumns(self.tablename, validFields)).select(
                 self.db.api_group_permissions.id,
                 cache=(current.cache.ram, 3600))
             if hasPermission:
                 return True
         else:
-            hasPermission = self.db(self.conditionsToRequestAnyContentFromTable(self.request.controller)).select(
+            hasPermission = self.db(self.conditionsToRequestAnyContentFromTable(self.tablename)).select(
                 self.db.api_group_permissions.id,
                 cache=(current.cache.ram, 3600))
             if hasPermission:
@@ -79,7 +81,7 @@ class APIKeyPermissions():
     # MÉTODO TAMBÉM EXISTEM EM APIRequest <<<<<< RESOLVER
     #===========================================================================
     def _validateReturnFields(self, fields):
-        return [field for field in fields if field in current.dbSie[self.request.controller].fields]
+        return [field for field in fields if field in current.dbSie[self.tablename].fields]
 
     def conditionsToRequestContentFromTableWithColumns(self, table, columns):
         return ( self.conditionsToRequestContentFromTable(table)

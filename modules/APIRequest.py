@@ -26,10 +26,10 @@ class APIRequest():
         self.db = current.db
         self.dbSie = current.dbSie
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
         self.apiKey = apiKey  # APIKey
-        self.parameters = self._validateFields()
+
         self.tablename = self.controllerForRewritedURL()
+        self.parameters = self._validateFields()
         self.return_fields = self._validateReturnFields()
 
     @staticmethod

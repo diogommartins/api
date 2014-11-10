@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import APIRequest
+from APIRequest import APIRequest
 from gluon import current, HTTP
 
 

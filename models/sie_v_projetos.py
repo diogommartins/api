@@ -9,6 +9,7 @@ dbSie.define_table("V_PROJETOS",
     Field("COORDENADOR", "string"),
     Field("CLASSIFICAO_CNPQ", "string"),
     Field("ANO_REFERENCIA", "integer"),
+    primarykey=["ID_PROJETO"],
     migrate=False,
     rname='DBSM.V_PROJETOS'
 )

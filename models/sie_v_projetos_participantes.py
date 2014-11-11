@@ -6,5 +6,7 @@ dbSie.define_table("V_PROJETOS_PARTICIPANTES",
                    Field("VINCULO", "string"),
                    Field("DT_INICIAL", "date"),
                    Field("DT_FINAL", "date"),
-                   Field("FUNCAO_ITEM", "integer")
+                   Field("FUNCAO_ITEM", "integer"),
+                   migrate=False,
+                   rname='DBSM.V_PROJETOS_PARTICIPANTES'
 )

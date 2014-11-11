@@ -8,5 +8,7 @@ dbSie.define_table("V_PROJETOS",
     Field("DESCR_MAIL", "string"),
     Field("COORDENADOR", "string"),
     Field("CLASSIFICAO_CNPQ", "string"),
-    Field("ANO_REFERENCIA", "integer")
+    Field("ANO_REFERENCIA", "integer"),
+    migrate=False,
+    rname='DBSM.V_PROJETOS'
 )

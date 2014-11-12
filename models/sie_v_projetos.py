@@ -10,6 +10,7 @@ dbSie.define_table("V_PROJETOS",
     Field("NUMERO_PROCESSO", "string"),
     Field("ID_DOCUMENTO", "integer"),
     Field("DESCR_SITUACAO", "string"),
+    Field("GRUPO_CNPQ", "string"),
     primarykey=["ID_PROJETO"],
     migrate=False,
     rname='DBSM.V_PROJETOS'

@@ -29,11 +29,18 @@ class APIKeyPermissions():
         else:
             raise HTTP(405, "Método requisitado não é suportado.")
 
-    #==========================================================================
-    # Se chave estiver ativa e a quantidade de requisições aidna não estrapolou o limite diário
-    # Return: Boolean
-    #==========================================================================
     def canPerformAPICall(self):
+        """
+        Método responsável por verificar se a chave está ativa e a quantidade de requisições
+        ainda não estrapolou o limite diário
+
+        :rtype : bool
+        :return: True se a chave estiver ativa e ainda puder fazer requisições. Caso contrário,
+         Um erro HTTP relacionado ao erro é disparado
+        :raise HTTP: 403 caso não tenha permissão de acessar uma coluna de uma tabela
+        :raise HTTP: 429 caso tenha estrapolado o número máximo de requisições para o tipo de chave
+        :raise HTTP: 403 se a chave não estiver mais ativa
+        """
         if self.key.active:
             if (self.key.total_requests < self.key.max_requests):
                 if self._hasPermissionToRequestFields():
@@ -45,16 +52,22 @@ class APIKeyPermissions():
         else:
             raise HTTP(403, "Chave inativa")
 
-    #===========================================================================
-    # Caso FIELDS tenham sido especificados, verificará se existe alguma proibição
-    # de acesso a dados na tabela ou nas colunas requisitadas
-    #
-    # Caso FIELDS não tenha sido especificado, considera-se que a requisição deseja
-    # acessar a todo o conteúdo da tabela. Então, verifica-se se existe restrição em
-    # pelo menos uma das coluna da tabela
-    #
-    #===========================================================================
     def _hasPermissionToRequestFields(self):
+        """
+        Caso FIELDS tenham sido especificados, verificará se existe alguma proibição
+        de acesso a dados na tabela ou nas colunas requisitadas
+
+        Caso FIELDS não tenha sido especificado, considera-se que a requisição deseja
+        acessar a todo o conteúdo da tabela. Então, verifica-se se existe restrição em
+        pelo menos uma das coluna da tabela
+
+        * As consultas de permissão são cacheadas em 3600 segundos
+
+        TODO converter tempo de cache para class constant
+
+        :rtype : bool
+        :return:
+        """
         requestedFields = self.request.vars["FIELDS"].split(",") if self.request.vars["FIELDS"] else []
         if len(requestedFields) > 0:
             validFields = self._validateReturnFields(requestedFields)
@@ -102,6 +115,9 @@ class APIKeyPermissions():
     # Condição para proibição em uma lista de colunas
     #===========================================================================
     def conditionsToRequestContentFromTableColumns(self, table, columns):
+        """
+
+        """
         conditions = [( (self.db.api_group_permissions.column_name == column)
                         & (self.db.api_group_permissions.group_id == self.key.group_id)
                         & (self.db.api_group_permissions.table_name == table)

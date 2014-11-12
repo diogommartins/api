@@ -4,8 +4,6 @@ from APIRequest import APIRequest
 from APIKeyPermissions import APIKeyPermissions
 
 
-@service.json
-@service.xml
 def index():
     apiKey = APIKey(request.vars.API_KEY)
     if apiKey.auth_key:
@@ -16,8 +14,3 @@ def index():
             return resp
     else:
         return dict(error="API Key Inválida ou Inativa")
-
-
-def call():
-    session.forget()
-    return service()

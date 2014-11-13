@@ -7,6 +7,7 @@ class APIKeyPermissions():
     def __init__(self, request):
         self.db = current.db
         self.request = request
+        self.fields = self.request.vars["FIELDS"].split(",") if self.request.vars["FIELDS"] else []
         self.http_method = self.HTTPMethodWithName(self.request.env.request_method)
         self.hash = self.request.vars.API_KEY
         # =======================================================================
@@ -14,13 +15,13 @@ class APIKeyPermissions():
         #
         # dt_creation, active, user_id, group_role, group_id, max_requests, max_entries
         # total_requests
-        #=======================================================================
+        # =======================================================================
         self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select().first()
         self.tablename = APIRequest.controllerForRewritedURL()
 
     # ===========================================================================
     # Dado um determinado método, retorna o seu ID, caso o mesmo seja suportado pela API
-    #===========================================================================
+    # ===========================================================================
     def HTTPMethodWithName(self, method):
         validMethod = self.db(self.db.api_methods.http_method == method).select(self.db.api_methods.id, cache=(
             current.cache.ram, 36000)).first()
@@ -68,9 +69,8 @@ class APIKeyPermissions():
         :rtype : bool
         :return:
         """
-        requestedFields = self.request.vars["FIELDS"].split(",") if self.request.vars["FIELDS"] else []
-        if len(requestedFields) > 0:
-            validFields = self._validateReturnFields(requestedFields)
+        if len(self.fields) > 0:
+            validFields = self._validateReturnFields(self.fields)
             hasPermission = self.db(
                 self.conditionsToRequestContentFromTableColumns(self.tablename, validFields)).select(
                 self.db.api_group_permissions.id,
@@ -86,7 +86,7 @@ class APIKeyPermissions():
         return False
 
 
-    #===========================================================================
+    # ===========================================================================
     # Método para verificar se os parâmetros de retorno passados são válidos
     #
     # Retorna uma lista com os FIELDS válidos ou uma lista vazia, que é interpretada
@@ -104,34 +104,65 @@ class APIKeyPermissions():
     # Condição para proibição total em uma tabela
     #===========================================================================
     def conditionsToRequestContentFromTable(self, table):
-        conditions = [(self.db.api_group_permissions.group_id == self.key.group_id),
-                      (self.db.api_group_permissions.table_name == table),
-                      (self.db.api_group_permissions.http_method == self.http_method)
-                      (self.db.api_group_permissions.all_columns == True)]
+        conditions = [
+            (self.db.api_group_permissions.group_id == self.key.group_id),
+            (self.db.api_group_permissions.table_name == table),
+            (self.db.api_group_permissions.http_method == self.http_method),
+            (self.db.api_group_permissions.all_columns == True)
+        ]
 
         return reduce(lambda a, b: (a & b), conditions)
 
-    #===========================================================================
-    # Condição para proibição em uma lista de colunas
-    #===========================================================================
-    def conditionsToRequestContentFromTableColumns(self, table, columns):
+    def conditionsToRequestContentFromTableColumn(self, table, column):
         """
 
+
+        :type table: str
+        :type column: str
+        :param table: Uma string referente a uma tabela
+        :param column: Uma string referente a uma coluna
+        :return:
         """
-        conditions = [( (self.db.api_group_permissions.column_name == column)
-                        & (self.db.api_group_permissions.group_id == self.key.group_id)
-                        & (self.db.api_group_permissions.table_name == table)
-                        & (self.db.api_group_permissions.http_method == self.http_method)
-                      ) for column in columns]
+        conditions = [
+            (self.db.api_group_permissions.column_name == column),
+            (self.db.api_group_permissions.table_name == table),
+            (self.db.api_group_permissions.group_id == self.key.group_id),
+            (self.db.api_group_permissions.http_method == self.http_method)
+        ]
+
+        return reduce(lambda a, b: (a & b), conditions)
+
+    def conditionsToRequestContentFromTableColumns(self, table, columns):
+        """
+        Condiçoes para requisitar conteúdo de uma lista de colunas.
+        Quando uma lista de colunas é passada, a API deve verificar se o grupo da chave possui permissões para cara uma
+        das colunas requisitadas ou se possui a permissao ALL_COLUMNS marcada para a tabela requisitada.
+
+        :type table: str
+        :type column: str
+        :param table: Uma string referente a uma tabela
+        :param column: Uma string referente a uma coluna
+        """
+        conditions = [
+            reduce(lambda a, b: (a & b), [self.conditionsToRequestContentFromTableColumn(table, column) for column in columns]),
+            self.conditionsToRequestAnyContentFromTable(table)
+        ]
 
         return reduce(lambda a, b: (a | b), conditions)
 
-    #===========================================================================
-    # Condição para proibição de acesso a pelo menos uma coluna de uma tabela
-    #===========================================================================
     def conditionsToRequestAnyContentFromTable(self, table):
-        conditions = [(self.db.api_group_permissions.table_name == table),
-                      (self.db.api_group_permissions.group_id == self.key.group_id),
-                      (self.db.api_group_permissions.http_method == self.http_method)]
+        """
+        Condições para requisitar qualquer conteúdo (coluna) de uma tabela.
+        Utilizado quando FIELDS não é especificado, visto que significa que foram requisitados todos os FIELDS de uma table.
+
+        :type table: str
+        :param table: Uma string referente a uma tabela
+        """
+        conditions = [
+            (self.db.api_group_permissions.table_name == table),
+            (self.db.api_group_permissions.group_id == self.key.group_id),
+            (self.db.api_group_permissions.http_method == self.http_method),
+            (self.db.api_group_permissions.all_columns == True)
+        ]
 
         return reduce(lambda a, b: (a & b), conditions)

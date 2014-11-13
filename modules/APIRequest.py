@@ -2,6 +2,7 @@
 from gluon import current, HTTP
 from APIKey import APIKey
 from APIQuery import APIQuery
+from APIInsert import APIInsert
 from datetime import datetime
 
 
@@ -60,15 +61,25 @@ class APIRequest():
 
         :return: depende do tipo de dado requisitado. Padrão é validResponseFormats['DEFAULT']
         """
-        query = APIQuery(
-            self.tablename,
-            self.parameters,
-            self.request.vars,
-            self.return_fields
-        )  # Cria nova query com os parâmetros processados em APIRequest
+        if self.request.env.request_method == "GET":
+            req = APIQuery(
+                self.tablename,
+                self.parameters,
+                self.request.vars,
+                self.return_fields
+            )  # Cria nova query com os parâmetros processados em APIRequest
+            self.saveAPIRequest()  # Gera log da query
+            self._defineReturnType()  # Define qual view será usada
+            return req.execute()  # Executa e retorna a query
+
+        elif self.request.env.request_method == "POST":
+            req = APIInsert(
+                self.tablename,
+                self.parameters
+            )
+
         self.saveAPIRequest()  # Gera log da query
-        self._defineReturnType()  # Define qual view será usada
-        return query.execute()  # Executa e retorna a query
+        return req.execute()  # Executa e retorna a query
 
     def saveAPIRequest(self):
         """
@@ -129,10 +140,10 @@ class APIRequest():
         como todas as colunas.
 
         :rtype : list
+        :return: Retorna uma lista contendo somente os itens da lista que forem colunas na tabela requisitada
         """
         if self.request.vars["FIELDS"]:
             requestedFields = self.request.vars["FIELDS"].split(",")
-            # Retorna uma lista contendo somente os itens da lista que forem colunas na tabela requisitada
             return [field for field in requestedFields if field in self.dbSie[self.tablename].fields]
         else:
             return []

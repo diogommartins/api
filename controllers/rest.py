@@ -13,4 +13,4 @@ def index():
             resp = apiRequest.performRequest()
             return resp
     else:
-        return dict(error="API Key Inválida ou Inativa")
+        raise HTTP(403, "API Key Inválida ou Inativa")

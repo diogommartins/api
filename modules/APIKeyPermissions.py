@@ -19,11 +19,17 @@ class APIKeyPermissions():
         self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select().first()
         self.tablename = APIRequest.controllerForRewritedURL()
 
-    # ===========================================================================
-    # Dado um determinado método, retorna o seu ID, caso o mesmo seja suportado pela API
-    # ===========================================================================
-    def HTTPMethodWithName(self, method):
-        validMethod = self.db(self.db.api_methods.http_method == method).select(self.db.api_methods.id, cache=(
+
+    @staticmethod
+    def HTTPMethodWithName(method):
+        """
+        Dado um determinado método, retorna o seu ID, caso o mesmo seja suportado pela API
+
+        :param method: Uma string correspondente a um método HTTP
+        :return: O id de um método
+        :raise HTTP: 405 caso o método requisitado não seja suportado pela API
+        """
+        validMethod = current.db(current.db.api_methods.http_method == method).select(current.db.api_methods.id, cache=(
             current.cache.ram, 36000)).first()
         if validMethod:
             return validMethod.id

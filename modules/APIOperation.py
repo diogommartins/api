@@ -132,15 +132,13 @@ class APIInsert(APIOperation):
             "CONCORRENCIA": 999,
             "DT_ALTERACAO": str(date.today()),
             "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
-            "ENDERECO_FISICO": current.request.env.remote_addr
+            "ENDERECO_FISICO": current.request.env.remote_addr,
+            "COD_OPERADOR": 1                                       # DBSM.USUARIOS.ID_USUARIO
         }
 
     @property
     def optionalFieldsForSIETaables(self):
-        return {
-            "ENDERECO_FISICO": current.request.env.remote_addr,     # Endereço de IP do cliente
-            "COD_OPERADOR": 1                                       # DBSM.USUARIOS.ID_USUARIO
-        }
+        return {}
 
     def contentWithValidParameters(self):
         """
@@ -159,9 +157,7 @@ class APIInsert(APIOperation):
             newId = self.table.insert(**self.contentWithValidParameters())
         except Exception as e:
             self.db.rollback()
-            raise HTTP(404, "Não foi possível completar a operação.", headers={
-                "Erro1": e.message
-            })
+            raise HTTP(404, "Não foi possível completar a operação.")
         else:
             self.db.commit()
             raise HTTP(201, headers={

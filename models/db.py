@@ -7,10 +7,7 @@ current.db = db
 
 from gluon.tools import *
 
-if not request.is_local:
-    from gluon.contrib.login_methods.ldap_auth import ldap_auth
 
-    auth.settings.login_methods = [ldap_auth(mode='uid', server='10.224.16.100', base_dn='ou=people,dc=unirio,dc=br')]
 
 mail = Mail()  # mailer
 auth = Auth(globals(), db)  # authentication/authorization
@@ -21,6 +18,11 @@ plugins = PluginManager()
 mail.settings.server = 'logging' or 'smtp.gmail.com:587'  # your SMTP server
 mail.settings.sender = 'you@gmail.com'  # your email
 mail.settings.login = 'username:password'  # your credentials or None
+
+if not request.is_local:
+    from gluon.contrib.login_methods.ldap_auth import ldap_auth
+
+    auth.settings.login_methods = [ldap_auth(mode='uid', server='10.224.16.100', base_dn='ou=people,dc=unirio,dc=br')]
 
 # # create all tables needed by auth if not custom tables
 auth.define_tables(username=True)

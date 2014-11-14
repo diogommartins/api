@@ -161,7 +161,7 @@ class APIInsert(APIOperation):
         else:
             self.db.commit()
             raise HTTP(201, headers={
-                "Location": self.baseResourseURI + "?" + self.table._primarykey[0] + "=" + newId
+                "Location": self.baseResourseURI + "?" + self.table._primarykey[0] + "=" + str(newId[self.table._primarykey[0]])
             })
 
 

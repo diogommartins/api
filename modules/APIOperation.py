@@ -135,11 +135,13 @@ class APIInsert(APIOperation):
         try:
             newId = self.table.insert(**self.contentWithValidParameters())
         except Exception:
-            sql = self.db._lastsql
+            self.db.rollback()
             raise HTTP(404, "Não foi possível completar a operação.")
-        raise HTTP(201, headers={
-            "Location": self.baseResourseURI + "?" + self.table._primarykey[0] + "=" + newId
-        })
+        else:
+            self.db.commit()
+            raise HTTP(201, headers={
+                "Location": self.baseResourseURI + "?" + self.table._primarykey[0] + "=" + newId
+            })
 
 
 class APIUpdate(APIOperation):

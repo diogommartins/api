@@ -1,5 +1,6 @@
 # coding=utf-8
 from gluon import current, HTTP
+from datetime import datetime, date
 
 
 class APIOperation(object):
@@ -121,15 +122,37 @@ class APIInsert(APIOperation):
         self.parameters = parameters
         self.db = current.dbSie
 
+    @property
+    def defaultFieldsForSIETables(self):
+        """
+        :rtype : dict
+        :return: Um dicionário de parãmetros padrões
+        """
+        return {
+            "CONCORRENCIA": 999,
+            "DT_ALTERACAO": date.today(),
+            "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
+            "ENDERECO_FISICO": current.request.env.remote_addr
+        }
+
+    @property
+    def optionalFieldsForSIETaables(self):
+        return {
+            "ENDERECO_FISICO": current.request.env.remote_addr,     # Endereço de IP do cliente
+            "COD_OPERADOR": 1                                       # DBSM.USUARIOS.ID_USUARIO
+        }
+
     def contentWithValidParameters(self):
         """
         Retorna um dicionário contendo somente os k,v onde k são colunas válidas da tabela em que se quer inserir.
+        Esse dicionário também deve conter os campos padrões como IP utilizado par alterar, data e hora...
 
         :rtype : dict
         """
-        return {column: current.request.vars[column] for column in self.parameters['valid'] if
-                column in current.request.vars.keys()}
+        validContent = {column: current.request.vars[column] for column in self.parameters['valid']}
+        validContent.update({k: v for k, v in self.defaultFieldsForSIETables.iteritems() if k in self.table.fields})
 
+        return validContent
 
     def execute(self):
         try:
@@ -159,4 +182,4 @@ class APIDelete(APIOperation):
 
     def execute(self):
         primarykeyField = self.table[self.table._primarykey[0]]
-        self.db(primarykeyField==self.rowId).delete()
+        self.db(primarykeyField == self.rowId).delete()

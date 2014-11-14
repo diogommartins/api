@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from gluon import current, HTTP
-from APIQuery import APIQuery
-from APIOperation import APIInsert
+from APIOperation import APIInsert, APIQuery, APIDelete, APIUpdate
 
 
 class APIRequest():
@@ -12,17 +11,18 @@ class APIRequest():
         'JSON': 'generic.json',
         'XML': 'generic.xml',
         'HTML': 'generic.html',
-        'DEFAULT': 'generic.html'
+        'DEFAULT': 'generic.json'
     }
     validContentTypes = {
         'JSON': 'text/json',
         'XML': 'text/xml',
         'HTML': 'text/html',
-        'DEFAULT': 'text/html'
+        'DEFAULT': 'text/json'
     }
 
     def __init__(self, apiKey, request):
         self.request = request
+        self.HTTPMethod = self.request.env.request_method
         self.db = current.db
         self.dbSie = current.dbSie
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -60,7 +60,7 @@ class APIRequest():
 
         :return: depende do tipo de dado requisitado. Padrão é validResponseFormats['DEFAULT']
         """
-        if self.request.env.request_method == "GET":
+        if self.HTTPMethod == "GET":
             req = APIQuery(
                 self.tablename,
                 self.parameters,
@@ -71,14 +71,26 @@ class APIRequest():
             self._defineReturnType()  # Define qual view será usada
             return req.execute()  # Executa e retorna a query
 
-        elif self.request.env.request_method == "POST":
+        elif self.HTTPMethod == "POST":
             req = APIInsert(
                 self.tablename,
                 self.parameters
             )
 
+        elif self.HTTPMethod == "PUT":
+            req = APIUpdate(
+                self.tablename,
+                self.parameters
+            )
+
+        elif self.HTTPMethod == "DELETE":
+            req = APIDelete(
+                self.tablename,
+                00000000000000
+            )
+
         # self.saveAPIRequest()  # Gera log da query
-        return req.execute()  # Executa e retorna a query
+        return req.execute()
 
     def saveAPIRequest(self):
         """

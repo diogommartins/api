@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-from gluon import current, HTTP
-from APIKey import APIKey
-from APIQuery import APIQuery
-from APIInsert import APIInsert
 from datetime import datetime
+from gluon import current, HTTP
+from APIQuery import APIQuery
+from APIOperation import APIInsert
 
 
 class APIRequest():
@@ -29,7 +28,7 @@ class APIRequest():
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.apiKey = apiKey  # APIKey
 
-        self.tablename = self.controllerForRewritedURL()
+        self.tablename = self.controllerForRewritedURL() if not self.request.is_local else self.request.controller
         self.parameters = self._validateFields()
         self.return_fields = self._validateReturnFields()
 
@@ -78,7 +77,7 @@ class APIRequest():
                 self.parameters
             )
 
-        self.saveAPIRequest()  # Gera log da query
+        # self.saveAPIRequest()  # Gera log da query
         return req.execute()  # Executa e retorna a query
 
     def saveAPIRequest(self):

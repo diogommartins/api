@@ -1,9 +1,11 @@
+# coding=utf-8
 from Crypto.Cipher import AES
 from Crypto import Random
 
 BS = 16
 pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS) 
 unpad = lambda s : s[0:-ord(s[-1])]
+# TODO Essa chave não deveria estar exposta no módulo
 key = "36396F723576455432413134726279644437314F4B59583564416A686B475255"
 
 class AESCipher:

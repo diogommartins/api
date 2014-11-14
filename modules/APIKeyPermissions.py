@@ -17,7 +17,7 @@ class APIKeyPermissions():
         # total_requests
         # =======================================================================
         self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select().first()
-        self.tablename = APIRequest.controllerForRewritedURL()
+        self.tablename = APIRequest.controllerForRewritedURL() if not self.request.is_local else self.request.controller
 
 
     @staticmethod

@@ -28,7 +28,7 @@ class APIRequest():
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.apiKey = apiKey  # APIKey
 
-        self.tablename = self.controllerForRewritedURL() if not self.request.is_local else self.request.controller
+        self.tablename = self.controllerForRewritedURL()
         self.parameters = self._validateFields()
         self.return_fields = self._validateReturnFields()
 

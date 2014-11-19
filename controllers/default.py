@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # this file is released under public domain and you can use without limitations
 
-#########################################################################
+# ########################################################################
 ## This is a sample controller
 ## - index is the default action of any application
 ## - user is required for authentication and authorization
@@ -12,71 +12,83 @@
 
 def index():
     from TableBeautify import *
+
     response.title = 'API UNIRIO'
 
     # Todas as tabelas declaradas
-    inSieDeclairedTables = reduce(lambda a,b:(a|b), [dbSie.COLUMNS.TABNAME==table for table in dbSie.tables])
-    descriptions = dbSie( (dbSie.COLUMNS.TABSCHEMA=='DBSM') &(inSieDeclairedTables) ).select( dbSie.COLUMNS.TABNAME, dbSie.COLUMNS.COLNAME, dbSie.COLUMNS.REMARKS, cache=(cache.disk, 172800), cacheable=True )
+    inSieDeclairedTables = reduce(lambda a, b: (a | b), [dbSie.COLUMNS.TABNAME == table for table in dbSie.tables])
+    descriptions = dbSie((dbSie.COLUMNS.TABSCHEMA == 'DBSM') &(inSieDeclairedTables)).select(dbSie.COLUMNS.TABNAME,
+                                                                                              dbSie.COLUMNS.COLNAME,
+                                                                                              dbSie.COLUMNS.REMARKS,
+                                                                                              cache=(cache.ram, 172800),
+                                                                                              cacheable=True)
 
-    tableBeautify = TableBeautify( dbSie.tables, descriptions )
+    tableBeautify = TableBeautify(dbSie.tables, descriptions)
 
-    accessPermissions = db( db.auth_group ).select( db.auth_group.role ).as_list()
+    accessPermissions = db(db.auth_group).select(db.auth_group.role).as_list()
     avaiableData = dbSie.tables
     avaiableFields = []
     for table in avaiableData:
-        avaiableFields.append( {table : dbSie[table].fields} )
-
+        avaiableFields.append({table: dbSie[table].fields})
 
     return dict(
-                accessPermissions=accessPermissions,
-                avaiableData = avaiableData,
-                avaiableFields = avaiableFields,
-                tabelas = tableBeautify.beautifyDatabaseTables()
-                )
+        accessPermissions=accessPermissions,
+        avaiableData=avaiableData,
+        avaiableFields=avaiableFields,
+        tabelas=tableBeautify.beautifyDatabaseTables()
+    )
+
 
 #página com os créditos
 def sobre():
     pass
 
+
 @request.restful()
 def rest():
-    response.view = 'generic.'+request.extension
-    def GET(*args,**vars):
+    response.view = 'generic.' + request.extension
+
+    def GET(*args, **vars):
         patterns = [
-                    "/ALUNOS[ALUNOS]",
-                    "/ALUNOS/{ALUNOS.ID_ALUNO}",
-                    "/ALUNOS/ID-ALUNO/{ALUNOS.ID_ALUNO}/:field",
-                    ':auto[ALUNOS]',
-                    ':auto[CURSOS]',
-                    ':auto[CURSOS_ALUNOS]',
-                    ':auto[DISCIPLINAS]',
-                    ':auto[TAB_ESTRUTURADA]',
-                    ':auto[VERSOES_CURSOS]'
-                    ]
-        parser = dbSie.parse_as_rest(patterns,args,vars)
+            "/ALUNOS[ALUNOS]",
+            "/ALUNOS/{ALUNOS.ID_ALUNO}",
+            "/ALUNOS/ID-ALUNO/{ALUNOS.ID_ALUNO}/:field",
+            ':auto[ALUNOS]',
+            ':auto[CURSOS]',
+            ':auto[CURSOS_ALUNOS]',
+            ':auto[DISCIPLINAS]',
+            ':auto[TAB_ESTRUTURADA]',
+            ':auto[VERSOES_CURSOS]'
+        ]
+        parser = dbSie.parse_as_rest(patterns, args, vars)
         if parser.status == 200:
             return dict(content=parser.response)
         else:
-            raise HTTP(parser.status,parser.error)
+            raise HTTP(parser.status, parser.error)
+
     return locals()
+
 
 @request.restful()
 def alunos():
-    response.view = 'generic.'+request.extension
-    def GET(*args,**vars):
+    response.view = 'generic.' + request.extension
+
+    def GET(*args, **vars):
         patterns = [
-                    "/ALUNOS[ALUNOS]",
-                    "/ALUNOS/ID-ALUNO/{ALUNOS.ID_ALUNO}",
-                    "/ALUNOS/ID-ALUNO/{ALUNOS.ID_ALUNO}/:field",
-                    "/ALUNOS/ETNIA-ITEM/{ALUNOS.ETNIA_ITEM}/",
-                    "/ALUNOS/ETNIA-ITEM/{ALUNOS.ETNIA_ITEM}/:field",
-                    ]
-        parser = dbSie.parse_as_rest(patterns,args,vars)
+            "/ALUNOS[ALUNOS]",
+            "/ALUNOS/ID-ALUNO/{ALUNOS.ID_ALUNO}",
+            "/ALUNOS/ID-ALUNO/{ALUNOS.ID_ALUNO}/:field",
+            "/ALUNOS/ETNIA-ITEM/{ALUNOS.ETNIA_ITEM}/",
+            "/ALUNOS/ETNIA-ITEM/{ALUNOS.ETNIA_ITEM}/:field",
+        ]
+        parser = dbSie.parse_as_rest(patterns, args, vars)
         if parser.status == 200:
             return dict(content=parser.response)
         else:
-            raise HTTP(parser.status,parser.error)
+            raise HTTP(parser.status, parser.error)
+
     return locals()
+
 
 def user():
     """
@@ -94,6 +106,7 @@ def user():
     to decorate functions that need access control
     """
     return dict(form=auth())
+
 
 @cache.action()
 def download():

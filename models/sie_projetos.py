@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 # Não traz resumo por ser campo CLOB
+# Removidos campos VL_ que ocasionaval erro 500 sem nenhuma informação O.o
+# TODO: descobrir por que esses campos ocasionam `Premature end of script headers: wsgihandler.py`
 dbSie.define_table("PROJETOS",
                    Field("ID_PROJETO", "integer"),
                    Field("ID_DOCUMENTO", "integer"),
@@ -12,7 +14,7 @@ dbSie.define_table("PROJETOS",
                    Field("TIPO_PUBLICO_ITEM", "integer"),
                    Field("PUBLICO_ALVO", "integer"),
                    Field("PUBLICO_ENVOLVIDO", "integer"),
-                   Field("VL_PREVISTO", "float"),
+                   # Field("VL_PREVISTO", "float"),
                    Field("OBSERVACOES", "string"),
                    Field("COD_OPERADOR", "string"),
                    Field("DT_ALTERACAO", "date"),
@@ -34,7 +36,7 @@ dbSie.define_table("PROJETOS",
                    Field("ALUNOS_MATRIC", "integer"),
                    Field("ALUNOS_CONCLUINT", "integer"),
                    Field("PAGA_BOLSA", "string"),
-                   Field("VL_BOLSA", "float"),
+                   # Field("VL_BOLSA", "float"),
                    Field("ID_BOLSA", "integer"),
                    Field("PALAVRA_CHAVE01", "string"),
                    Field("PALAVRA_CHAVE02", "string"),

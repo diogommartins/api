@@ -125,10 +125,14 @@ class APIInsert(APIOperation):
     @property
     def defaultFieldsForSIETables(self):
         """
+        Campos que obrigatoriamente devem ser preenchidos em um INSERT e devem ser feitos pela API.
+
         :rtype : dict
         :return: Um dicionário de parãmetros padrões
         """
+        pkey = self.table._primarykey[0]
         return {
+            pkey: self.nextValueForSequence(),
             "CONCORRENCIA": 999,
             "DT_ALTERACAO": str(date.today()),
             "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
@@ -138,11 +142,14 @@ class APIInsert(APIOperation):
 
     def nextValueForSequence(self):
         """
+        Por uma INFELIZ particularidade do DB2 de não possuir auto increment, ao inserir algum novo conteúdo em uma
+        tabela, precisamos passar manualmente qual será o valor da nossa surrogate key. O DB2 nos provê a possibilidade
+        de uso de SEQUECENCE. A nomenclatura padrão é composta do prefixo `SEQ_` acrescido do nome da tabela relacionada.
 
         :rtype: int
-        :return: Um inteiro correspondente ao próximo ID válido disponível para um insert
+        :return: Um inteiro correspondente ao próximo ID válido disponível para um INSERT
         """
-        return self.db.executesql("SELECT NEXT VALUE FOR SEQ_%s FROM SYSIBM.SYSDUMMY1" % self.tablename)
+        return self.db.executesql("SELECT NEXT VALUE FOR SEQ_%s FROM SYSIBM.SYSDUMMY1" % self.tablename)[0][0]
 
     @property
     def optionalFieldsForSIETables(self):

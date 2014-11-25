@@ -175,9 +175,11 @@ class APIInsert(APIOperation):
             raise HTTP(404, "Não foi possível completar a operação.")
         else:
             self.db.commit()
-            raise HTTP(201, headers={
-                "Location": self.baseResourseURI + "?" + self.table._primarykey[0] + "=" + str(newId[self.table._primarykey[0]])
-            })
+            headers = {
+                "Location": self.baseResourseURI + "?" + self.table._primarykey[0] + "=" + str(newId[self.table._primarykey[0]]),
+                "id": newId[self.table._primarykey[0]]
+            }
+            raise HTTP(201, "Conteúdo inserido com sucesso.", **headers)
 
 
 class APIUpdate(APIOperation):

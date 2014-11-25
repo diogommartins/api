@@ -136,8 +136,16 @@ class APIInsert(APIOperation):
             "COD_OPERADOR": 1                                       # DBSM.USUARIOS.ID_USUARIO
         }
 
+    def nextValueForSequence(self):
+        """
+
+        :rtype: int
+        :return: Um inteiro correspondente ao próximo ID válido disponível para um insert
+        """
+        return self.db.executesql("SELECT NEXT VALUE FOR SEQ_% FROM SYSIBM.SYSDUMMY1", self.tablename)
+
     @property
-    def optionalFieldsForSIETaables(self):
+    def optionalFieldsForSIETables(self):
         return {}
 
     def contentWithValidParameters(self):

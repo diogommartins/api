@@ -8,32 +8,48 @@ class APIKey():
     def __init__(self, hash=None):
         self.hash = hash
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.auth_key = self.authKeyForHash()
+        self.auth = self.authForHash(hash)
 
-
-    # Returns the user_id of the API KEY owner
     def owner(self):
+        """
+        Retorna o user_id do dono da API Key
+
+        :rtype : int
+        :return:
+        """
         authKeyOwner = current.db(current.db.api_auth.auth_key == self.hash).select(current.db.api_auth.user_id).first()
         if authKeyOwner:
             return authKeyOwner.user_id
 
     def _makeHash(self, username):
+        """
+        Método utilizado para criar um novo hash a ser utilizado como API Key para o usuário
+
+        :type username: str
+        :rtype : str
+        """
         aes = AESCipher()
         return aes.encrypt(username + self.timestamp)
 
-    # Gera uma nova chave valida para o usuario, inutiliza a anterior e retorna a mesma
     def genarateNewKeyForUser(self, user_id):
-        apiUser = current.db(current.db.auth_user.id == user_id).select(current.db.auth_user.username).first()
-        if apiUser:
-            newKey = self._makeHash(apiUser.username)
+        """
+        Gera uma nova chave valida para o usuário, inutiliza a anterior e retorna a nova chave criada.
+
+        :rtype : str
+        :param user_id:
+        :return:
+        """
+        user = current.db(current.db.auth_user.id == user_id).select(current.db.auth_user.username).first()
+        if user:
+            newKey = self._makeHash(user.username)
             previousApiKey = current.db(
                 (current.db.api_auth.user_id == user_id) &
                 (current.db.api_auth.active == True)
             ).select().first()
-            # Se existir, invalida chave anterior
             if previousApiKey:
                 previousApiKey.update_record(active=False)
-            # Insere nova chave no banco. Obs.:Não deveria estar funcionando sem o commit, mas...
+            # Insere nova chave no banco.
+            # TODO: Não deveria estar funcionando sem o commit, mas...
             current.db.api_auth.insert(
                 auth_key=newKey,
                 user_id=user_id,
@@ -44,29 +60,45 @@ class APIKey():
 
     @staticmethod
     def getCurrentActiveKeyForUser(user_id):
+        """
+        Dado um usuário válido cadastrado em um grupo, e com uma chave válida, o método retorna a chave ativa no momento
+
+        :rtype : str
+        :param user_id: O ID de um usuário na tabela auth_user
+        :return: O hash de uma chave válida
+        """
         api_auth = current.db(
             (current.db.api_auth.user_id == user_id) & (current.db.api_auth.active == True)).select().first()
         if api_auth:
             return api_auth.auth_key
 
-    def authKeyForHash(self):
-        auth_key = current.db(
-            (current.db.api_auth.auth_key == self.hash)
+    def authForHash(self, hash):
+        """
+        Dado um determinado hash, o método retornará a entrada da tabela api_auth correspondente,
+        caso seja um hash válido e a chave esteja ativa.
+
+        :rtype : gluon.DAL.Row
+        :return: Uma entrada da tabela api_auth
+        """
+        return current.db(
+            (current.db.api_auth.auth_key == hash)
             & (current.db.api_auth.active == True)
         ).select().first()
-        return auth_key if auth_key else None
 
-    def isValidKey(self):
-        return True if self.auth_key else False
 
     @staticmethod
     def isValidKey(hash):
-        auth_key = current.db(
+        """
+        Método utilizado para validar se um hash é válido como API Key
+
+        :rtype : bool
+        :param hash: O hash de uma API Key a ser vaidada
+        :return: Uma entrada da tabela api_auth
+        """
+        return True if current.db(
             (current.db.api_auth.auth_key == hash)
             & (current.db.api_auth.active == True)
-        ).select(current.db.api_auth.id).first()
-
-        return auth_key if auth_key else False
+        ).select(current.db.api_auth.id).first() else False
 
     @staticmethod
     def checkKeyForUser(apiKey, user_id):

@@ -3,12 +3,17 @@ from APIRequest import APIRequest
 from gluon import current, HTTP
 
 
-class APIKeyPermissions():
+class APIKeyPermissions(object):
     def __init__(self, request):
+        """
+        TODO: modificar atributos hash e key para receber um objeto do tipo APIKey
+        :type self: object
+        :param request: Uma requisição HTTP
+        """
         self.db = current.db
         self.request = request
         self.fields = self.request.vars["FIELDS"].split(",") if self.request.vars["FIELDS"] else []
-        self.http_method = self.HTTPMethodWithName(self.request.env.request_method)
+        self.http_method = APIKeyPermissions.HTTPMethodWithName(self.request.env.request_method)
         self.hash = self.request.vars.API_KEY
         # =======================================================================
         # key pode ser nula ou ter as propriedades:

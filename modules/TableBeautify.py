@@ -3,7 +3,7 @@ from gluon import current
 from gluon.html import *
 
 
-class TableBeautify():
+class TableBeautify(object):
     excludedTables = ['COLUMNS']
 
     def __init__(self, tables, descriptions):

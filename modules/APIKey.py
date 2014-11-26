@@ -4,7 +4,7 @@ from gluon import current
 from datetime import datetime
 
 
-class APIKey():
+class APIKey(object):
     def __init__(self, hash=None):
         self.hash = hash
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')

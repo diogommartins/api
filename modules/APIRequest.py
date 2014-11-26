@@ -4,7 +4,7 @@ from gluon import current, HTTP
 from APIOperation import APIInsert, APIQuery, APIDelete, APIUpdate
 
 
-class APIRequest():
+class APIRequest(object):
     DEFAULT_SUFIX_SIZE = 4
     validSufixes = ('_MIN', '_MAX', '_BET')
     validResponseFormats = {

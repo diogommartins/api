@@ -67,7 +67,7 @@ class APIRequest(object):
                 self.request.vars,
                 self.return_fields
             )  # Cria nova query com os parâmetros processados em APIRequest
-            self.saveAPIRequest()  # Gera log da query
+            # self.saveAPIRequest()  # Gera log da query
             self._defineReturnType()  # Define qual view será usada
             return req.execute()  # Executa e retorna a query
 

@@ -13,6 +13,8 @@ class APIOperation(object):
         self.tablename = tablename
         self.db = current.dbSie
         self.table = current.dbSie[self.tablename]
+        self.primarykeyField = self.table[self.table._primarykey[0]]
+        self.primarykeyColumns = self.table._primarykey[0]
 
     @property
     def baseResourseURI(self):
@@ -185,9 +187,22 @@ class APIInsert(APIOperation):
 class APIUpdate(APIOperation):
     def __init__(self, tablename, parameters):
         super(APIUpdate, self).__init__(tablename)
+        self.parameters = parameters
 
     def execute(self):
-        pass
+        try:
+            affectedRows = self.db(self.primarykeyField == self.parameters[self.primarykeyColumn]).update(**self.parameters)
+        except SyntaxError:
+            raise HTTP(204, "Nenhum conteúdo foi passado")
+        except ValueError:
+            raise HTTP(422, "Algum parâmetro possui tipo inválido")
+        if affectedRows > 0:
+            headers = {
+                "Affected": affectedRows
+            }
+            raise HTTP(200, "Conteúdo atualizado com sucesso", **headers)
+
+        raise HTTP(404, "Ooops... A princesa está em um castelo com outro ID.")
 
 
 class APIDelete(APIOperation):

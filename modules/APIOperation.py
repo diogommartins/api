@@ -31,6 +31,22 @@ class APIOperation(object):
         """
         return self.pKeyColumn in parameters['valid']
 
+    @property
+    def defaultFieldsForSIETables(self):
+        """
+        Campos que obrigatoriamente devem ser preenchidos em um INSERT e devem ser feitos pela API.
+
+        :rtype : dict
+        :return: Um dicionário de parãmetros padrões
+        """
+        return {
+            "CONCORRENCIA": 999,
+            "DT_ALTERACAO": str(date.today()),
+            "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
+            "ENDERECO_FISICO": current.request.env.remote_addr,
+            "COD_OPERADOR": 1  # DBSM.USUARIOS.ID_USUARIO admin
+        }
+
 
 class APIQuery(APIOperation):
     ENTRIES_PER_QUERY_DEFAULT = 10
@@ -160,22 +176,9 @@ class APIInsert(APIOperation):
         self.db = current.dbSie
 
     @property
-    def defaultFieldsForSIETables(self):
-        """
-        Campos que obrigatoriamente devem ser preenchidos em um INSERT e devem ser feitos pela API.
-
-        :rtype : dict
-        :return: Um dicionário de parãmetros padrões
-        """
+    def defaultFieldsForSIEInsert(self):
         pkey = self.table._primarykey[0]
-        return {
-            pkey: self.nextValueForSequence(),
-            "CONCORRENCIA": 999,
-            "DT_ALTERACAO": str(date.today()),
-            "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
-            "ENDERECO_FISICO": current.request.env.remote_addr,
-            "COD_OPERADOR": 1  # DBSM.USUARIOS.ID_USUARIO
-        }
+        return self.defaultFieldsForSIETables.update({pkey: self.nextValueForSequence()})
 
     def nextValueForSequence(self):
         """
@@ -200,7 +203,7 @@ class APIInsert(APIOperation):
         :rtype : dict
         """
         validContent = {column: current.request.vars[column] for column in self.parameters['valid']}
-        validContent.update({k: v for k, v in self.defaultFieldsForSIETables.iteritems() if k in self.table.fields})
+        validContent.update({k: v for k, v in self.defaultFieldsForSIEInsert.iteritems() if k in self.table.fields})
 
         return validContent
 
@@ -260,14 +263,16 @@ class APIUpdate(APIOperation):
         try:
             affectedRows = self.db(self.pKeyField == current.request.vars[self.pKeyColumn]).update(
                 **self.contentWithValidParameters())
-            self.db.commit()
         except SyntaxError:
+            self.db.rollback()
             raise HTTP(204, "Nenhum conteúdo foi passado")
         except ValueError:
+            self.db.rollback()
             raise HTTP(422, "Algum parâmetro possui tipo inválido")
         if affectedRows == 0:
             raise HTTP(404, "Ooops... A princesa está em um castelo com outro ID.")
         else:
+            self.db.commit()
             headers = {"Affected": affectedRows}
             raise HTTP(200, "Conteúdo atualizado com sucesso", **headers)
 
@@ -299,11 +304,12 @@ class APIDelete(APIOperation):
         """
         try:
             affectedRows = self.db(self.pKeyField == self.rowId).delete()
-            self.db.commit()
         except ValueError:
+            self.db.rollback()
             raise HTTP(422, "O ID possui um tipo imcompatível.")
         if affectedRows == 0:
             raise HTTP(404, "Ooops... A princesa está em um castelo com outro ID.")
         else:
+            self.db.commit()
             headers = {"Affected": affectedRows}
             raise HTTP(200, "Conteúdo atualizado com sucesso", **headers)

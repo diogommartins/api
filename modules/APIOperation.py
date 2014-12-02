@@ -25,16 +25,29 @@ class APIQuery(APIOperation):
     ENTRIES_PER_QUERY_DEFAULT = 10
     ENTRIES_PER_QUERY_MAX = 5000
 
+    #TODO rever documetação
     def __init__(self, tablename, fields, request_vars, return_fields=None):
+        """
+
+        :param tablename: string relativa ao nome da tabela modela no banco dbSie
+        :param fields: Uma lista de colunas que devem ser retornadas pela consulta
+        :param request_vars:
+        :param return_fields:
+        """
         super(APIQuery, self).__init__(tablename)
         self.fields = fields['valid']
         self.special_fields = fields['special']
         self.request_vars = request_vars
         self.return_fields = return_fields
 
-    # Gera diferentes tipos de consultas para tipos de dados diferentes
-    # Return: List
     def _getQueryStatement(self):
+        """
+        O método gera diferentes tipos de consultas para tipos de dados diferentes. Cada tipo de dado gera uma
+        condição diferente e própria para o seu tipo.
+
+        :rtype : list
+        :return: Uma lista de parâmetros processados de consulta
+        """
         conditions = []
         # Consultas normais
         for field in self.fields:
@@ -56,7 +69,7 @@ class APIQuery(APIOperation):
 
         return conditions
 
-    # Retirar essa funcao daqui e ver porque import de APIRequest nao ta funcionando
+    #TODO Retirar essa funcao daqui e ver porque import de APIRequest nao ta funcionando
     def specialFieldChop(self, field):
         DEFAULT_SUFIX_SIZE = 4
         validSufixes = ('_MIN', '_MAX', '_BET')
@@ -71,10 +84,13 @@ class APIQuery(APIOperation):
         else:
             return [self.table.ALL]
 
-
-    # Retorna a tupla do limite
-    # Return: Tuple
     def _getRecordsSubset(self):
+        """
+        O método processa LMIN e LMAX ou, caso os mesmos não sejam fornecidos, gera-os de acordo com a permissão
+        da chave de usuário
+
+        :return: Uma tupla contendo o LIMIT e OFFSET da consulta
+        """
         limits = {
             "min": 0,
             "max": self.ENTRIES_PER_QUERY_DEFAULT
@@ -88,12 +104,20 @@ class APIQuery(APIOperation):
             limits['max'] = max if (entriesToLimit > 0) else (
                 max + entriesToLimit)  # Se subset maior do que o estabelecido, corrige
 
-        return ( limits['min'], limits['max'] )
-
+        return limits['min'], limits['max']
 
     # Retorna as linhas com as colunas requisitadas
     # Return: Dict
     def execute(self):
+        """
+        O método realiza uma consulta no banco de dados, retornando HTTP Status Code 200 (OK) e um dicionário em seu
+        corpo com as seguintes chaves e valores: `content` onde encontra-se uma lista de entradas; `count` o total de
+        entradas para a consulta (descartando os limites); `subset` uma tupla com os limites LMIN e LMAX utilizados
+        para realizar a consulta.
+
+        :rtype : dict
+        :return: Um dicionário com o conteúdo requisitado pelo usuário
+        """
         conditions = self._getQueryStatement()
         recordsSubset = self._getRecordsSubset()
         if conditions:
@@ -117,7 +141,7 @@ class APIInsert(APIOperation):
 
         :type tablename: str
         :type parameters: dict
-        :param tablename: Str relativa ao nome da tabela modela no banco dbSie
+        :param tablename: string relativa ao nome da tabela modela no banco dbSie
         :param parameters: dict de parâmetros que serão inseridos
         """
         super(APIInsert, self).__init__(tablename)
@@ -139,7 +163,7 @@ class APIInsert(APIOperation):
             "DT_ALTERACAO": str(date.today()),
             "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
             "ENDERECO_FISICO": current.request.env.remote_addr,
-            "COD_OPERADOR": 1                                       # DBSM.USUARIOS.ID_USUARIO
+            "COD_OPERADOR": 1  # DBSM.USUARIOS.ID_USUARIO
         }
 
     def nextValueForSequence(self):
@@ -178,7 +202,8 @@ class APIInsert(APIOperation):
         else:
             self.db.commit()
             headers = {
-                "Location": self.baseResourseURI + "?" + self.table._primarykey[0] + "=" + str(newId[self.table._primarykey[0]]),
+                "Location": self.baseResourseURI + "?" + self.table._primarykey[0] + "=" + str(
+                    newId[self.table._primarykey[0]]),
                 "id": newId[self.table._primarykey[0]]
             }
             raise HTTP(201, "Conteúdo inserido com sucesso.", **headers)
@@ -221,7 +246,8 @@ class APIUpdate(APIOperation):
         :raise HTTP: 404 A chave primária informada é inválida e nenhuma entrada foi afetada
         """
         try:
-            affectedRows = self.db(self.primarykeyField == self.parameters[self.primarykeyColumn]).update(**self.parameters)
+            affectedRows = self.db(self.primarykeyField == self.parameters[self.primarykeyColumn]).update(
+                **self.parameters)
         except SyntaxError:
             raise HTTP(204, "Nenhum conteúdo foi passado")
         except ValueError:

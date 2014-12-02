@@ -13,12 +13,23 @@ class APIOperation(object):
         self.tablename = tablename
         self.db = current.dbSie
         self.table = current.dbSie[self.tablename]
-        self.primarykeyField = self.table[self.table._primarykey[0]]
-        self.primarykeyColumn = self.table._primarykey[0]
+        try:
+            self.pKeyField = self.table[self.table._primarykey[0]]
+        except AttributeError:
+            HTTP(400, "O Endpoint requisitado não possui uma chave primária válida para esta operação.")
+        self.pKeyColumn = self.table._primarykey[0]
 
     @property
     def baseResourseURI(self):
         return current.request.env.http_host + current.request.env.PATH_INFO + "/"
+
+    def primarykeyInParameters(self, parameters):
+        """
+        Método utilizado para validar se a chave primária encontra-se na lista de parâmetros
+
+        :rtype : bool
+        """
+        return self.pKeyColumn in parameters['valid']
 
 
 class APIQuery(APIOperation):
@@ -223,16 +234,17 @@ class APIUpdate(APIOperation):
         """
         super(APIUpdate, self).__init__(tablename)
         self.parameters = parameters
-        if not self.primarykeyInParameters():
+        if not self.primarykeyInParameters(self.parameters):
             raise HTTP(400, "Não é possível atualizar um conteúdo sem sua chave primária.")
 
-    def primarykeyInParameters(self):
+    def contentWithValidParameters(self):
         """
-        Método utilizado para validar se a chave primária encontra-se na lista de parâmetros
+        Retorna um dicionário contendo somente os k,v onde k são colunas válidas da tabela em que se quer atualizar.
+        Esse dicionário não deve conter a chave primária.
 
-        :rtype : bool
+        :rtype : dict
         """
-        return self.parameters[self.primarykeyColumn]
+        return {column: current.request.vars[column] for column in self.parameters['valid'] if column != self.pKeyColumn}
 
     def execute(self):
         """
@@ -246,8 +258,8 @@ class APIUpdate(APIOperation):
         :raise HTTP: 404 A chave primária informada é inválida e nenhuma entrada foi afetada
         """
         try:
-            affectedRows = self.db(self.primarykeyField == self.parameters[self.primarykeyColumn]).update(
-                **self.parameters)
+            affectedRows = self.db(self.pKeyField == self.parameters[self.pKeyColumn]).update(
+                **self.contentWithValidParameters())
         except SyntaxError:
             raise HTTP(204, "Nenhum conteúdo foi passado")
         except ValueError:
@@ -260,17 +272,36 @@ class APIUpdate(APIOperation):
 
 
 class APIDelete(APIOperation):
-    def __init__(self, tablename, rowId):
+    def __init__(self, tablename, parameters):
         """
-
+        Classe responsável por lidar com requisições do tipo DELETE, que serão transformadas
+        em um DELETE no banco de dados e retornarão uma resposta HTTP adequada a remoção de um recurso.
 
         :type tablename: str
         :param tablename: String relativa ao nome da tabela modela no banco dbSie
-        :param rowId:
+        :param parameters: dict de parâmetros
         """
         super(APIDelete, self).__init__(tablename)
-        self.rowId = rowId
+        if not self.primarykeyInParameters(parameters):
+            raise HTTP(400, "Não é possível remover um conteúdo sem sua chave primária.")
+        self.rowId = current.request.vars[self.pKeyColumn]
 
     def execute(self):
-        primarykeyField = self.table[self.table._primarykey[0]]
-        self.db(primarykeyField == self.rowId).delete()
+        """
+        O método realiza a remoção de uma entrada no banco de dados e retorna HTTP Status Code 200 (OK) caso
+        o conteúdo seja removido com sucesso. A chave primária deve estar contida na lista de parâmetros e a mesma
+        é utilizada para remoção.
+
+        :rtype : HTTP
+        :raise HTTP: 422 Ocorre haja incompatibilidade entre o tipo de dados da coluna e o valor passsado
+        :raise HTTP: 404 A chave primária informada é inválida e nenhuma entrada foi afetada
+        """
+        try:
+            affectedRows = self.db(self.pKeyField == self.rowId).delete()
+        except ValueError:
+            raise HTTP(422, "O ID possui um tipo imcompatível.")
+        if affectedRows == 0:
+            raise HTTP(404, "Ooops... A princesa está em um castelo com outro ID.")
+        else:
+            headers = {"Affected": affectedRows}
+            raise HTTP(200, "Conteúdo atualizado com sucesso", **headers)

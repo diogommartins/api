@@ -260,6 +260,7 @@ class APIUpdate(APIOperation):
         try:
             affectedRows = self.db(self.pKeyField == self.parameters[self.pKeyColumn]).update(
                 **self.contentWithValidParameters())
+            self.db.commit()
         except SyntaxError:
             raise HTTP(204, "Nenhum conteúdo foi passado")
         except ValueError:
@@ -298,6 +299,7 @@ class APIDelete(APIOperation):
         """
         try:
             affectedRows = self.db(self.pKeyField == self.rowId).delete()
+            self.db.commit()
         except ValueError:
             raise HTTP(422, "O ID possui um tipo imcompatível.")
         if affectedRows == 0:

@@ -4,14 +4,6 @@ from datetime import datetime, date
 
 
 class APIOperation(object):
-    defaultFieldsForSIETables = {
-        "CONCORRENCIA": 999,
-        "DT_ALTERACAO": str(date.today()),
-        "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
-        "ENDERECO_FISICO": current.request.env.remote_addr,
-        "COD_OPERADOR": 1  # DBSM.USUARIOS.ID_USUARIO admin
-
-    }
     def __init__(self, tablename):
         """
 
@@ -38,6 +30,22 @@ class APIOperation(object):
         :rtype : bool
         """
         return self.pKeyColumn in parameters['valid']
+
+    @property
+    def defaultFieldsForSIETables(self):
+        """
+        Campos que obrigatoriamente devem ser preenchidos em um INSERT e devem ser feitos pela API.
+
+        :rtype : dict
+        :return: Um dicionário de parãmetros padrões
+        """
+        return {
+            "CONCORRENCIA": 999,
+            "DT_ALTERACAO": str(date.today()),
+            "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
+            "ENDERECO_FISICO": current.request.env.remote_addr,
+            "COD_OPERADOR": 1  # DBSM.USUARIOS.ID_USUARIO admin
+        }
 
 
 class APIQuery(APIOperation):
@@ -170,7 +178,9 @@ class APIInsert(APIOperation):
     @property
     def defaultFieldsForSIEInsert(self):
         pkey = self.table._primarykey[0]
-        return self.defaultFieldsForSIETables.update({pkey: self.nextValueForSequence()})
+        fields = dict(self.defaultFieldsForSIETables)
+        fields.update({pkey: self.nextValueForSequence()})
+        return fields
 
     def nextValueForSequence(self):
         """

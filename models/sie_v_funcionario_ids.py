@@ -1,5 +1,5 @@
 dbSie.define_table(
-    "V_FUNCIONARIOS_IDS",
+    "V_FUNCIONARIO_IDS",
     Field("ID_USUARIO", "interger"),
     Field("ID_PESSOA", "interger"),
     Field("ID_FUNCIONARIO", "interger"),

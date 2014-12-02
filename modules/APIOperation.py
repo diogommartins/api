@@ -14,7 +14,7 @@ class APIOperation(object):
         self.db = current.dbSie
         self.table = current.dbSie[self.tablename]
         self.primarykeyField = self.table[self.table._primarykey[0]]
-        self.primarykeyColumns = self.table._primarykey[0]
+        self.primarykeyColumn = self.table._primarykey[0]
 
     @property
     def baseResourseURI(self):
@@ -186,27 +186,62 @@ class APIInsert(APIOperation):
 
 class APIUpdate(APIOperation):
     def __init__(self, tablename, parameters):
+        """
+        Classe responsável por lidar com requisições do tipo PUT, que serão transformadas
+        em um UPDATE no banco de dados e retornarão uma resposta HTTP adequada a atualizaçao do recurso.
+
+        :type parameters: dict
+        :type tablename: str
+        :param tablename: string relativa ao nome da tabela modela no banco dbSie
+        :param parameters: dict de parâmetros que serão inseridos
+        :raise HTTP: 400 O dicionário `parameters` deve conter obrigatoriamente a primary key da tabela `tablename`
+        """
         super(APIUpdate, self).__init__(tablename)
         self.parameters = parameters
+        if not self.primarykeyInParameters():
+            raise HTTP(400, "Não é possível atualizar um conteúdo sem sua chave primária.")
+
+    def primarykeyInParameters(self):
+        """
+        Método utilizado para validar se a chave primária encontra-se na lista de parâmetros
+
+        :rtype : bool
+        """
+        return self.parameters[self.primarykeyColumn]
 
     def execute(self):
+        """
+        O método realiza uma atualização de uma entrada no banco de dados e retorna HTTP Status Code 200 (OK) caso
+        o conteúdo seja atualizado com sucesso. A chave primária deve estar contida na lista de parâmetros e a mesma
+        é utilizada para atualização.
+
+        :rtype : HTTP
+        :raise HTTP: 204 Não é possível realizar uma atualização sem que parâmetros sejam passados
+        :raise HTTP: 422 Ocorre haja incompatibilidade entre o tipo de dados da coluna e o valor passsado
+        :raise HTTP: 404 A chave primária informada é inválida e nenhuma entrada foi afetada
+        """
         try:
             affectedRows = self.db(self.primarykeyField == self.parameters[self.primarykeyColumn]).update(**self.parameters)
         except SyntaxError:
             raise HTTP(204, "Nenhum conteúdo foi passado")
         except ValueError:
             raise HTTP(422, "Algum parâmetro possui tipo inválido")
-        if affectedRows > 0:
-            headers = {
-                "Affected": affectedRows
-            }
+        if affectedRows == 0:
+            raise HTTP(404, "Ooops... A princesa está em um castelo com outro ID.")
+        else:
+            headers = {"Affected": affectedRows}
             raise HTTP(200, "Conteúdo atualizado com sucesso", **headers)
-
-        raise HTTP(404, "Ooops... A princesa está em um castelo com outro ID.")
 
 
 class APIDelete(APIOperation):
     def __init__(self, tablename, rowId):
+        """
+
+
+        :type tablename: str
+        :param tablename: String relativa ao nome da tabela modela no banco dbSie
+        :param rowId:
+        """
         super(APIDelete, self).__init__(tablename)
         self.rowId = rowId
 

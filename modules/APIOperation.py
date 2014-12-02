@@ -258,7 +258,7 @@ class APIUpdate(APIOperation):
         :raise HTTP: 404 A chave primária informada é inválida e nenhuma entrada foi afetada
         """
         try:
-            affectedRows = self.db(self.pKeyField == self.parameters[self.pKeyColumn]).update(
+            affectedRows = self.db(self.pKeyField == current.request.vars[self.pKeyColumn]).update(
                 **self.contentWithValidParameters())
             self.db.commit()
         except SyntaxError:

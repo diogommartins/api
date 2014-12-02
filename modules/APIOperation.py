@@ -247,7 +247,9 @@ class APIUpdate(APIOperation):
 
         :rtype : dict
         """
-        return {column: current.request.vars[column] for column in self.parameters['valid'] if column != self.pKeyColumn}
+        validContent = {column: current.request.vars[column] for column in self.parameters['valid'] if column != self.pKeyColumn}
+        validContent.update({k: v for k, v in self.defaultFieldsForSIETables.iteritems() if k in self.table.fields})
+        return validContent
 
     def execute(self):
         """

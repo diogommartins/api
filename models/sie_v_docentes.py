@@ -12,5 +12,6 @@ dbSie.define_table("V_DOCENTES",
                    Field('CONCORRENCIA', 'integer'),
                    Field('CPF_MASCARA', 'string'),
                    Field('CPF', 'string'),
+                   primarykey=['ID_CONTRATO_RH', 'MATR_EXTERNA'],
                    migrate=False,
                    rname="DBSM.V_DOCENTES")

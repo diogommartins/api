@@ -12,4 +12,5 @@ dbSie.define_table("V_DOCENTES",
                    Field('CONCORRENCIA', 'integer'),
                    Field('CPF_MASCARA', 'string'),
                    Field('CPF', 'string'),
-                   migrate=False)
+                   migrate=False,
+                   rname="DBSM.V_DOCENTES")

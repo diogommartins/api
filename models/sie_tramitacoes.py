@@ -26,7 +26,7 @@ dbSie.define_table("TRAMITACOES",
                    Field("PRIORIDADE_TAB", "integer"),
                    Field("PRIORIDADE_ITEM", "integer"),
                    Field("ID_APLIC_ACAO", "integer"),
-                   #Field("DESPACHO_RTF", "clob"),
+                   Field("DESPACHO_RTF", "clob"),
                    Field("ENDERECO_FISICO", "string"),
                    primarykey=["ID_TRAMITACAO"],
                    migrate=False)

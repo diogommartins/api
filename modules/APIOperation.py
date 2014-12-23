@@ -1,6 +1,7 @@
 # coding=utf-8
-from gluon import current, HTTP
 from datetime import datetime, date
+
+from gluon import current, HTTP
 
 
 class APIOperation(object):
@@ -133,6 +134,20 @@ class APIQuery(APIOperation):
 
         return limits['min'], limits['max']
 
+    def _distinctStyle(self):
+        """
+        Caso o parâmetro DISTINCT seja passado, a função define como será o tratamento. Ao usar DISTINCT, não se deve
+        selecionar todos os fields
+        :return: A forma
+        """
+        if self.request_vars["DISTINCT"]:
+            if self.request_vars["DISTINCT"] in self.table:
+                return self.table[self.request_vars["DISTINCT"]]
+            else:
+                return True
+
+
+
     # Retorna as linhas com as colunas requisitadas
     # Return: Dict
     def execute(self):
@@ -150,13 +165,18 @@ class APIQuery(APIOperation):
         if conditions:
             count = current.dbSie(reduce(lambda a, b: (a & b), conditions)).count()
             ret = current.dbSie(reduce(lambda a, b: (a & b), conditions)).select(*self._getReturnTableFields(),
-                                                                                 limitby=recordsSubset)
+                                                                                 limitby=recordsSubset,
+                                                                                 distinct=self._distinctStyle(),
+                                                                                 orderby=self.request_vars["ORDERBY"])
         else:
             count = current.dbSie(self.table).count()
-            ret = current.dbSie(self.table).select(limitby=recordsSubset, *self._getReturnTableFields())
+            ret = current.dbSie(self.table).select(*self._getReturnTableFields(),
+                                                   limitby=recordsSubset,
+                                                   orderby=self.request_vars["ORDERBY"])
 
         if ret:
             return {"count": count, "content": ret, "subset": recordsSubset}
+
 
 
 class APIInsert(APIOperation):

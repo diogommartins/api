@@ -146,8 +146,6 @@ class APIQuery(APIOperation):
             else:
                 return True
 
-
-
     # Retorna as linhas com as colunas requisitadas
     # Return: Dict
     def execute(self):

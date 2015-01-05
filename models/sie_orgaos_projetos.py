@@ -13,6 +13,7 @@ dbSie.define_table("ORGAOS_PROJETOS",
                    Field("DT_ALTERACAO", "date"),
                    Field("HR_ALTERACAO", "time"),
                    Field("CONCORRENCIA", "integer"),
+                   Field("COD_OPERADOR", "integer"),
                    Field("SITUACAO", "string", length=1),
                    primarykey=['ID_ORGAO_PROJETO'],
                    migrate=False

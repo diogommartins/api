@@ -85,7 +85,7 @@ class APIKey(object):
         return current.db(
             (current.db.api_auth.auth_key == hash)
             & (current.db.api_auth.active == True)
-        ).select(cache=(cache.ram, 3600), cacheable=True).first()
+        ).select(cache=(current.cache.ram, 3600), cacheable=True).first()
 
     def requestLimits(self):
         limits = current.db(
@@ -93,9 +93,9 @@ class APIKey(object):
             & (current.db.auth_membership.group_id == current.db.api_request_type.group_id)
         ).select(current.db.api_request_type.max_requests,
                  current.db.api_request_type.max_entries,
-                 cache=(cache.ram, 86400), cacheable=True).first()
+                 cache=(current.cache.ram, 86400), cacheable=True).first()
 
-        return limits.max_request, limits.max_entries
+        return limits.max_requests, limits.max_entries
 
     @staticmethod
     def isValidKey(hash):

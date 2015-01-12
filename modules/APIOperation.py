@@ -51,7 +51,7 @@ class APIOperation(object):
 
 class APIQuery(APIOperation):
     ENTRIES_PER_QUERY_DEFAULT = 10
-    ENTRIES_PER_QUERY_MAX = 5000
+    ENTRIES_PER_QUERY_MAX = 99999
 
     #TODO rever documetação
     def __init__(self, tablename, fields, request_vars, return_fields=None):
@@ -151,9 +151,10 @@ class APIQuery(APIOperation):
     def execute(self):
         """
         O método realiza uma consulta no banco de dados, retornando HTTP Status Code 200 (OK) e um dicionário em seu
-        corpo com as seguintes chaves e valores: `content` onde encontra-se uma lista de entradas; `count` o total de
-        entradas para a consulta (descartando os limites); `subset` uma tupla com os limites LMIN e LMAX utilizados
-        para realizar a consulta.
+        corpo com as seguintes chaves e valores:
+            `content` onde encontra-se uma lista de entradas
+            `count` o total de entradas para a consulta (descartando os limites);
+            `subset` uma tupla com os limites LMIN e LMAX utilizados para realizar a consulta.
 
         :rtype : dict
         :return: Um dicionário com o conteúdo requisitado pelo usuário
@@ -175,7 +176,7 @@ class APIQuery(APIOperation):
         if ret:
             return {"count": count, "content": ret, "subset": recordsSubset}
 
-
+d
 
 class APIInsert(APIOperation):
     def __init__(self, tablename, parameters):
@@ -226,6 +227,11 @@ class APIInsert(APIOperation):
         validContent.update({k: v for k, v in self.defaultFieldsForSIEInsert.iteritems() if k in self.table.fields})
 
         return validContent
+
+    def filterSpecialFieldTypes(self, content):
+        for field in content.iteritems():
+            if self.table[field].type == "blob":
+                content[field] = self.table.store(content[field])
 
     def execute(self):
         try:

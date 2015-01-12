@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+
 from gluon import current, HTTP
 from APIOperation import APIInsert, APIQuery, APIDelete, APIUpdate
 
@@ -65,6 +66,7 @@ class APIRequest(object):
                 self.tablename,
                 self.parameters,
                 self.request.vars,
+                self.apiKey,
                 self.return_fields
             )  # Cria nova query com os parâmetros processados em APIRequest
             # self.saveAPIRequest()  # Gera log da query

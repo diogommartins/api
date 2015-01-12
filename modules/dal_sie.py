@@ -9,8 +9,7 @@ class SIEDB2BaseAdapter(DB2Adapter):
 
     def represent_exceptions(self, obj, fieldtype):
         if fieldtype == 'blob':
-            obj = base64.b64encode(str(obj))
-            return "BLOB('%s')" % base64.b64decode(obj)
+            return "BLOB('%s')" % obj
         elif fieldtype == 'datetime':
             super(SIEDB2BaseAdapter, self).represent_exceptions(obj, fieldtype)
         return None

@@ -54,9 +54,11 @@ class APIQuery(APIOperation):
     ENTRIES_PER_QUERY_MAX = 99999
 
     #TODO rever documetação
-    def __init__(self, tablename, fields, request_vars, return_fields=None):
+    def __init__(self, tablename, fields, request_vars, apiKey, return_fields=None):
         """
 
+
+        :type apiKey: APIKey.APIKey
         :param tablename: string relativa ao nome da tabela modela no banco dbSie
         :param fields: Uma lista de colunas que devem ser retornadas pela consulta
         :param request_vars:
@@ -66,6 +68,7 @@ class APIQuery(APIOperation):
         self.fields = fields['valid']
         self.special_fields = fields['special']
         self.request_vars = request_vars
+        self.apiKey = apiKey
         self.return_fields = return_fields
 
     def _getQueryStatement(self):
@@ -128,7 +131,7 @@ class APIQuery(APIOperation):
             min = int(self.request_vars['LMIN'])
             max = int(self.request_vars['LMAX'])
 
-            entriesToLimit = self.ENTRIES_PER_QUERY_MAX - max - min
+            entriesToLimit = self.apiKey.max_entries - max - min
             limits['max'] = max if (entriesToLimit > 0) else (
                 max + entriesToLimit)  # Se subset maior do que o estabelecido, corrige
 
@@ -176,7 +179,6 @@ class APIQuery(APIOperation):
         if ret:
             return {"count": count, "content": ret, "subset": recordsSubset}
 
-d
 
 class APIInsert(APIOperation):
     def __init__(self, tablename, parameters):

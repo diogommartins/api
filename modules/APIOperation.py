@@ -141,11 +141,14 @@ class APIQuery(APIOperation):
         """
         Caso o parâmetro DISTINCT seja passado, a função define como será o tratamento. Ao usar DISTINCT, não se deve
         selecionar todos os fields
+        :rtype : gluon.DAL.Field
         :return: A forma
         """
         if self.request_vars["DISTINCT"]:
-            if self.request_vars["DISTINCT"] in self.table:
-                return self.table[self.request_vars["DISTINCT"]]
+            if self.request_vars["DISTINCT"] in self.table.fields:
+                # return self.table[self.request_vars["DISTINCT"]]
+                #TODO Verificar porque distinct está bugando a query ao passar um Field
+                return True
             else:
                 return True
 
@@ -174,6 +177,7 @@ class APIQuery(APIOperation):
             count = current.dbSie(self.table).count()
             ret = current.dbSie(self.table).select(*self._getReturnTableFields(),
                                                    limitby=recordsSubset,
+                                                   distinct=self._distinctStyle(),
                                                    orderby=self.request_vars["ORDERBY"])
 
         if ret:

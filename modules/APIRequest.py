@@ -69,7 +69,7 @@ class APIRequest(object):
                 self.apiKey,
                 self.return_fields
             )  # Cria nova query com os parâmetros processados em APIRequest
-            # self.saveAPIRequest()  # Gera log da query
+            self.saveAPIRequest()  # Gera log da query
             self._defineReturnType()  # Define qual view será usada
             return req.execute()  # Executa e retorna a query
 
@@ -104,7 +104,7 @@ class APIRequest(object):
             dt_request=self.timestamp,
             url=self.request.env.request_uri,
             ip=self.request.client,
-            auth_key=self.apiKey.auth_key.id
+            auth_key=self.apiKey.auth.id
         )
         self.db.commit()
 

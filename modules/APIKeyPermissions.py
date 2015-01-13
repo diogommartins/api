@@ -21,7 +21,9 @@ class APIKeyPermissions(object):
         # dt_creation, active, user_id, group_role, group_id, max_requests, max_entries
         # total_requests
         # =======================================================================
-        self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select().first()
+        #TODO cache deve ser realizado somente em chaves de sistema
+        self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select(cache=(current.cache.ram, 3600),
+                                                                             cacheable=True).first()
         self.tablename = APIRequest.controllerForRewritedURL()
 
 
@@ -103,7 +105,7 @@ class APIKeyPermissions(object):
     # Retorna uma lista com os FIELDS válidos ou uma lista vazia, que é interpretada
     # como todas as colunas
     # MÉTODO TAMBÉM EXISTEM EM APIRequest <<<<<< RESOLVER
-    #===========================================================================
+    # ===========================================================================
     def _validateReturnFields(self, fields):
         return [field for field in fields if field in current.dbSie[self.tablename].fields]
 
@@ -155,7 +157,8 @@ class APIKeyPermissions(object):
         :param column: Uma string referente a uma coluna
         """
         conditions = [
-            reduce(lambda a, b: (a & b), [self.conditionsToRequestContentFromTableColumn(table, column) for column in columns]),
+            reduce(lambda a, b: (a & b),
+                   [self.conditionsToRequestContentFromTableColumn(table, column) for column in columns]),
             self.conditionsToRequestAnyContentFromTable(table)
         ]
 

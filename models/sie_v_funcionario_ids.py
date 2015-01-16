@@ -6,6 +6,7 @@ dbSie.define_table(
     Field("ID_CONTRATO_RH", "integer"),
     Field("CPF", "string"),
     Field("CPF_MASCARA", "string"),
+    Field("NOME_PESSOA", "string"),
     primarykey=["CPF"],
     migrate=False
 )

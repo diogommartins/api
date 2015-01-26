@@ -2,6 +2,13 @@
 from datetime import datetime, date
 
 from gluon import current, HTTP
+try:
+    import pyodbc
+except ImportError:
+    try:
+        import gluon.contrib.pypyodbc as pyodbc
+    except Exception, e:
+        raise ImportError(str(e))
 
 
 class APIOperation(object):
@@ -168,19 +175,20 @@ class APIQuery(APIOperation):
         conditions = self._getQueryStatement()
         recordsSubset = self._getRecordsSubset()
         if conditions:
-            count = current.dbSie(reduce(lambda a, b: (a & b), conditions)).count()
-            ret = current.dbSie(reduce(lambda a, b: (a & b), conditions)).select(*self._getReturnTableFields(),
+            count = self.db(reduce(lambda a, b: (a & b), conditions)).count()
+            ret = self.db(reduce(lambda a, b: (a & b), conditions)).select(*self._getReturnTableFields(),
                                                                                  limitby=recordsSubset,
                                                                                  distinct=self._distinctStyle(),
                                                                                  orderby=self.request_vars["ORDERBY"])
         else:
-            count = current.dbSie(self.table).count()
-            ret = current.dbSie(self.table).select(*self._getReturnTableFields(),
+            count = self.db(self.table).count()
+            ret = self.db(self.table).select(*self._getReturnTableFields(),
                                                    limitby=recordsSubset,
                                                    distinct=self._distinctStyle(),
                                                    orderby=self.request_vars["ORDERBY"])
 
         if ret:
+            print self.db._lastsql
             return {"count": count, "content": ret, "subset": recordsSubset}
 
 
@@ -216,7 +224,7 @@ class APIInsert(APIOperation):
         :rtype: int
         :return: Um inteiro correspondente ao próximo ID válido disponível para um INSERT
         """
-        return self.db.executesql("SELECT NEXT VALUE FOR SEQ_%s FROM SYSIBM.SYSDUMMY1" % self.tablename)[0][0]
+        return self.db.executesql("SELECT NEXT VALUE FOR DBSM.SEQ_%s FROM SYSIBM.SYSDUMMY1" % self.tablename)[0][0]
 
     @property
     def optionalFieldsForSIETables(self):
@@ -242,7 +250,9 @@ class APIInsert(APIOperation):
     def execute(self):
         try:
             newId = self.table.insert(**self.contentWithValidParameters())
+            print self.db._lastsql
         except Exception as e:
+            print self.db._lastsql
             self.db.rollback()
             raise HTTP(404, "Não foi possível completar a operação.")
         else:
@@ -335,10 +345,14 @@ class APIDelete(APIOperation):
         :rtype : HTTP
         :raise HTTP: 422 Ocorre haja incompatibilidade entre o tipo de dados da coluna e o valor passsado
         :raise HTTP: 404 A chave primária informada é inválida e nenhuma entrada foi afetada
+        :raise HTTP: 403 A linha requisitada não pode ser deletada porque possui dependências que não foram atendidas
         """
         try:
             affectedRows = self.db(self.pKeyField == self.rowId).delete()
-        except ValueError:
+        except pyodbc.IntegrityError:
+            self.db.rollback()
+            raise HTTP(403, "Não foi possível deletar.")
+        except Exception as e:
             self.db.rollback()
             raise HTTP(422, "O ID possui um tipo imcompatível.")
         if affectedRows == 0:

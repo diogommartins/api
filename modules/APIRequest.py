@@ -88,7 +88,7 @@ class APIRequest(object):
         elif self.HTTPMethod == "DELETE":
             req = APIDelete(
                 self.tablename,
-                00000000000000
+                self.parameters
             )
 
         # self.saveAPIRequest()  # Gera log da query

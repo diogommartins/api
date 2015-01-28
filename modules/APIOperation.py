@@ -356,7 +356,7 @@ class APIDelete(APIOperation):
             self.db.rollback()
             raise HTTP(422, "O ID possui um tipo imcompatível.")
         if affectedRows == 0:
-            raise HTTP(404, "Ooops... A princesa está em um castelo com outro ID.")
+            raise HTTP(204, "Ooops... A princesa está em um castelo com outro ID.")
         else:
             self.db.commit()
             headers = {"Affected": affectedRows}

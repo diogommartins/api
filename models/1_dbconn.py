@@ -7,6 +7,5 @@ ADAPTERS.update({
     'db2': SIEDB2BaseAdapter
 })
 
-db = DAL('postgres://postgres:devdtic2@sistemas.unirio.br/api')
-dbSie = DAL('db2://DSN=dbsmtest;UID=dbsm;PWD=htrg11sn', db_codec='latin1')
-
+db = DAL('postgres://postgres:devdtic2@sistemas.unirio.br/api', migrate=False)
+dbSie = DAL('db2://DSN=dbsmtest;UID=dbsm;PWD=htrg11sn;LONGDATACOMPAT=1;', db_codec='latin1', pool_size=5)

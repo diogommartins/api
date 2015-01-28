@@ -7,6 +7,7 @@ dbSie.define_table(
     Field("NOME_DISCIPLINA", "string"),
     Field("DT_REGISTRO", "date"),
     Field("DESCRICAO", "string"),
+    Field("ID_PESSOA", "integer"),
     Field("COORDENADOR", "string"),
     Field("AVALIACAO", "string"),
     primarykey=["ID_PROJETO"],

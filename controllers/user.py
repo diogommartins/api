@@ -115,3 +115,15 @@ def membership():
         csv=False
     )
     return dict(grid=grid)
+
+
+@auth.requires(auth.has_membership('Desenvolvedor'))
+def permissions():
+    db.api_group_permissions.table_name.requires = IS_IN_SET(dbSie.tables)
+    grid = SQLFORM.grid(
+        query=db.api_group_permissions,
+        editable=False,
+        deletable=False,
+        csv=False
+    )
+    return dict(locals())

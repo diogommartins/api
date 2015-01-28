@@ -92,3 +92,38 @@ def ldapLogin():
             return sieUser.pessoaForCPF(user)
     else:
         return {'error': 'Chave Inválida', 'request': request.vars}
+
+
+@auth.requires(auth.has_membership('Desenvolvedor'))
+def user():
+    grid = SQLFORM.grid(
+        query=db.auth_user,
+        editable=True,
+        deletable=False,
+        csv=False
+    )
+    return dict(grid=grid)
+
+
+@auth.requires(auth.has_membership('Desenvolvedor'))
+def membership():
+    grid = SQLFORM.grid(
+        query=db.auth_membership,
+        editable=False,
+        deletable=False,
+        details=False,
+        csv=False
+    )
+    return dict(grid=grid)
+
+
+@auth.requires(auth.has_membership('Desenvolvedor'))
+def permissions():
+    db.api_group_permissions.table_name.requires = IS_IN_SET(dbSie.tables)
+    grid = SQLFORM.grid(
+        query=db.api_group_permissions,
+        editable=False,
+        deletable=False,
+        csv=False
+    )
+    return dict(locals())

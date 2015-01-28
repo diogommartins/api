@@ -349,7 +349,10 @@ class APIDelete(APIOperation):
         """
         try:
             affectedRows = self.db(self.pKeyField == self.rowId).delete()
+<<<<<<< HEAD
             print self.db._lastsql
+=======
+>>>>>>> 5forms
         except pyodbc.IntegrityError:
             self.db.rollback()
             raise HTTP(403, "Não foi possível deletar.")

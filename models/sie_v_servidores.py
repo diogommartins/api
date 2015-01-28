@@ -3,6 +3,10 @@
 #  View or materialized query table "DBSM.V_SERVIDORES" cannot be used because it has been marked inoperative.
 # Field("NOME_FUNCIONARIO", "string", length=80),
 dbSie.define_table( "V_SERVIDORES",
+                    Field("NOME_FUNCIONARIO", "string"),
+                    Field("CPF", "string"),
+                    Field("CPF_SEM_MASCARA", "string"),
+                    Field("EMAIL", "string"),
                     Field("MATR_EXTERNA", "integer"),
                     Field("ID_CONTRATO_RH", "integer"),
                     Field("SEXO", "string", length=1),
@@ -14,7 +18,12 @@ dbSie.define_table( "V_SERVIDORES",
                     Field("DT_APOSENTADORIA", "date"),
                     Field("DT_POSSE", "date"),
                     Field("DT_NOMEACAO", "date"),
-                    Field("ID_CARGO", "date"),
+                    Field("ID_CARGO", "integer"),
+                    Field("ID_PESSOA", "integer"),
+                    Field("ID_LOT_EXERCICIO", "integer"),
+                    Field("ID_LOT_OFICIAL", "integer"),
+                    Field("ID_CIDADE", "integer"),
+                    Field("ID_CONTRATO_RH", "integer"),
                     Field("DESC_CARGO", "string"),
                     Field("DESC_LOT_EXERCICIO", "string"),
                     Field("DESC_LOT_OFICIAL", "string"),
@@ -27,5 +36,6 @@ dbSie.define_table( "V_SERVIDORES",
                     Field("DESC_JORNADA_TRAB", "string"),
                     Field("ETNIA_ITEM", "integer"),
                     Field("DESC_ETNIA", "string"),
-                    migrate=False
-                     )
+                    migrate=False,
+                    primarykey=["ID_PESSOA"]
+)

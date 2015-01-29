@@ -98,10 +98,15 @@ class APIRequest(object):
         Utilizado para auditoria e limitar a quantidade de requisições por API KEY
 
         """
+        def __params():
+            params = self.request.vars.copy()
+            del params['API_KEY']
+            return params
+
         self.db.api_request.insert(
             dt_request=self.timestamp,
             endpoint=self.tablename,
-            parameters=str(self.parameters),
+            parameters=str(__params()),
             ip=self.request.client,
             auth_key=self.apiKey.auth.id,
             http_method=self.db(self.db.api_methods.http_method == self.HTTPMethod).select(cache=(current.cache.ram, 86400)).first().id

@@ -10,6 +10,8 @@ dbSie.define_table(
     Field("ID_PESSOA", "integer"),
     Field("COORDENADOR", "string"),
     Field("AVALIACAO", "string"),
+    Field("ID_CLASSIFICAO", "integer"),
+    Field("NOME_CURSO", "string"),
     primarykey=["ID_PROJETO"],
     migrate=False,
     rname="DBSM.V_PROJETOS_DADOS"

@@ -104,7 +104,8 @@ class APIRequest(object):
             dt_request=self.timestamp,
             url=self.request.env.request_uri,
             ip=self.request.client,
-            auth_key=self.apiKey.auth.id
+            auth_key=self.apiKey.auth.id,
+            http_method=self.db(self.db.api_methods.http_method == self.HTTPMethod).select(cache=(current.cache.ram, 86400)).first().id
         )
         self.db.commit()
 

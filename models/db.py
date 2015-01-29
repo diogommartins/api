@@ -42,17 +42,19 @@ db.define_table("api_auth",
                 Field("active", "boolean")
 )
 
-db.define_table("api_request",
-                Field("type_id", db.api_request_type),  # Está aqui porque o usuário pode estar em mais de um grupo
-                Field("dt_request", "datetime"),
-                Field("url", "string"),
-                Field("auth_key", db.api_auth, label="Key ID"),
-                Field("ip", "string")
-)
-
 db.define_table("api_methods",
                 Field("http_method", "string")
 )
+
+db.define_table("api_request",
+                Field("dt_request", "datetime"),
+                Field("url", "string"),
+                Field("auth_key", db.api_auth, label="Key ID"),
+                Field("ip", "string"),
+                Field("http_method", db.api_methods)
+)
+
+
 
 #===============================================================================
 #

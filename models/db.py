@@ -48,7 +48,8 @@ db.define_table("api_methods",
 
 db.define_table("api_request",
                 Field("dt_request", "datetime"),
-                Field("url", "string"),
+                Field("endpoint", "string"),
+                Field("parameters", "text"),
                 Field("auth_key", db.api_auth, label="Key ID"),
                 Field("ip", "string"),
                 Field("http_method", db.api_methods)

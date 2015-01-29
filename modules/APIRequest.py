@@ -28,7 +28,7 @@ class APIRequest(object):
         self.dbSie = current.dbSie
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.apiKey = apiKey  # APIKey
-
+        #TODO refatorar tablename.... não necessariamente é uma tabela
         self.tablename = self.controllerForRewritedURL()
         self.parameters = self._validateFields()
         self.return_fields = self._validateReturnFields()
@@ -69,9 +69,7 @@ class APIRequest(object):
                 self.apiKey,
                 self.return_fields
             )  # Cria nova query com os parâmetros processados em APIRequest
-            self.saveAPIRequest()  # Gera log da query
             self._defineReturnType()  # Define qual view será usada
-            return req.execute()  # Executa e retorna a query
 
         elif self.HTTPMethod == "POST":
             req = APIInsert(
@@ -91,7 +89,7 @@ class APIRequest(object):
                 self.parameters
             )
 
-        # self.saveAPIRequest()  # Gera log da query
+        self.saveAPIRequest()  # Gera log da requisição
         return req.execute()
 
     def saveAPIRequest(self):
@@ -102,7 +100,8 @@ class APIRequest(object):
         """
         self.db.api_request.insert(
             dt_request=self.timestamp,
-            url=self.request.env.request_uri,
+            endpoint=self.tablename,
+            parameters=str(self.parameters),
             ip=self.request.client,
             auth_key=self.apiKey.auth.id,
             http_method=self.db(self.db.api_methods.http_method == self.HTTPMethod).select(cache=(current.cache.ram, 86400)).first().id

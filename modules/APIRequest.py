@@ -15,10 +15,10 @@ class APIRequest(object):
         'DEFAULT': 'generic.json'
     }
     validContentTypes = {
-        'JSON': 'application/json',
+        'JSON': 'application/json; charset=utf-8',
         'XML': 'text/xml',
         'HTML': 'text/html',
-        'DEFAULT': 'application/json'
+        'DEFAULT': 'application/json; charset=utf-8'
     }
 
     def __init__(self, apiKey, request):

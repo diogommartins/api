@@ -1,1 +1,1 @@
-{{from gluon.serializers import json}}{{=XML(json(response._vars))}}
+{{from latin import json}}{{=XML(json(response._vars))}}

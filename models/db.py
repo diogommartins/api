@@ -1,20 +1,17 @@
 # -*- coding: utf-8 -*-
-from gluon.dal import Field
 from gluon import current
-from gluon.tools import *
+from gluon.contrib.login_methods.ldap_auth import ldap_auth
+from gluon.tools import Auth, Service, Crud
+
 
 current.dbSie = dbSie
 current.db = db
 
-mail = Mail()  # mailer
 auth = Auth(globals(), db)  # authentication/authorization
+auth.settings.login_methods = [ldap_auth(mode='uid', server='ldap.unirio.br', base_dn='ou=people,dc=unirio,dc=br')]
+
 crud = Crud(globals(), db)  # for CRUD helpers using auth
 service = Service(globals())  # for json, xml, jsonrpc, xmlrpc, amfrpc
-plugins = PluginManager()
-
-
-from gluon.contrib.login_methods.ldap_auth import ldap_auth
-auth.settings.login_methods = [ldap_auth(mode='uid', server='ldap.unirio.br', base_dn='ou=people,dc=unirio,dc=br')]
 
 # # create all tables needed by auth if not custom tables
 auth.define_tables(username=True)

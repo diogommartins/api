@@ -25,3 +25,7 @@ def index():
         avaiableFields=avaiableFields,
         tabelas=tableBeautify.beautifyDatabaseTables()
     )
+
+
+def user():
+    return dict(form=auth())

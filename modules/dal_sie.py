@@ -1,6 +1,5 @@
 import base64
-
-from gluon.dal import DB2Adapter
+from gluon.dal.adapters import DB2Adapter
 
 
 class SIEDB2BaseAdapter(DB2Adapter):

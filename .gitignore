@@ -8,3 +8,4 @@ models/0.py
 controllers/sandbox.py
 views/sandbox/*
 *.pyc
+*.bak

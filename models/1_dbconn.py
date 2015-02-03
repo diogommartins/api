@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #Git ignored file
 from dal_sie import SIEDB2BaseAdapter
-from gluon.dal import ADAPTERS
+from gluon.dal.adapters import ADAPTERS
 
 ADAPTERS.update({
     'db2': SIEDB2BaseAdapter

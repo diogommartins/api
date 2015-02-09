@@ -14,24 +14,28 @@ class APIRequest(object):
         'HTML': 'generic.html',
         'DEFAULT': 'generic.json'
     }
-    validContentTypes = {
-        'JSON': 'application/json; charset=utf-8',
-        'XML': 'text/xml',
-        'HTML': 'text/html',
-        'DEFAULT': 'application/json; charset=utf-8'
-    }
 
     def __init__(self, apiKey, request):
+        """
+
+        :type request: Request
+        :type apiKey: APIKey
+        """
         self.request = request
         self.HTTPMethod = self.request.env.request_method
         self.db = current.db
         self.dbSie = current.dbSie
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.apiKey = apiKey  # APIKey
-        #TODO refatorar tablename.... não necessariamente é uma tabela
-        self.tablename = self.controllerForRewritedURL()
+        self.endpoint = self.controllerForRewritedURL()
         self.parameters = self._validateFields()
         self.return_fields = self._validateReturnFields()
+        self.validContentTypes = {
+            'JSON':     'application/json; charset=%s' % self.db._db_codec,
+            'XML':      'text/xml',
+            'HTML':     'text/html',
+            'DEFAULT':  'application/json; charset=%s' % self.db._db_codec
+        }
 
     @staticmethod
     def controllerForRewritedURL():
@@ -63,7 +67,7 @@ class APIRequest(object):
         """
         if self.HTTPMethod == "GET":
             req = APIQuery(
-                self.tablename,
+                self.endpoint,
                 self.parameters,
                 self.request.vars,
                 self.apiKey,
@@ -73,19 +77,19 @@ class APIRequest(object):
 
         elif self.HTTPMethod == "POST":
             req = APIInsert(
-                self.tablename,
+                self.endpoint,
                 self.parameters
             )
 
         elif self.HTTPMethod == "PUT":
             req = APIUpdate(
-                self.tablename,
+                self.endpoint,
                 self.parameters
             )
 
         elif self.HTTPMethod == "DELETE":
             req = APIDelete(
-                self.tablename,
+                self.endpoint,
                 self.parameters
             )
 
@@ -105,7 +109,7 @@ class APIRequest(object):
 
         self.db.api_request.insert(
             dt_request=self.timestamp,
-            endpoint=self.tablename,
+            endpoint=self.endpoint,
             parameters=str(__params()),
             ip=self.request.client,
             auth_key=self.apiKey.auth.id,
@@ -121,12 +125,12 @@ class APIRequest(object):
 
         """
         format = self.request.vars.FORMAT
-        if format in APIRequest.validResponseFormats:
-            current.response.view = APIRequest.validResponseFormats[format]
-            current.response.headers['Content-Type'] = APIRequest.validContentTypes[format]
+        if format in self.validResponseFormats:
+            current.response.view = self.validResponseFormats[format]
+            current.response.headers['Content-Type'] = self.validContentTypes[format]
         else:
-            current.response.view = APIRequest.validResponseFormats['DEFAULT']
-            current.response.headers['Content-Type'] = APIRequest.validContentTypes['DEFAULT']
+            current.response.view = self.validResponseFormats['DEFAULT']
+            current.response.headers['Content-Type'] = self.validContentTypes['DEFAULT']
 
 
     def _validateFields(self):
@@ -144,7 +148,7 @@ class APIRequest(object):
         """
         fields = {"valid": [], "special": []}
         for k, v in self.request.vars.iteritems():
-            if k in self.dbSie[self.tablename].fields:
+            if k in self.dbSie[self.endpoint].fields:
                 fields['valid'].append(k)
             elif self._isValidFieldWithSufix(k):
                 fields['special'].append(k)
@@ -162,7 +166,7 @@ class APIRequest(object):
         """
         if self.request.vars["FIELDS"]:
             requestedFields = self.request.vars["FIELDS"].split(",")
-            return [field for field in requestedFields if field in self.dbSie[self.tablename].fields]
+            return [field for field in requestedFields if field in self.dbSie[self.endpoint].fields]
         else:
             return []
 
@@ -178,7 +182,7 @@ class APIRequest(object):
         """
         if self.specialFieldChop(field):
             field = self.specialFieldChop(field)
-            if field in self.dbSie[self.tablename].fields:
+            if field in self.dbSie[self.endpoint].fields:
                 return True
 
     @staticmethod

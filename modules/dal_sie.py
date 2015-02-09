@@ -1,5 +1,9 @@
+# coding=utf-8
 import base64
-from gluon.dal.adapters import DB2Adapter
+try:
+    from gluon.dal.adapters import DB2Adapter
+except ImportError:
+    from gluon.dal import DB2Adapter    # Necessário para manter backward compatibility de versões < 2.9.12
 
 
 class SIEDB2BaseAdapter(DB2Adapter):

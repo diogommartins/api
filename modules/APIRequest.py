@@ -31,10 +31,10 @@ class APIRequest(object):
         self.parameters = self._validateFields()
         self.return_fields = self._validateReturnFields()
         self.validContentTypes = {
-            'JSON':     'application/json; charset=%s' % self.db._db_codec,
+            'JSON':     'application/json; charset=%s' % self.dbSie._db_codec,
             'XML':      'text/xml',
             'HTML':     'text/html',
-            'DEFAULT':  'application/json; charset=%s' % self.db._db_codec
+            'DEFAULT':  'application/json; charset=%s' % self.dbSie._db_codec
         }
 
     @staticmethod

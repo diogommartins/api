@@ -6,6 +6,8 @@ dbSie.define_table(
     Field("SITUACAO", "string"),
     Field("SITUACAO_ITEM", "integer"),
     Field("NOME_DISCIPLINA", "string"),
+    Field("ID_DISCIPLINA", "integer"),
+    Field("COD_DISCIPLINA", "string"),
     Field("DT_REGISTRO", "date"),
     Field("DT_INICIAL", "date"),
     Field("DT_CONCLUSAO", "date"),
@@ -16,6 +18,8 @@ dbSie.define_table(
     Field("AVALIACAO_ITEM", "integer"),
     Field("ID_CLASSIFICACAO", "integer"),
     Field("NOME_CURSO", "string"),
+    Field("COORDENADOR_CPF_MASCARA", "string"),
+    Field("COORDENADOR_CPF", "string"),
     primarykey=["ID_PROJETO"],
     migrate=False,
     rname="DBSM.V_PROJETOS_DADOS"

@@ -17,7 +17,6 @@ dbSie.define_table(
     Field("AVALIACAO", "string"),
     Field("AVALIACAO_ITEM", "integer"),
     Field("ID_CLASSIFICACAO", "integer"),
-    Field("NOME_CURSO", "string"),
     Field("COORDENADOR_CPF_MASCARA", "string"),
     Field("COORDENADOR_CPF", "string"),
     primarykey=["ID_PROJETO"],

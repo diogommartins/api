@@ -1,4 +1,3 @@
-__author__ = 'sigin'
 # -*- coding: utf-8 -*-
 
 dbSie.define_table("AVALIACOES_PROJ",

@@ -18,6 +18,7 @@ dbSie.define_table(
     Field('FONE_RESIDENCIAL', 'string'),
     Field('FOTO', 'blob'),
     Field('ID_ALUNO', 'integer'),
+    Field('ID_CURSO_ALUNO', 'integer'),
     Field('ID_DOC_CPF', 'integer'),
     Field('ID_DOC_RG', 'integer'),
     Field('ID_NATURALIDADE', 'integer'),

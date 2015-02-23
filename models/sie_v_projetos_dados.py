@@ -7,6 +7,7 @@ dbSie.define_table(
     Field("SITUACAO_ITEM", "integer"),
     Field("NOME_DISCIPLINA", "string"),
     Field("ID_DISCIPLINA", "integer"),
+    Field("ID_UNIDADE", "integer"),
     Field("COD_DISCIPLINA", "string"),
     Field("DT_REGISTRO", "date"),
     Field("DT_INICIAL", "date"),

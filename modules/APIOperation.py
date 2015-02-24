@@ -1,7 +1,9 @@
 # coding=utf-8
 from datetime import datetime, date
-
 from gluon import current, HTTP
+
+__all__ = ['APIDelete', 'APIInsert', 'APIOperation', 'APIQuery', 'APIUpdate']
+
 try:
     import pyodbc
 except ImportError:
@@ -12,15 +14,15 @@ except ImportError:
 
 
 class APIOperation(object):
-    def __init__(self, tablename):
+    def __init__(self, endpoint):
         """
 
-        :type tablename: str
-        :param tablename: Str relativa ao nome da tabela modela no banco dbSie
+        :type endpoint: str
+        :param endpoint: Str relativa ao nome da tabela modela no banco dbSie
         """
-        self.tablename = tablename
+        self.endpoint = endpoint
         self.db = current.dbSie
-        self.table = current.dbSie[self.tablename]
+        self.table = current.dbSie[self.endpoint]
         try:
             self.pKeyField = self.table[self.table._primarykey[0]]
         except AttributeError:
@@ -60,23 +62,22 @@ class APIQuery(APIOperation):
     ENTRIES_PER_QUERY_DEFAULT = 10
     ENTRIES_PER_QUERY_MAX = 99999
 
-    #TODO rever documetação
-    def __init__(self, tablename, fields, request_vars, apiKey, return_fields=None):
+    # TODO rever documetação
+    def __init__(self, request):
         """
 
-
+        :type request: APIRequest.APIRequest
         :type apiKey: APIKey.APIKey
-        :param tablename: string relativa ao nome da tabela modela no banco dbSie
+        :param endpoint: string relativa ao nome da tabela modela no banco dbSie
         :param fields: Uma lista de colunas que devem ser retornadas pela consulta
-        :param request_vars:
-        :param return_fields:
         """
-        super(APIQuery, self).__init__(tablename)
-        self.fields = fields['valid']
-        self.special_fields = fields['special']
-        self.request_vars = request_vars
-        self.apiKey = apiKey
-        self.return_fields = return_fields
+        super(APIQuery, self).__init__(request.endpoint)
+        self.request = request
+        self.fields = self.request.parameters['valid']
+        self.special_fields = self.request.parameters['special']
+        self.request_vars = self.request.request.vars
+        self.apiKey = self.request.apiKey
+        self.return_fields = self.request.return_fields
 
     def _getQueryStatement(self):
         """
@@ -98,7 +99,7 @@ class APIQuery(APIOperation):
 
         # Trata condições especiais
         for special_field in self.special_fields:
-            field = self.specialFieldChop(special_field)
+            field = self.request.specialFieldChop(special_field)
             if field:
                 if special_field.endswith('_MIN'):
                     conditions.append(self.table[field] > self.request_vars[special_field])
@@ -109,11 +110,9 @@ class APIQuery(APIOperation):
 
     #TODO Retirar essa funcao daqui e ver porque import de APIRequest nao ta funcionando
     def specialFieldChop(self, field):
-        DEFAULT_SUFIX_SIZE = 4
         validSufixes = ('_MIN', '_MAX', '_BET')
         if field.endswith(validSufixes):
-            return field[:-DEFAULT_SUFIX_SIZE]
-        return False
+            return field[:-4]      # Default sufix size
 
     # Return: List
     def _getReturnTableFields(self):
@@ -139,8 +138,8 @@ class APIQuery(APIOperation):
             max = int(self.request_vars['LMAX'])
 
             entriesToLimit = self.apiKey.max_entries - max - min
-            limits['max'] = max if (entriesToLimit > 0) else (
-                max + entriesToLimit)  # Se subset maior do que o estabelecido, corrige
+            # Se subset maior do que o estabelecido, corrige
+            limits['max'] = max if entriesToLimit > 0 else max + entriesToLimit
 
         return limits['min'], limits['max']
 
@@ -154,7 +153,7 @@ class APIQuery(APIOperation):
         if self.request_vars["DISTINCT"]:
             if self.request_vars["DISTINCT"] in self.table.fields:
                 # return self.table[self.request_vars["DISTINCT"]]
-                #TODO Verificar porque distinct está bugando a query ao passar um Field
+                # TODO Verificar porque distinct está bugando a query ao passar um Field
                 return True
             else:
                 return True
@@ -177,15 +176,15 @@ class APIQuery(APIOperation):
         if conditions:
             count = self.db(reduce(lambda a, b: (a & b), conditions)).count()
             ret = self.db(reduce(lambda a, b: (a & b), conditions)).select(*self._getReturnTableFields(),
-                                                                                 limitby=recordsSubset,
-                                                                                 distinct=self._distinctStyle(),
-                                                                                 orderby=self.request_vars["ORDERBY"])
+                                                                           limitby=recordsSubset,
+                                                                           distinct=self._distinctStyle(),
+                                                                           orderby=self.request_vars["ORDERBY"])
         else:
             count = self.db(self.table).count()
             ret = self.db(self.table).select(*self._getReturnTableFields(),
-                                                   limitby=recordsSubset,
-                                                   distinct=self._distinctStyle(),
-                                                   orderby=self.request_vars["ORDERBY"])
+                                             limitby=recordsSubset,
+                                             distinct=self._distinctStyle(),
+                                             orderby=self.request_vars["ORDERBY"])
 
         if ret:
             print self.db._lastsql
@@ -193,18 +192,18 @@ class APIQuery(APIOperation):
 
 
 class APIInsert(APIOperation):
-    def __init__(self, tablename, parameters):
+    def __init__(self, endpoint, parameters):
         """
         Classe responsável por lidar com requisições do tipo POST, que serão transformadas
         em um INSERT no banco de dados e retornarão uma resposta HTTP adequada a criação do novo
         recurso.
 
-        :type tablename: str
+        :type endpoint: str
         :type parameters: dict
-        :param tablename: string relativa ao nome da tabela modela no banco dbSie
+        :param endpoint: string relativa ao nome da tabela modela no banco dbSie
         :param parameters: dict de parâmetros que serão inseridos
         """
-        super(APIInsert, self).__init__(tablename)
+        super(APIInsert, self).__init__(endpoint)
         self.parameters = parameters
         self.db = current.dbSie
 
@@ -224,7 +223,7 @@ class APIInsert(APIOperation):
         :rtype: int
         :return: Um inteiro correspondente ao próximo ID válido disponível para um INSERT
         """
-        return self.db.executesql("SELECT NEXT VALUE FOR DBSM.SEQ_%s FROM SYSIBM.SYSDUMMY1" % self.tablename)[0][0]
+        return self.db.executesql("SELECT NEXT VALUE FOR DBSM.SEQ_%s FROM SYSIBM.SYSDUMMY1" % self.endpoint)[0][0]
 
     @property
     def optionalFieldsForSIETables(self):
@@ -266,18 +265,18 @@ class APIInsert(APIOperation):
 
 
 class APIUpdate(APIOperation):
-    def __init__(self, tablename, parameters):
+    def __init__(self, endpoint, parameters):
         """
         Classe responsável por lidar com requisições do tipo PUT, que serão transformadas
         em um UPDATE no banco de dados e retornarão uma resposta HTTP adequada a atualizaçao do recurso.
 
         :type parameters: dict
-        :type tablename: str
-        :param tablename: string relativa ao nome da tabela modela no banco dbSie
+        :type endpoint: str
+        :param endpoint: string relativa ao nome da tabela modela no banco dbSie
         :param parameters: dict de parâmetros que serão inseridos
         :raise HTTP: 400 O dicionário `parameters` deve conter obrigatoriamente a primary key da tabela `tablename`
         """
-        super(APIUpdate, self).__init__(tablename)
+        super(APIUpdate, self).__init__(endpoint)
         self.parameters = parameters
         if not self.primarykeyInParameters(self.parameters):
             raise HTTP(400, "Não é possível atualizar um conteúdo sem sua chave primária.")
@@ -289,7 +288,8 @@ class APIUpdate(APIOperation):
 
         :rtype : dict
         """
-        validContent = {column: current.request.vars[column] for column in self.parameters['valid'] if column != self.pKeyColumn}
+        validContent = {column: current.request.vars[column] for column in self.parameters['valid'] if
+                        column != self.pKeyColumn}
         validContent.update({k: v for k, v in self.defaultFieldsForSIETables.iteritems() if k in self.table.fields})
         return validContent
 
@@ -322,16 +322,16 @@ class APIUpdate(APIOperation):
 
 
 class APIDelete(APIOperation):
-    def __init__(self, tablename, parameters):
+    def __init__(self, endpoint, parameters):
         """
         Classe responsável por lidar com requisições do tipo DELETE, que serão transformadas
         em um DELETE no banco de dados e retornarão uma resposta HTTP adequada a remoção de um recurso.
 
-        :type tablename: str
-        :param tablename: String relativa ao nome da tabela modela no banco dbSie
+        :type endpoint: str
+        :param endpoint: String relativa ao nome da tabela modela no banco dbSie
         :param parameters: dict de parâmetros
         """
-        super(APIDelete, self).__init__(tablename)
+        super(APIDelete, self).__init__(endpoint)
         if not self.primarykeyInParameters(parameters):
             raise HTTP(400, "Não é possível remover um conteúdo sem sua chave primária.")
         self.rowId = current.request.vars[self.pKeyColumn]

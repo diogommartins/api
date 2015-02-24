@@ -4,6 +4,7 @@ from datetime import datetime
 from gluon import current, HTTP
 from APIOperation import APIInsert, APIQuery, APIDelete, APIUpdate
 
+__all__ = ['APIRequest']
 
 class APIRequest(object):
     DEFAULT_SUFIX_SIZE = 4
@@ -19,14 +20,14 @@ class APIRequest(object):
         """
 
         :type request: Request
-        :type apiKey: APIKey
+        :type apiKey: APIKey.APIKey
         """
         self.request = request
         self.HTTPMethod = self.request.env.request_method
         self.db = current.db
         self.dbSie = current.dbSie
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.apiKey = apiKey  # APIKey
+        self.apiKey = apiKey
         self.endpoint = self.controllerForRewritedURL()
         self.parameters = self._validateFields()
         self.return_fields = self._validateReturnFields()
@@ -66,14 +67,8 @@ class APIRequest(object):
         :return: depende do tipo de dado requisitado. Padrão é validResponseFormats['DEFAULT']
         """
         if self.HTTPMethod == "GET":
-            req = APIQuery(
-                self.endpoint,
-                self.parameters,
-                self.request.vars,
-                self.apiKey,
-                self.return_fields
-            )  # Cria nova query com os parâmetros processados em APIRequest
-            self._defineReturnType()  # Define qual view será usada
+            req = APIQuery(self)        # Cria query com os parâmetros processados em APIRequest
+            self._defineReturnType()    # Define qual view será usada
 
         elif self.HTTPMethod == "POST":
             req = APIInsert(

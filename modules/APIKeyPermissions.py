@@ -4,6 +4,8 @@ from gluon import current, HTTP
 
 
 class APIKeyPermissions(object):
+    CACHE_TIME = 3600
+
     def __init__(self, request):
         """
         TODO: modificar atributos hash e key para receber um objeto do tipo APIKey
@@ -15,13 +17,11 @@ class APIKeyPermissions(object):
         self.fields = self.request.vars["FIELDS"].split(",") if self.request.vars["FIELDS"] else []
         self.http_method = APIKeyPermissions.HTTPMethodWithName(self.request.env.request_method)
         self.hash = self.request.vars.API_KEY
-        # =======================================================================
         # key pode ser nula ou ter as propriedades:
         #
         # dt_creation, active, user_id, group_role, group_id, max_requests, max_entries
         # total_requests
-        # =======================================================================
-        #TODO cache deve ser realizado somente em chaves de sistema
+        # TODO cache deve ser realizado somente em chaves de sistema
         self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select(cache=(current.cache.ram, 3600),
                                                                              cacheable=True).first()
         self.tablename = APIRequest.controllerForRewritedURL()
@@ -37,7 +37,7 @@ class APIKeyPermissions(object):
         :raise HTTP: 405 caso o método requisitado não seja suportado pela API
         """
         validMethod = current.db(current.db.api_methods.http_method == method).select(current.db.api_methods.id, cache=(
-            current.cache.ram, 36000)).first()
+            current.cache.ram, APIKeyPermissions.CACHE_TIME * 10)).first()
         if validMethod:
             return validMethod.id
         else:
@@ -56,7 +56,7 @@ class APIKeyPermissions(object):
         :raise HTTP: 403 se a chave não estiver mais ativa
         """
         if self.key.active:
-            if (self.key.total_requests < self.key.max_requests):
+            if self.key.total_requests < self.key.max_requests:
                 if self._hasPermissionToRequestFields():
                     return True
                 else:
@@ -77,8 +77,6 @@ class APIKeyPermissions(object):
 
         * As consultas de permissão são cacheadas em 3600 segundos
 
-        TODO converter tempo de cache para class constant
-
         :rtype : bool
         :return:
         """
@@ -87,48 +85,48 @@ class APIKeyPermissions(object):
             hasPermission = self.db(
                 self.conditionsToRequestContentFromTableColumns(self.tablename, validFields)).select(
                 self.db.api_group_permissions.id,
-                cache=(current.cache.ram, 3600))
+                cache=(current.cache.ram, self.CACHE_TIME))
             if hasPermission:
                 return True
         else:
             hasPermission = self.db(self.conditionsToRequestAnyContentFromTable(self.tablename)).select(
                 self.db.api_group_permissions.id,
-                cache=(current.cache.ram, 3600))
+                cache=(current.cache.ram, self.CACHE_TIME))
             if hasPermission:
                 return True
         return False
 
-
-    # ===========================================================================
-    # Método para verificar se os parâmetros de retorno passados são válidos
-    #
-    # Retorna uma lista com os FIELDS válidos ou uma lista vazia, que é interpretada
-    # como todas as colunas
-    # MÉTODO TAMBÉM EXISTEM EM APIRequest <<<<<< RESOLVER
-    # ===========================================================================
     def _validateReturnFields(self, fields):
+        """
+        Método para verificar se os parâmetros de retorno passados são válidos
+
+        :type fields: list
+        :param fields: Lista de fields requisitados
+        :return: Retorna uma lista com os FIELDS válidos ou uma lista vazia, que é interpretada como todas as colunas
+        """
         return [field for field in fields if field in current.dbSie[self.tablename].fields]
 
     def conditionsToRequestContentFromTableWithColumns(self, table, columns):
-        return ( self.conditionsToRequestContentFromTable(table)
-                 | self.conditionsToRequestContentFromTableColumns(table, columns) )
+        return self.conditionsToRequestContentFromTable(table) | self.conditionsToRequestContentFromTableColumns(table, columns)
 
-    #===========================================================================
-    # Condição para proibição total em uma tabela
-    #===========================================================================
     def conditionsToRequestContentFromTable(self, table):
-        conditions = [
+        """
+        Condição para proibição total em uma tabela
+
+        :type table: str
+        :param table: Uma string referente a uma tabela
+        """
+        conditions = (
             (self.db.api_group_permissions.group_id == self.key.group_id),
             (self.db.api_group_permissions.table_name == table),
             (self.db.api_group_permissions.http_method == self.http_method),
             (self.db.api_group_permissions.all_columns == True)
-        ]
+        )
 
         return reduce(lambda a, b: (a & b), conditions)
 
     def conditionsToRequestContentFromTableColumn(self, table, column):
         """
-
 
         :type table: str
         :type column: str
@@ -136,12 +134,12 @@ class APIKeyPermissions(object):
         :param column: Uma string referente a uma coluna
         :return:
         """
-        conditions = [
+        conditions = (
             (self.db.api_group_permissions.column_name == column),
             (self.db.api_group_permissions.table_name == table),
             (self.db.api_group_permissions.group_id == self.key.group_id),
             (self.db.api_group_permissions.http_method == self.http_method)
-        ]
+        )
 
         return reduce(lambda a, b: (a & b), conditions)
 
@@ -156,11 +154,11 @@ class APIKeyPermissions(object):
         :param table: Uma string referente a uma tabela
         :param column: Uma string referente a uma coluna
         """
-        conditions = [
+        conditions = (
             reduce(lambda a, b: (a & b),
                    [self.conditionsToRequestContentFromTableColumn(table, column) for column in columns]),
             self.conditionsToRequestAnyContentFromTable(table)
-        ]
+        )
 
         return reduce(lambda a, b: (a | b), conditions)
 
@@ -172,11 +170,11 @@ class APIKeyPermissions(object):
         :type table: str
         :param table: Uma string referente a uma tabela
         """
-        conditions = [
+        conditions = (
             (self.db.api_group_permissions.table_name == table),
             (self.db.api_group_permissions.group_id == self.key.group_id),
             (self.db.api_group_permissions.http_method == self.http_method),
             (self.db.api_group_permissions.all_columns == True)
-        ]
+        )
 
         return reduce(lambda a, b: (a & b), conditions)

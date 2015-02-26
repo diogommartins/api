@@ -8,6 +8,7 @@ dbSie.define_table(
     Field('DESCR_COMPLEMENTO', 'string'),
     Field('DESCR_DISTRITO', 'string'),
     Field('DESCR_ESTADO', 'string'),
+    Field('DESCR_MAIL', 'string'),
     Field('DESCR_MUNICIPIO', 'string'),
     Field('DESCR_NUMERO', 'string'),
     Field('DESCR_PAIS', 'string'),

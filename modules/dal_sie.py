@@ -7,6 +7,8 @@ except ImportError:
 
 
 class SIEDB2BaseAdapter(DB2Adapter):
+    drivers = ('ibm_db_dbi', )
+
     def parse_blob(self, value, field_type):
         return base64.b64encode(str(value))
 

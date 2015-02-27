@@ -12,4 +12,4 @@ ADAPTERS.update({
 
 db = DAL('postgres://postgres:devdtic2@sistemas.unirio.br/api', migrate=False)
 # db = DAL('db2://DSN=apitest', db_codec='utf-8', pool_size=5, migrate=False)
-dbSie = DAL('db2://DSN=dbsmtest;UID=dbsm;PWD=htrg11sn;LONGDATACOMPAT=1;DISABLEUNICODE=1', db_codec='utf-8', pool_size=5, driver_args=dict(unicode_results=True))
+dbSie = DAL('db2://DSN=dbsmtest;UID=dbsm;PWD=htrg11sn;LONGDATACOMPAT=1;DISABLEUNICODE=1', db_codec='utf-8', pool_size=5)

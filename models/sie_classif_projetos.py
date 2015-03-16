@@ -8,6 +8,6 @@ dbSie.define_table("CLASSIF_PROJETOS",
                    Field("DT_ALTERACAO","date"),
                    Field("HR_ALTERACAO","time"),
                    Field("CONCORRENCIA","integer"),
-                   Field("ENDERECO_FISICO","varchar"),
+                   Field("ENDERECO_FISICO"),
                    primarykey=["ID_CLASSIF_PROJETO"],
                    migrate=False)

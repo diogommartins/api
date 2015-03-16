@@ -8,7 +8,7 @@ __all__ = ['APIRequest']
 
 class APIRequest(object):
     DEFAULT_SUFIX_SIZE = 4
-    validSufixes = ('_MIN', '_MAX', '_BET')
+    validSufixes = ('_MIN', '_MAX', '_BET', '_SET')
     validResponseFormats = {
         'JSON': 'generic.json',
         'XML': 'generic.xml',

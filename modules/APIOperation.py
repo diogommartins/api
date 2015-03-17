@@ -121,6 +121,9 @@ class APIQuery(APIOperation):
         else:
             return [self.table.ALL]
 
+    def _subsetIsDefined(self):
+        return {'LMIN', 'LMAX'}.issubset(self.request_vars)
+
     def _getRecordsSubset(self):
         """
         O método processa LMIN e LMAX ou, caso os mesmos não sejam fornecidos, gera-os de acordo com a permissão
@@ -132,13 +135,11 @@ class APIQuery(APIOperation):
             "min": 0,
             "max": self.ENTRIES_PER_QUERY_DEFAULT
         }
-        # Caso o usário passe os parâmetros LMIN e LMAX
-        if set(['LMIN', 'LMAX']).issubset(self.request_vars):
+        if self._subsetIsDefined():
             min = int(self.request_vars['LMIN'])
             max = int(self.request_vars['LMAX'])
 
             entriesToLimit = self.apiKey.max_entries - max - min
-            # Se subset maior do que o estabelecido, corrige
             limits['max'] = max if entriesToLimit > 0 else max + entriesToLimit
 
         return limits['min'], limits['max']
@@ -151,15 +152,8 @@ class APIQuery(APIOperation):
         :return: A forma
         """
         if self.request_vars["DISTINCT"]:
-            if self.request_vars["DISTINCT"] in self.table.fields:
-                # return self.table[self.request_vars["DISTINCT"]]
-                # TODO Verificar porque distinct está bugando a query ao passar um Field
-                return True
-            else:
-                return True
+            return True
 
-    # Retorna as linhas com as colunas requisitadas
-    # Return: Dict
     def execute(self):
         """
         O método realiza uma consulta no banco de dados, retornando HTTP Status Code 200 (OK) e um dicionário em seu

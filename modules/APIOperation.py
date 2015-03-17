@@ -105,17 +105,16 @@ class APIQuery(APIOperation):
                     conditions.append(self.table[field] > self.request_vars[special_field])
                 elif special_field.endswith('_MAX'):
                     conditions.append(self.table[field] < self.request_vars[special_field])
+                elif special_field.endswith('_SET'):
+                    items = self.request_vars[special_field].split(',')
+                    conditions.append(self.table[field].belongs(items))
 
         return conditions
 
-    #TODO Retirar essa funcao daqui e ver porque import de APIRequest nao ta funcionando
-    def specialFieldChop(self, field):
-        validSufixes = ('_MIN', '_MAX', '_BET')
-        if field.endswith(validSufixes):
-            return field[:-4]      # Default sufix size
-
-    # Return: List
     def _getReturnTableFields(self):
+        """
+        :rtype : list
+        """
         if len(self.return_fields) > 0:
             return [self.table[field] for field in set(self.return_fields)]
         else:

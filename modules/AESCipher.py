@@ -1,8 +1,6 @@
 # coding=utf-8
-from random import Random
-
-from gluon.contrib.aes import AES
-
+from Crypto import Random
+from Crypto.Cipher import AES
 
 BS = 16
 pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
@@ -40,7 +38,7 @@ class AESCipher:
 
 if __name__ == "__main__":
     key = "36396F723576455432413134726279644437314F4B59583564416A686B475255"
-    ciphertext = "ef1253d42e9c510b3fde95b7b17e6944a3077c09eeb65f7bb6148719204e3732";
+    ciphertext = "ef1253d42e9c510b3fde95b7b17e6944a3077c09eeb65f7bb6148719204e3732"
     key = key[:32]
     decryptor = AESCipher(key)
     plaintext = decryptor.decrypt(ciphertext)

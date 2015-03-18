@@ -10,7 +10,8 @@ class APIKey(object):
         self.hash = hash
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.auth = self.authForHash(hash)
-        self.max_request, self.max_entries = self.requestLimits()
+        if self.auth:
+            self.max_request, self.max_entries = self.requestLimits()
 
     def owner(self):
         """

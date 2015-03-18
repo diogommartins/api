@@ -1,8 +1,6 @@
 # coding=utf-8
-from random import Random
-
-from gluon.contrib.aes import AES
-
+from Crypto import Random
+from Crypto.Cipher import AES
 
 BS = 16
 pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)

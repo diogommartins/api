@@ -10,5 +10,6 @@ dbSie.define_table(
     Field('MATRICULA', 'integer'),
     Field('PARTICIPANTE', 'integer'),
     migrate=False,
+    primarykey=['ID_BOLSISTA'],
     rname='DBSM.V_BOLSISTAS_MONITORIA'
 )

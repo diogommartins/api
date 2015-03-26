@@ -7,8 +7,9 @@ dbSie.define_table(
     Field('DESC_BANCO'),
     Field('ID_BOLSISTA', 'integer'),
     Field('ID_PROJETO', 'integer'),
-    Field('MATRICULA', 'integer'),
-    Field('PARTICIPANTE', 'integer'),
+    Field('MATRICULA'),
+    Field('PARTICIPANTE'),
+    Field('VL_BOLSA', 'float'),
     migrate=False,
     primarykey=['ID_BOLSISTA'],
     rname='DBSM.V_BOLSISTAS_MONITORIA'

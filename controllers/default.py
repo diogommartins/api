@@ -1,16 +1,17 @@
-def index():
-    from TableBeautify import TableBeautify
+# coding=utf-8
+from TableBeautify import TableBeautify
 
+
+def index():
     response.title = 'API UNIRIO'
 
-    # Todas as tabelas declaradas
-    inSieDeclairedTables = reduce(lambda a, b: (a | b), [datasource.COLUMNS.TABNAME == table for table in datasource.tables])
+    declairedTables = reduce(lambda a, b: (a | b), [datasource.COLUMNS.TABNAME == table for table in datasource.tables])
     descriptions = datasource((datasource.COLUMNS.TABSCHEMA == 'DBSM')
-                              & inSieDeclairedTables).select(datasource.COLUMNS.TABNAME,
-                                                             datasource.COLUMNS.COLNAME,
-                                                             datasource.COLUMNS.REMARKS,
-                                                             cache=(cache.ram, 172800),
-                                                             cacheable=True)
+                              & declairedTables).select(datasource.COLUMNS.TABNAME,
+                                                        datasource.COLUMNS.COLNAME,
+                                                        datasource.COLUMNS.REMARKS,
+                                                        cache=(cache.ram, 172800),
+                                                        cacheable=True)
 
     tableBeautify = TableBeautify(datasource, descriptions)
 

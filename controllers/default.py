@@ -4,24 +4,23 @@ def index():
     response.title = 'API UNIRIO'
 
     # Todas as tabelas declaradas
-    inSieDeclairedTables = reduce(lambda a, b: (a | b), [dbSie.COLUMNS.TABNAME == table for table in dbSie.tables])
-    descriptions = dbSie((dbSie.COLUMNS.TABSCHEMA == 'DBSM') & (inSieDeclairedTables)).select(dbSie.COLUMNS.TABNAME,
-                                                                                              dbSie.COLUMNS.COLNAME,
-                                                                                              dbSie.COLUMNS.REMARKS,
-                                                                                              cache=(cache.ram, 172800),
-                                                                                              cacheable=True)
+    inSieDeclairedTables = reduce(lambda a, b: (a | b), [datasource.COLUMNS.TABNAME == table for table in datasource.tables])
+    descriptions = datasource((datasource.COLUMNS.TABSCHEMA == 'DBSM')
+                              & inSieDeclairedTables).select(datasource.COLUMNS.TABNAME,
+                                                             datasource.COLUMNS.COLNAME,
+                                                             datasource.COLUMNS.REMARKS,
+                                                             cache=(cache.ram, 172800),
+                                                             cacheable=True)
 
-    tableBeautify = TableBeautify(dbSie.tables, descriptions)
+    tableBeautify = TableBeautify(datasource, descriptions)
 
     accessPermissions = db(db.auth_group).select(db.auth_group.role).as_list()
-    avaiableData = dbSie.tables
-    avaiableFields = []
-    for table in avaiableData:
-        avaiableFields.append({table: dbSie[table].fields})
+
+    avaiableFields = [{table: datasource[table].fields} for table in datasource.tables]
 
     return dict(
         accessPermissions=accessPermissions,
-        avaiableData=avaiableData,
+        avaiableData=datasource.tables,
         avaiableFields=avaiableFields,
         tabelas=tableBeautify.beautifyDatabaseTables()
     )

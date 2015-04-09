@@ -6,6 +6,7 @@ from APIOperation import APIInsert, APIQuery, APIDelete, APIUpdate
 
 __all__ = ['APIRequest']
 
+
 class APIRequest(object):
     DEFAULT_SUFIX_SIZE = 4
     validSufixes = ('_MIN', '_MAX', '_BET', '_SET')
@@ -25,21 +26,21 @@ class APIRequest(object):
         self.request = request
         self.HTTPMethod = self.request.env.request_method
         self.db = current.db
-        self.dbSie = current.dbSie
+        self.datasource = current.datasource
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.apiKey = apiKey
-        self.endpoint = self.controllerForRewritedURL()
+        self.endpoint = self.controllerForRewritedURL(self.request, self.datasource)
         self.parameters = self._validateFields()
         self.return_fields = self._validateReturnFields()
         self.validContentTypes = {
-            'JSON':     'application/json; charset=%s' % self.dbSie._db_codec,
+            'JSON':     'application/json; charset=%s' % self.datasource._db_codec,
             'XML':      'text/xml',
             'HTML':     'text/html',
-            'DEFAULT':  'application/json; charset=%s' % self.dbSie._db_codec
+            'DEFAULT':  'application/json; charset=%s' % self.datasource._db_codec
         }
 
     @staticmethod
-    def controllerForRewritedURL():
+    def controllerForRewritedURL(request, db):
         """
         O método retorna o nome do controller requisitado, antes do URL Rewrite realizado
         pelo `routes.py`. Na API, um controller é mapeado diretamente a uma tabela modelado
@@ -52,13 +53,12 @@ class APIRequest(object):
         :rtype : str
         :return: Nome original do controller requisitado
         """
-        pathList = current.request.env.PATH_INFO.split("/")
+        pathList = request.env.PATH_INFO.split("/")
         table = pathList[len(pathList)-1]
-        if table in current.dbSie:
+        if table in db:
             return table
         else:
             raise HTTP(404, 'Recurso requisitado é inválido: ' + table)
-
 
     def performRequest(self):
         """
@@ -101,7 +101,7 @@ class APIRequest(object):
             params = self.request.vars.copy()
             del params['API_KEY']
             return params
-
+        #TODO Pode ser realizado em
         self.db.api_request.insert(
             dt_request=self.timestamp,
             endpoint=self.endpoint,
@@ -143,7 +143,7 @@ class APIRequest(object):
         """
         fields = {"valid": [], "special": []}
         for k, v in self.request.vars.iteritems():
-            if k in self.dbSie[self.endpoint].fields:
+            if k in self.datasource[self.endpoint].fields:
                 fields['valid'].append(k)
             elif self._isValidFieldWithSufix(k):
                 fields['special'].append(k)
@@ -161,7 +161,7 @@ class APIRequest(object):
         """
         if self.request.vars["FIELDS"]:
             requestedFields = self.request.vars["FIELDS"].split(",")
-            return [field for field in requestedFields if field in self.dbSie[self.endpoint].fields]
+            return [field for field in requestedFields if field in self.datasource[self.endpoint].fields]
         else:
             return []
 
@@ -177,7 +177,7 @@ class APIRequest(object):
         """
         if self.specialFieldChop(field):
             field = self.specialFieldChop(field)
-            if field in self.dbSie[self.endpoint].fields:
+            if field in self.datasource[self.endpoint].fields:
                 return True
 
     @staticmethod

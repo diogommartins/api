@@ -18,11 +18,11 @@ class APIOperation(object):
         """
 
         :type endpoint: str
-        :param endpoint: Str relativa ao nome da tabela modela no banco dbSie
+        :param endpoint: Str relativa ao nome da tabela modela no banco datasource
         """
         self.endpoint = endpoint
-        self.db = current.dbSie
-        self.table = current.dbSie[self.endpoint]
+        self.db = current.datasource
+        self.table = self.db[self.endpoint]
         try:
             self.pKeyField = self.table[self.table._primarykey[0]]
         except AttributeError:
@@ -57,6 +57,10 @@ class APIOperation(object):
             "COD_OPERADOR": 1  # DBSM.USUARIOS.ID_USUARIO admin
         }
 
+    @property
+    def _uniqueIdentifierColumn(self):
+        return self.table._primarykey[0]
+
 
 class APIQuery(APIOperation):
     ENTRIES_PER_QUERY_DEFAULT = 10
@@ -68,7 +72,7 @@ class APIQuery(APIOperation):
 
         :type request: APIRequest.APIRequest
         :type apiKey: APIKey.APIKey
-        :param endpoint: string relativa ao nome da tabela modela no banco dbSie
+        :param endpoint: string relativa ao nome da tabela modela no banco datasource
         :param fields: Uma lista de colunas que devem ser retornadas pela consulta
         """
         super(APIQuery, self).__init__(request.endpoint)
@@ -173,7 +177,7 @@ class APIQuery(APIOperation):
                                                                            distinct=self._distinctStyle(),
                                                                            orderby=self.request_vars["ORDERBY"])
         else:
-            count = self.db(self.table).count()
+            count = self.db(self.table._id > 0).count()
             ret = self.db(self.table).select(*self._getReturnTableFields(),
                                              limitby=recordsSubset,
                                              distinct=self._distinctStyle(),
@@ -193,7 +197,7 @@ class APIInsert(APIOperation):
 
         :type endpoint: str
         :type parameters: dict
-        :param endpoint: string relativa ao nome da tabela modela no banco dbSie
+        :param endpoint: string relativa ao nome da tabela modela no banco datasource
         :param parameters: dict de parâmetros que serão inseridos
         """
         super(APIInsert, self).__init__(endpoint)
@@ -250,9 +254,10 @@ class APIInsert(APIOperation):
         else:
             self.db.commit()
             headers = {
-                "Location": self.baseResourseURI + "?" + self.table._primarykey[0] + "=" + str(
-                    newId[self.table._primarykey[0]]),
-                "id": newId[self.table._primarykey[0]]
+                # "Location": self.baseResourseURI + "?" + self.table._primarykey[0] + "=" + str(
+                #     newId[self.table._primarykey[0]]),
+                "Location": "%s?%s=%i" % (self.baseResourseURI, self._uniqueIdentifierColumn, newId[self._uniqueIdentifierColumn]),
+                "id": newId[self._uniqueIdentifierColumn]
             }
             raise HTTP(201, "Conteúdo inserido com sucesso.", **headers)
 
@@ -265,7 +270,7 @@ class APIUpdate(APIOperation):
 
         :type parameters: dict
         :type endpoint: str
-        :param endpoint: string relativa ao nome da tabela modela no banco dbSie
+        :param endpoint: string relativa ao nome da tabela modela no banco datasource
         :param parameters: dict de parâmetros que serão inseridos
         :raise HTTP: 400 O dicionário `parameters` deve conter obrigatoriamente a primary key da tabela `tablename`
         """
@@ -321,7 +326,7 @@ class APIDelete(APIOperation):
         em um DELETE no banco de dados e retornarão uma resposta HTTP adequada a remoção de um recurso.
 
         :type endpoint: str
-        :param endpoint: String relativa ao nome da tabela modela no banco dbSie
+        :param endpoint: String relativa ao nome da tabela modela no banco datasource
         :param parameters: dict de parâmetros
         """
         super(APIDelete, self).__init__(endpoint)

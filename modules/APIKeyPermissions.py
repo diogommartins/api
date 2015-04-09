@@ -24,7 +24,7 @@ class APIKeyPermissions(object):
         # TODO cache deve ser realizado somente em chaves de sistema
         self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select(cache=(current.cache.ram, 3600),
                                                                              cacheable=True).first()
-        self.tablename = APIRequest.controllerForRewritedURL()
+        self.tablename = APIRequest.controllerForRewritedURL(self.request, current.datasource)
 
 
     @staticmethod
@@ -104,7 +104,7 @@ class APIKeyPermissions(object):
         :param fields: Lista de fields requisitados
         :return: Retorna uma lista com os FIELDS válidos ou uma lista vazia, que é interpretada como todas as colunas
         """
-        return [field for field in fields if field in current.dbSie[self.tablename].fields]
+        return [field for field in fields if field in current.datasource[self.tablename].fields]
 
     def conditionsToRequestContentFromTableWithColumns(self, table, columns):
         return self.conditionsToRequestContentFromTable(table) | self.conditionsToRequestContentFromTableColumns(table, columns)

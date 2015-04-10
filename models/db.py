@@ -3,8 +3,11 @@ from gluon import current
 from gluon.contrib.login_methods.ldap_auth import ldap_auth
 from gluon.tools import Auth, Service, Crud
 
+# Dummy code to enable code completion in IDE's. Can be removed at production apps
+if 0:
+    datasource = DAL()
 
-current.dbSie = dbSie
+current.datasource = datasource
 current.db = db
 
 auth = Auth(globals(), db)  # authentication/authorization
@@ -52,27 +55,6 @@ db.define_table("api_request",
                 Field("http_method", db.api_methods)
 )
 
-
-
-#===============================================================================
-#
-# Field table_name        Tabela modelada pela qual será restringida
-# Field column_name       Coluna da tabela
-# Field all_columns      Caso a restrição seja aplicável a todas as colunas, recebe True
-# Field group_id            auth_user_group de uma API KEY
-#
-# Ex:
-#    table_name    = PESSOAS
-#    column_name   = NOME_PESSOA
-#    group_id      = Aluno
-#
-#
-#
-#    Na tabela PESSOAS, o campo NOME_PESSOA tem restrição de acesso na qual
-#    usuários ['Aluno', 'Sistema Convidado', 'Convidado'] não podem acessar e
-#    ['Professor', 'Servidor', 'Sistema', 'Desenvolvedor'] podem.
-#
-#===============================================================================
 db.define_table("api_group_permissions",
                 Field("table_name", "string"),
                 Field("column_name", "string", notnull=False),

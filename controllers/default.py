@@ -15,7 +15,9 @@ def index():
 
     tableBeautify = TableBeautify(datasource, descriptions)
 
-    accessPermissions = db(db.auth_group).select(db.auth_group.role).as_list()
+    accessPermissions = db(db.auth_group).select(db.auth_group.role,
+                                                 cache=(cache.ram, 172800),
+                                                 cacheable=True).as_list()
 
     avaiableFields = [{table: datasource[table].fields} for table in datasource.tables]
 

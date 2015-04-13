@@ -72,10 +72,6 @@ class DB2TableDefiner(BaseTableDefiner):
         )
 
     def _fetch_indexes(self):
-        """
-        Method that returns a dictionary which keys are table names and values are lists of primary keys
-        :rtype : dict
-        """
         rows = self.db((self.db.INDEXES.TABSCHEMA == self.schema) & (self.db.INDEXES.UNIQUERULE == 'P')).select(
             self.db.INDEXES.TABNAME,
             self.db.INDEXES.COLNAMES
@@ -88,16 +84,9 @@ class DB2TableDefiner(BaseTableDefiner):
         :rtype : tuple
         """
         table_names = self.db(self.db.TABLES.TABSCHEMA == self.schema).select(self.db.TABLES.TABNAME)
-        return tuple(table.TABNAME for table in table_names)
+        return {table.TABNAME: [] for table in table_names}
 
     def _fetch_columns(self):
-        """
-        Method that returns a dictionary which keys are table names and values are lists of gluon.Field equivalents to
-        table columns
-
-        :rtype : dict
-        """
-        tables = {table: [] for table in self.__tables}
         cols = self.db(self.db.COLUMNS.TABSCHEMA == self.schema).select(
             self.db.COLUMNS.TABNAME,
             self.db.COLUMNS.COLNAME,
@@ -107,12 +96,13 @@ class DB2TableDefiner(BaseTableDefiner):
         )
         for col in cols:
             try:
-                tables[col.TABNAME].append(Field(col.COLNAME, self.types[col.TYPENAME], length=col.LENGTH, label=col.REMARKS))
+                self.__tables[col.TABNAME].append(
+                    Field(col.COLNAME, self.types[col.TYPENAME], length=col.LENGTH, label=col.REMARKS))
             except KeyError:
                 print "Não foi possível adicionar a coluna %s de %s - tipo %s desconhecido" % (
                     col.COLNAME, col.TABNAME, col.TYPENAME)
 
-        return tables
+        return self.__tables
 
     def refresh_cache(self):
         #TODO Escrever método para dar refresh na lista de tabelas para atualizar alterações feitas na estrutura sem que seja necessário reiniciar o webserver

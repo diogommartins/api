@@ -1,51 +1,6 @@
-# coding=utf-8
+# coding=utf-8=
 from .base import BaseTableDefiner
-from gluon import current
-
-datasource.define_table(
-    'TABLES',
-    Field('TABNAME'),
-    Field('TABSCHEMA'),
-    migrate=False,
-    rname='SYSCAT.TABLES',
-    primarykey=['TABNAME', 'TABSCHEMA']
-)
-
-datasource.define_table(
-    'VIEWS',
-    Field('VIEWNAME'),
-    Field('VIEWSCHEMA'),
-    migrate=False,
-    rname='SYSCAT.VIEWS',
-    primarykey=['VIEWNAME', 'VIEWSCHEMA']
-)
-
-datasource.define_table(
-    'COLUMNS',
-    Field('TABNAME'),
-    Field('TABSCHEMA'),
-    Field('COLNAME'),
-    Field('COLNO'),
-    Field('LENGTH', 'integer'),
-    Field('NULLS'),
-    Field('SCALE'),
-    Field('TYPENAME'),
-    Field('REMARKS'),
-    migrate=False,
-    rname='SYSCAT.COLUMNS',
-    primarykey=['TABSCHEMA', 'TABNAME', 'COLNAME']
-)
-
-datasource.define_table(
-    'INDEXES',
-    Field('TABSCHEMA'),
-    Field('TABNAME'),
-    Field('COLNAMES'),
-    Field('UNIQUERULE'),
-    migrate=False,
-    rname='SYSCAT.INDEXES',
-    primarykey=['TABSCHEMA', 'TABNAME']
-)
+from gluon.dal import Field
 
 
 class DB2TableDefiner(BaseTableDefiner):
@@ -65,13 +20,58 @@ class DB2TableDefiner(BaseTableDefiner):
         'VARCHAR': 'string'
     }
 
-    def __init__(self, datasource, schema, cache_model=current.cache.ram, cacheTime=86400, verbose=False):
-        super(DB2TableDefiner, self).__init__(datasource, schema, cache_model, cacheTime, verbose)
-        self.tables = self.cache(self.db._uri_hash, lambda: self.__columns, time_expire=self.cacheTime)
-        self.indexes = self.cache(self.db._uri_hash + 'indexes', lambda: self.__indexes, time_expire=self.cacheTime)
+    def __init__(self, datasource, schema, **kwargs):
+        super(DB2TableDefiner, self).__init__(datasource, schema, **kwargs)
+        self.__define_source_tables()
+        self._define_tables()
 
-    @property
-    def __indexes(self):
+    def __define_source_tables(self):
+        self.db.define_table(
+            'TABLES',
+            Field('TABNAME'),
+            Field('TABSCHEMA'),
+            migrate=False,
+            rname='SYSCAT.TABLES',
+            primarykey=['TABNAME', 'TABSCHEMA']
+        )
+
+        self.db.define_table(
+            'VIEWS',
+            Field('VIEWNAME'),
+            Field('VIEWSCHEMA'),
+            migrate=False,
+            rname='SYSCAT.VIEWS',
+            primarykey=['VIEWNAME', 'VIEWSCHEMA']
+        )
+
+        self.db.define_table(
+            'COLUMNS',
+            Field('TABNAME'),
+            Field('TABSCHEMA'),
+            Field('COLNAME'),
+            Field('COLNO'),
+            Field('LENGTH', 'integer'),
+            Field('NULLS'),
+            Field('SCALE'),
+            Field('TYPENAME'),
+            Field('REMARKS'),
+            migrate=False,
+            rname='SYSCAT.COLUMNS',
+            primarykey=['TABSCHEMA', 'TABNAME', 'COLNAME']
+        )
+
+        self.db.define_table(
+            'INDEXES',
+            Field('TABSCHEMA'),
+            Field('TABNAME'),
+            Field('COLNAMES'),
+            Field('UNIQUERULE'),
+            migrate=False,
+            rname='SYSCAT.INDEXES',
+            primarykey=['TABSCHEMA', 'TABNAME']
+        )
+
+    def _fetch_indexes(self):
         """
         Method that returns a dictionary which keys are table names and values are lists of primary keys
         :rtype : dict
@@ -90,8 +90,7 @@ class DB2TableDefiner(BaseTableDefiner):
         table_names = self.db(self.db.TABLES.TABSCHEMA == self.schema).select(self.db.TABLES.TABNAME)
         return tuple(table.TABNAME for table in table_names)
 
-    @property
-    def __columns(self):
+    def _fetch_columns(self):
         """
         Method that returns a dictionary which keys are table names and values are lists of gluon.Field equivalents to
         table columns
@@ -114,25 +113,6 @@ class DB2TableDefiner(BaseTableDefiner):
                     col.COLNAME, col.TABNAME, col.TYPENAME)
 
         return tables
-
-    def __primarykey(self, table):
-        """
-        :rtype : list
-        """
-        try:
-            return self.indexes[table]
-        except KeyError:
-            if self.verbose:
-                print "[ALERT] Tabela %s não possui chave primária e alguns recursos podem não funcionar" % table
-
-    def define_tables(self):
-        for table in self.tables:
-            self.db.define_table(
-                table,
-                *self.tables[table],
-                migrate=False,
-                primarykey=self.__primarykey(table)
-            )
 
     def refresh_cache(self):
         #TODO Escrever método para dar refresh na lista de tabelas para atualizar alterações feitas na estrutura sem que seja necessário reiniciar o webserver

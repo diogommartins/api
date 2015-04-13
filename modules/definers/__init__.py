@@ -1,11 +1,13 @@
-from .mysql import MySQLTableDefiner
-from .postgres import PostgreSQLTableDefiner
 from .db2 import DB2TableDefiner
+from .mysql import MySQLTableDefiner
+from .mssql import MSSQLTableDefiner
+from .postgres import PostgreSQLTableDefiner
 
 
 DEFINERS = {
     'db2': DB2TableDefiner,
     'mysql': MySQLTableDefiner,
+    'mssql': MSSQLTableDefiner,
     'postgres': PostgreSQLTableDefiner
 }
 

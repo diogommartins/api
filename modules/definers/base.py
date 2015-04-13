@@ -42,13 +42,20 @@ class BaseTableDefiner(object):
                 primarykey=_primarykey(table)
             )
 
-    def _primarykey(self, table):
-        raise NotImplementedError
-
     def _fetch_columns(self):
+        """
+        Method that returns a dictionary which keys are table names and values are lists of gluon.Field equivalents to
+        table columns
+
+        :rtype : dict
+        """
         raise NotImplementedError
 
     def _fetch_indexes(self):
+        """
+        Method that returns a dictionary which keys are table names and values are lists of primary keys
+        :rtype : dict
+        """
         raise NotImplementedError
 
     def refresh_cache(self):

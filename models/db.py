@@ -68,4 +68,5 @@ db.define_table("api_group_permissions",
 
 db.api_group_permissions.http_method.requires = IS_IN_DB(db, db.api_methods.id, '%(http_method)s')
 
-endpoint = Endpoints(datasource, schema='DBSM')
+endpoints = Endpoints(datasource, schema='DBSM')
+# endpoints = Endpoints(jic, schema='public')

@@ -18,4 +18,3 @@ class Endpoints(object):
             raise SyntaxError("Database %s not supported for auto definition of endpoints." % self.datasource._dbname)
 
         self._table_definer = DEFINERS[self.datasource._dbname](self.datasource, **kwargs)
-        print 'remova a minha linha'

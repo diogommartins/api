@@ -21,12 +21,7 @@ class PostgreSQLTableDefiner(BaseTableDefiner):
         'varchar': 'string'
     }
 
-    def __init__(self, datasource, schema, **kwargs):
-        super(PostgreSQLTableDefiner, self).__init__(datasource, schema, **kwargs)
-        self.__define_source_tables()
-        self._define_tables()
-
-    def __define_source_tables(self):
+    def _define_source_tables(self):
         self.db.define_table(
             'columns',
             Field('table_catalog'),
@@ -83,9 +78,6 @@ class PostgreSQLTableDefiner(BaseTableDefiner):
         table_names = self.db(self.db.columns.table_schema == self.schema).select(self.db.columns.table_name,
                                                                                   distinct=True)
         return {table.table_name: [] for table in table_names}
-
-    def parse_boolean(self, value):
-        return True if value == 'YES' else False
 
     def _fetch_columns(self):
         tables = self.__tables.copy()

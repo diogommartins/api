@@ -20,12 +20,7 @@ class DB2TableDefiner(BaseTableDefiner):
         'VARCHAR': 'string'
     }
 
-    def __init__(self, datasource, schema, **kwargs):
-        super(DB2TableDefiner, self).__init__(datasource, schema, **kwargs)
-        self.__define_source_tables()
-        self._define_tables()
-
-    def __define_source_tables(self):
+    def _define_source_tables(self):
         self.db.define_table(
             'TABLES',
             Field('TABNAME'),

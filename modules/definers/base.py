@@ -19,6 +19,11 @@ class BaseTableDefiner(object):
         self.verbose = verbose
         self.tables = lambda: self.cache(self.db._uri_hash, lambda: self._fetch_columns(), time_expire=self.cache_time)
         self.indexes = lambda: self.cache(self.db._uri_hash + 'indexes', lambda: self._fetch_indexes(), time_expire=self.cache_time)
+        self._define_source_tables()
+        self._define_tables()
+
+    def _define_source_tables(self):
+        raise NotImplementedError
 
     def _define_tables(self):
         field_collection = self.tables()

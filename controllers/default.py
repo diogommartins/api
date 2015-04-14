@@ -5,15 +5,7 @@ from TableBeautify import TableBeautify
 def index():
     response.title = 'API UNIRIO'
 
-    declairedTables = reduce(lambda a, b: (a | b), [datasource.COLUMNS.TABNAME == table for table in datasource.tables])
-    descriptions = datasource((datasource.COLUMNS.TABSCHEMA == 'DBSM')
-                              & declairedTables).select(datasource.COLUMNS.TABNAME,
-                                                        datasource.COLUMNS.COLNAME,
-                                                        datasource.COLUMNS.REMARKS,
-                                                        cache=(cache.ram, 172800),
-                                                        cacheable=True)
-
-    tableBeautify = TableBeautify(datasource, descriptions)
+    tableBeautify = TableBeautify(datasource)
 
     accessPermissions = db(db.auth_group).select(db.auth_group.role,
                                                  cache=(cache.ram, 172800),

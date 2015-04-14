@@ -5,9 +5,12 @@ from gluon.html import *
 class TableBeautify(object):
     excludedTables = ['COLUMNS']
 
-    def __init__(self, db, descriptions):
+    def __init__(self, db):
+        """
+        :param db: gluon.dal.DAL
+        """
         self.db = db
-        self.descriptions = self._formatTableColumnsDescriptions(descriptions)
+        self.tables = {table: [] for table in self.db.tables}
 
     def beautifyDatabaseTables(self):
         return [self.printTable(tableName) for tableName in self.db.tables if tableName not in self.excludedTables]
@@ -44,17 +47,7 @@ class TableBeautify(object):
                 TD(self._getFieldDescription(name, field))
             )
 
-    def _formatTableColumnsDescriptions(self, descriptions):
-        tableColumnsDescriptions = {}
-        for row in descriptions:
-            if row.TABNAME in tableColumnsDescriptions:
-                tableColumnsDescriptions[row.TABNAME].update({row.COLNAME: row.REMARKS})
-            else:
-                tableColumnsDescriptions.update({row.TABNAME: {row.COLNAME: row.REMARKS}})
-
-        return tableColumnsDescriptions
-
     def _getFieldDescription(self, name, field):
-        if name in self.descriptions and field in self.descriptions[name]:
-            return self.descriptions[name][field]
+        if self.db[name][field].label:
+            return self.db[name][field].label
         return "Sem descrição"

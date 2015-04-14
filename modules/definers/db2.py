@@ -74,14 +74,15 @@ class DB2TableDefiner(BaseTableDefiner):
         return {table.TABNAME: table.COLNAMES.split('+')[1:] for table in rows}
 
     @property
-    def __tables(self):
+    def _tables(self):
         """
-        :rtype : tuple
+        :rtype : dict
         """
         table_names = self.db(self.db.TABLES.TABSCHEMA == self.schema).select(self.db.TABLES.TABNAME)
         return {table.TABNAME: [] for table in table_names}
 
     def _fetch_columns(self):
+        tables = self._tables.copy()
         cols = self.db(self.db.COLUMNS.TABSCHEMA == self.schema).select(
             self.db.COLUMNS.TABNAME,
             self.db.COLUMNS.COLNAME,
@@ -91,14 +92,14 @@ class DB2TableDefiner(BaseTableDefiner):
         )
         for col in cols:
             try:
-                self.__tables[col.TABNAME].append(
+                tables[col.TABNAME].append(
                     Field(col.COLNAME, self.types[col.TYPENAME], length=col.LENGTH, label=col.REMARKS))
             except KeyError:
-                print "Não foi possível adicionar a coluna %s de %s - tipo %s desconhecido" % (
-                    col.COLNAME, col.TABNAME, col.TYPENAME)
-
-        return self.__tables
+                print "Não foi possível adicionar a coluna %s de %s - tipo %s desconhecido" % (col.COLNAME,
+                                                                                               col.TABNAME,
+                                                                                               col.TYPENAME)
+        return tables
 
     def refresh_cache(self):
-        #TODO Escrever método para dar refresh na lista de tabelas para atualizar alterações feitas na estrutura sem que seja necessário reiniciar o webserver
+        # TODO Escrever método para dar refresh na lista de tabelas para atualizar alterações feitas na estrutura sem que seja necessário reiniciar o webserver
         raise NotImplementedError

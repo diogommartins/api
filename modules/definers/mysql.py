@@ -1,6 +1,5 @@
-from .base import BaseTableDefiner
+from .base import InformationSchema
 
 
-class MySQLTableDefiner(BaseTableDefiner):
-    def __init__(self, datasource, schema, **kwargs):
-        super(MySQLTableDefiner, self).__init__(datasource, schema, **kwargs)
+class MySQLTableDefiner(InformationSchema):
+    pass

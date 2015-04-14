@@ -1,6 +1,7 @@
 # coding=utf-8
 from gluon import current
 from gluon.dal import Field
+import sys
 
 
 class BaseTableDefiner(object):
@@ -24,14 +25,22 @@ class BaseTableDefiner(object):
         self._define_tables()
 
     def _define_source_tables(self):
+        """
+        Method used to define the necessary tables to retrieve metadata of the existing tables on `datasource`
+        """
         raise NotImplementedError
 
     def _define_tables(self):
+
         field_collection = self.tables()
         indexes = self.indexes()
 
         def _primarykey(table):
             """
+            A primary key must be a list. If None is passed into `primarykey` parameter of the `define_table` method,
+            it will automatically define an `Id` field as a primary key.
+
+            :type table: str
             :rtype : list
             """
             try:
@@ -61,6 +70,7 @@ class BaseTableDefiner(object):
     def _fetch_indexes(self):
         """
         Method that returns a dictionary which keys are table names and values are lists of primary keys
+
         :rtype : dict
         """
         raise NotImplementedError

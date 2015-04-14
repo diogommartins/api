@@ -11,12 +11,9 @@ def index():
                                                  cache=(cache.ram, 172800),
                                                  cacheable=True).as_list()
 
-    avaiableFields = [{table: datasource[table].fields} for table in datasource.tables]
-
     return dict(
         accessPermissions=accessPermissions,
         avaiableData=datasource.tables,
-        avaiableFields=avaiableFields,
         tabelas=tableBeautify.beautifyDatabaseTables()
     )
 

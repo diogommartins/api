@@ -75,25 +75,6 @@ def createNewSystemKey():
     return dict(form=form, key=key)
 
 
-#===============================================================================
-# Requer uma chave válida
-#===============================================================================
-def ldapLogin():
-    from APIKey import APIKey
-    from SIEUser import *
-
-    response.view = 'generic.json'
-    if APIKey.isValidKey(request.vars.API_KEY):
-        user = auth.login_bare(request.vars.username, request.vars.password)
-        if not user:
-            return {'error': 'Usuário ou senha inválido.'}
-        else:
-            sieUser = SIEUser()
-            return sieUser.pessoaForCPF(user)
-    else:
-        return {'error': 'Chave Inválida', 'request': request.vars}
-
-
 @auth.requires(auth.has_membership('Desenvolvedor'))
 def user():
     grid = SQLFORM.grid(
@@ -119,7 +100,7 @@ def membership():
 
 @auth.requires(auth.has_membership('Desenvolvedor'))
 def permissions():
-    db.api_group_permissions.table_name.requires = IS_IN_SET(datasource.tables)
+    db.api_group_permissions.table_name.requires = IS_IN_SET(sorted(datasource.tables))
     grid = SQLFORM.grid(
         query=db.api_group_permissions,
         editable=False,

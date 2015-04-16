@@ -219,3 +219,27 @@ table tr:hover td {
     background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#f0f0f0));
     background: -moz-linear-gradient(top,  #f2f2f2,  #f0f0f0);
 }
+
+div#endpoints_names{
+    width: 40%;
+    height: 500px;
+    overflow-y: scroll;
+    float: left;
+    font-size: 9pt;
+}
+
+div#endpoints_names ul{
+    list-style-type: none;
+    margin-left: 0;
+}
+
+div#endpoints_descriptions{
+    width: 60%;
+    float: left
+}
+
+div#containerblabla{
+    width:100% !important;
+    display: block;
+    float: left;
+}

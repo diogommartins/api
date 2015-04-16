@@ -27,7 +27,6 @@ class APIOperation(object):
             self.pKeyField = self.table[self.table._primarykey[0]]
         except AttributeError:
             HTTP(400, "O Endpoint requisitado não possui uma chave primária válida para esta operação.")
-        self.pKeyColumn = self.table._primarykey[0]
 
     @property
     def baseResourseURI(self):
@@ -94,11 +93,9 @@ class APIQuery(APIOperation):
         conditions = []
         # Consultas normais
         for field in self.fields:
-            if self.table[field].type == 'integer':
-                conditions.append(self.table[field] == self.request_vars[field])
-            elif self.table[field].type == 'string':
+            if self.table[field].type == 'string':
                 conditions.append(self.table[field].contains(self.request_vars[field], case_sensitive=False))
-            elif self.table[field].type == 'date':
+            else:
                 conditions.append(self.table[field] == self.request_vars[field])
 
         # Trata condições especiais
@@ -276,6 +273,7 @@ class APIUpdate(APIOperation):
         """
         super(APIUpdate, self).__init__(endpoint)
         self.parameters = parameters
+        self.pKeyColumn = self.table._primarykey[0]
         if not self.primarykeyInParameters(self.parameters):
             raise HTTP(400, "Não é possível atualizar um conteúdo sem sua chave primária.")
 
@@ -332,7 +330,9 @@ class APIDelete(APIOperation):
         super(APIDelete, self).__init__(endpoint)
         if not self.primarykeyInParameters(parameters):
             raise HTTP(400, "Não é possível remover um conteúdo sem sua chave primária.")
+        self.pKeyColumn = self.table._primarykey[0]
         self.rowId = current.request.vars[self.pKeyColumn]
+
 
     def execute(self):
         """

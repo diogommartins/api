@@ -1,6 +1,7 @@
 # coding=utf-8
 from datetime import datetime, date
 from gluon import current, HTTP
+import abc
 
 __all__ = ['APIDelete', 'APIInsert', 'APIOperation', 'APIQuery', 'APIUpdate']
 
@@ -14,6 +15,8 @@ except ImportError:
 
 
 class APIOperation(object):
+    __metaclass__ = abc.ABCMeta
+
     def __init__(self, endpoint):
         """
 
@@ -23,22 +26,10 @@ class APIOperation(object):
         self.endpoint = endpoint
         self.db = current.datasource
         self.table = self.db[self.endpoint]
-        try:
-            self.pKeyField = self.table[self.table._primarykey[0]]
-        except AttributeError:
-            HTTP(400, "O Endpoint requisitado não possui uma chave primária válida para esta operação.")
 
     @property
     def baseResourseURI(self):
         return current.request.env.http_host + current.request.env.PATH_INFO + "/"
-
-    def primarykeyInParameters(self, parameters):
-        """
-        Método utilizado para validar se a chave primária encontra-se na lista de parâmetros
-
-        :rtype : bool
-        """
-        return self.pKeyColumn in parameters['valid']
 
     @property
     def defaultFieldsForSIETables(self):
@@ -59,6 +50,26 @@ class APIOperation(object):
     @property
     def _uniqueIdentifierColumn(self):
         return self.table._primarykey[0]
+
+
+class APIAlterOperation(APIOperation):
+    __metaclass__ = abc.ABCMeta
+
+    def __init__(self, endpoint):
+        super(APIAlterOperation, self).__init__(endpoint)
+        try:
+            self.pKeyField = self.table[self.table._primarykey[0]]
+        except AttributeError:
+            HTTP(400, "O Endpoint requisitado não possui uma chave primária válida para esta operação.")
+        self.pKeyColumn = self.table._primarykey[0]
+
+    def primarykeyInParameters(self, parameters):
+        """
+        Método utilizado para validar se a chave primária encontra-se na lista de parâmetros
+
+        :rtype : bool
+        """
+        return self.pKeyColumn in parameters['valid']
 
 
 class APIQuery(APIOperation):
@@ -185,7 +196,7 @@ class APIQuery(APIOperation):
             return {"count": count, "content": ret, "subset": recordsSubset}
 
 
-class APIInsert(APIOperation):
+class APIInsert(APIAlterOperation):
     def __init__(self, endpoint, parameters):
         """
         Classe responsável por lidar com requisições do tipo POST, que serão transformadas
@@ -203,9 +214,8 @@ class APIInsert(APIOperation):
 
     @property
     def defaultFieldsForSIEInsert(self):
-        pkey = self.table._primarykey[0]
         fields = dict(self.defaultFieldsForSIETables)
-        fields.update({pkey: self.nextValueForSequence()})
+        fields.update({self._uniqueIdentifierColumn: self.nextValueForSequence()})
         return fields
 
     def nextValueForSequence(self):
@@ -259,7 +269,7 @@ class APIInsert(APIOperation):
             raise HTTP(201, "Conteúdo inserido com sucesso.", **headers)
 
 
-class APIUpdate(APIOperation):
+class APIUpdate(APIAlterOperation):
     def __init__(self, endpoint, parameters):
         """
         Classe responsável por lidar com requisições do tipo PUT, que serão transformadas
@@ -273,7 +283,6 @@ class APIUpdate(APIOperation):
         """
         super(APIUpdate, self).__init__(endpoint)
         self.parameters = parameters
-        self.pKeyColumn = self.table._primarykey[0]
         if not self.primarykeyInParameters(self.parameters):
             raise HTTP(400, "Não é possível atualizar um conteúdo sem sua chave primária.")
 
@@ -317,7 +326,7 @@ class APIUpdate(APIOperation):
             raise HTTP(200, "Conteúdo atualizado com sucesso", **headers)
 
 
-class APIDelete(APIOperation):
+class APIDelete(APIAlterOperation):
     def __init__(self, endpoint, parameters):
         """
         Classe responsável por lidar com requisições do tipo DELETE, que serão transformadas
@@ -330,9 +339,7 @@ class APIDelete(APIOperation):
         super(APIDelete, self).__init__(endpoint)
         if not self.primarykeyInParameters(parameters):
             raise HTTP(400, "Não é possível remover um conteúdo sem sua chave primária.")
-        self.pKeyColumn = self.table._primarykey[0]
         self.rowId = current.request.vars[self.pKeyColumn]
-
 
     def execute(self):
         """

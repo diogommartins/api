@@ -224,6 +224,7 @@ div#endpoints_names{
     width: 40%;
     height: 500px;
     overflow-y: scroll;
+    overflow-x: hidden;
     float: left;
     font-size: 9pt;
 }

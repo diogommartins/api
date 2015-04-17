@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-
+import thread
 from gluon import current, HTTP
 from APIOperation import APIInsert, APIQuery, APIDelete, APIUpdate
 
@@ -26,6 +26,7 @@ class APIRequest(object):
         self.request = request
         self.HTTPMethod = self.request.env.request_method
         self.db = current.db
+        self.cache = (current.cache.ram, 86400)
         self.datasource = current.datasource
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.apiKey = apiKey
@@ -69,29 +70,27 @@ class APIRequest(object):
         if self.HTTPMethod == "GET":
             req = APIQuery(self)        # Cria query com os parâmetros processados em APIRequest
             self._defineReturnType()    # Define qual view será usada
-
         elif self.HTTPMethod == "POST":
             req = APIInsert(
                 self.endpoint,
                 self.parameters
             )
-
         elif self.HTTPMethod == "PUT":
             req = APIUpdate(
                 self.endpoint,
                 self.parameters
             )
-
         elif self.HTTPMethod == "DELETE":
             req = APIDelete(
                 self.endpoint,
                 self.parameters
             )
+        # Gera log da requisição
+        thread.start_new_thread(self.__saveAPIRequest, tuple())
 
-        self.saveAPIRequest()  # Gera log da requisição
         return req.execute()
 
-    def saveAPIRequest(self):
+    def __saveAPIRequest(self):
         """
         Salva a requisição feita pelo usuário no banco.
         Utilizado para auditoria e limitar a quantidade de requisições por API KEY
@@ -108,7 +107,7 @@ class APIRequest(object):
             parameters=str(__params()),
             ip=self.request.client,
             auth_key=self.apiKey.auth.id,
-            http_method=self.db(self.db.api_methods.http_method == self.HTTPMethod).select(cache=(current.cache.ram, 86400)).first().id
+            http_method=self.db(self.db.api_methods.http_method == self.HTTPMethod).select(cache=self.cache).first().id
         )
         self.db.commit()
 

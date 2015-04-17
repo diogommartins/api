@@ -10,7 +10,7 @@ class DB2TableDefiner(BaseTableDefiner):
         'CHARACTER': 'string',
         'CLOB': 'text',
         'DATE': 'date',
-        'DECIMAL': 'decimal',
+        'DECIMAL': 'float',
         'DOUBLE': 'double',
         'INTEGER': 'integer',
         'LONG VARCHAR': 'text',

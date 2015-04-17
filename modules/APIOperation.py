@@ -167,15 +167,14 @@ class APIQuery(APIOperation):
 
     def __orderby(self):
         """
-        :rtype : str
         :raise HTTP: 400
         """
-        if self.request_vars["ORDERBY"]:
+        if self.request_vars["ORDERBY"] in self.table.fields:
             return self.request_vars["ORDERBY"]
         elif self.table._primarykey:
             return self.table._primarykey
-        else:
-            raise HTTP(400, "Esse endpoint necessita que a clausula ORDERBY seja especificada.")
+
+        raise HTTP(400, "Esse endpoint necessita que o parâmet ORDERBY seja especificada.")
 
     def execute(self):
         """

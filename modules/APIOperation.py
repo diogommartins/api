@@ -165,6 +165,18 @@ class APIQuery(APIOperation):
         if self.request_vars["DISTINCT"]:
             return True
 
+    def __orderby(self):
+        """
+        :rtype : str
+        :raise HTTP: 400
+        """
+        if self.request_vars["ORDERBY"]:
+            return self.request_vars["ORDERBY"]
+        elif self.table._primarykey:
+            return self.table._primarykey
+        else:
+            raise HTTP(400, "Esse endpoint necessita que a clausula ORDERBY seja especificada.")
+
     def execute(self):
         """
         O método realiza uma consulta no banco de dados, retornando HTTP Status Code 200 (OK) e um dicionário em seu
@@ -178,22 +190,21 @@ class APIQuery(APIOperation):
         """
         conditions = self._getQueryStatement()
         recordsSubset = self._getRecordsSubset()
-        if conditions:
-            count = self.db(reduce(lambda a, b: (a & b), conditions)).count()
-            ret = self.db(reduce(lambda a, b: (a & b), conditions)).select(*self._getReturnTableFields(),
-                                                                           limitby=recordsSubset,
-                                                                           distinct=self._distinctStyle(),
-                                                                           orderby=self.request_vars["ORDERBY"])
-        else:
-            count = self.db(self.table._id > 0).count()
-            ret = self.db(self.table).select(*self._getReturnTableFields(),
-                                             limitby=recordsSubset,
-                                             distinct=self._distinctStyle(),
-                                             orderby=self.request_vars["ORDERBY"])
 
-        if ret:
+        if conditions:
+            rows = self.db(reduce(lambda a, b: (a & b), conditions)).select(*self._getReturnTableFields(),
+                                                                            limitby=recordsSubset,
+                                                                            distinct=self._distinctStyle(),
+                                                                            orderby=self.__orderby())
+        else:
+            rows = self.db().select(*self._getReturnTableFields(),
+                                    limitby=recordsSubset,
+                                    distinct=self._distinctStyle(),
+                                    orderby=self.__orderby())
+
+        if rows:
             print self.db._lastsql
-            return {"count": count, "content": ret, "subset": recordsSubset}
+            return {"content": rows, "subset": recordsSubset}
 
 
 class APIInsert(APIAlterOperation):

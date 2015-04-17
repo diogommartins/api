@@ -4,8 +4,6 @@ from gluon import current, HTTP
 
 
 class APIKeyPermissions(object):
-    CACHE_TIME = 3600
-
     def __init__(self, request):
         """
         TODO: modificar atributos hash e key para receber um objeto do tipo APIKey
@@ -13,19 +11,13 @@ class APIKeyPermissions(object):
         :param request: Uma requisição HTTP
         """
         self.db = current.db
+        self.cache = (current.cache.ram, 86400)
         self.request = request
         self.fields = self.request.vars["FIELDS"].split(",") if self.request.vars["FIELDS"] else []
         self.http_method = APIKeyPermissions.HTTPMethodWithName(self.request.env.request_method)
         self.hash = self.request.vars.API_KEY
-        # key pode ser nula ou ter as propriedades:
-        #
-        # dt_creation, active, user_id, group_role, group_id, max_requests, max_entries
-        # total_requests
-        # TODO cache deve ser realizado somente em chaves de sistema
-        self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select(cache=(current.cache.ram, 3600),
-                                                                             cacheable=True).first()
+        self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select(cache=self.cache, cacheable=True).first()
         self.tablename = APIRequest.controllerForRewritedURL(self.request, current.datasource)
-
 
     @staticmethod
     def HTTPMethodWithName(method):
@@ -37,7 +29,7 @@ class APIKeyPermissions(object):
         :raise HTTP: 405 caso o método requisitado não seja suportado pela API
         """
         validMethod = current.db(current.db.api_methods.http_method == method).select(current.db.api_methods.id, cache=(
-            current.cache.ram, APIKeyPermissions.CACHE_TIME * 10)).first()
+            current.cache.ram, 86400)).first()
         if validMethod:
             return validMethod.id
         else:
@@ -84,14 +76,12 @@ class APIKeyPermissions(object):
             validFields = self._validateReturnFields(self.fields)
             hasPermission = self.db(
                 self.conditionsToRequestContentFromTableColumns(self.tablename, validFields)).select(
-                self.db.api_group_permissions.id,
-                cache=(current.cache.ram, self.CACHE_TIME))
+                self.db.api_group_permissions.id, cache=self.cache)
             if hasPermission:
                 return True
         else:
             hasPermission = self.db(self.conditionsToRequestAnyContentFromTable(self.tablename)).select(
-                self.db.api_group_permissions.id,
-                cache=(current.cache.ram, self.CACHE_TIME))
+                self.db.api_group_permissions.id, cache=self.cache)
             if hasPermission:
                 return True
         return False

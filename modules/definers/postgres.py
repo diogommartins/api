@@ -9,6 +9,7 @@ class PostgreSQLTableDefiner(InformationSchema):
         'character varying': 'string',
         'character': 'boolean',
         'date': 'date',
+        'double precision': 'double',
         'float': 'float',
         'float8': 'double',
         'integer': 'integer',

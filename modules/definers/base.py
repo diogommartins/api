@@ -1,4 +1,4 @@
-# coding=utf-
+# coding=utf-8
 from gluon import current
 from gluon.dal import Field
 import time

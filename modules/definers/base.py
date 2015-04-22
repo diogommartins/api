@@ -1,6 +1,14 @@
-# coding=utf-8
+# coding=utf-
 from gluon import current
 from gluon.dal import Field
+import time
+import thread
+import threading
+
+
+class DefinerThread(threading.Thread):
+    def __init__(self, target, args):
+        super(DefinerThread, self).__init__(target=target, args=args)
 
 
 class BaseTableDefiner(object):
@@ -49,13 +57,36 @@ class BaseTableDefiner(object):
                     print "[ALERT] Tabela %s não possui chave primária e alguns recursos podem não funcionar" % table
                 return []
 
-        for table in field_collection:
-            self.db.define_table(
-                table,
-                *field_collection[table],
-                migrate=False,
-                primarykey=_primarykey(table)
-            )
+        t1 = time.time()
+
+        def _define(*tables):
+            try:
+                for table in tables:
+                    self.db.define_table(
+                        table,
+                        *field_collection[table],
+                        migrate=False,
+                        primarykey=_primarykey(table)
+                    )
+            except SyntaxError:
+                thread.exit()
+
+        tables = field_collection.keys()
+        threads = []
+
+        thread1 = DefinerThread(_define, tuple(tables,))
+        thread2 = DefinerThread(_define, tuple(reversed(tables),))
+
+        thread1.start()
+        thread2.start()
+
+        threads.append(thread1)
+        threads.append(thread2)
+
+        for t in threads:
+            t.join()
+
+        print "Definicão %s" % (time.time() - t1)
 
     def _fetch_columns(self):
         """

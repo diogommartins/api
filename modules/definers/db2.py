@@ -88,12 +88,19 @@ class DB2TableDefiner(BaseTableDefiner):
             self.db.COLUMNS.COLNAME,
             self.db.COLUMNS.LENGTH,
             self.db.COLUMNS.TYPENAME,
-            self.db.COLUMNS.REMARKS
+            self.db.COLUMNS.REMARKS,
+            self.db.COLUMNS.SCALE
         )
+
+        def __type(col):
+            if col.TYPENAME == 'DECIMAL':
+                return "decimal(%i,%i)" % (col.LENGTH, col.SCALE)
+            return self.types[col.TYPENAME]
+
         for col in cols:
             try:
                 tables[col.TABNAME].append(
-                    Field(col.COLNAME, self.types[col.TYPENAME], length=col.LENGTH, label=col.REMARKS))
+                    Field(col.COLNAME, __type(col), length=col.LENGTH, label=col.REMARKS))
             except KeyError:
                 print "Não foi possível adicionar a coluna %s de %s - tipo %s desconhecido" % (col.COLNAME,
                                                                                                col.TABNAME,

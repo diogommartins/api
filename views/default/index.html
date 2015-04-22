@@ -25,12 +25,13 @@
     <p>Permissões de acesso liberam possibilidades de visualizações a dados restritos,
     assim como definem a quantidade de requisições diárias que podem ser feitas ao servidor.</p>
     <p>Atualmente, as permissões são as seguintes:</p>
-    {{ =UL(*accessPermissions) }}
+    {{=UL(roles)}}
 
     <h3>Quem pode ter acesso a que?</h3>
     <p>Professores</p>
 
     <h3>Como ter acesso a mais dados?</h3>
+    <p>Envie um email para <a href="mailto:sistemas.tic@unirio.br">sistemas.tic@unirio.br</a>!</p>
 
     <h2>Ciclo de Vida</h2>
     {{=A(IMG(_src=URL('static','images/API Model.png')) ,_href=URL('static','images/API Model.png') ) }}
@@ -180,69 +181,22 @@
 
 
     <h2>Dados Disponibilizados</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Endpoint</th>
-                <th>Represents</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><a href='#table_ALUNOS'>/ALUNOS</a></td>
-                <td> Dados de alunos da Universidade</td>
-            </tr>
-            <tr>
-                <td><a href='#table_AREAS_CONHECIMENTO'>/AREAS_CONHECIMENTO</a></td>
-                <td>Áreas do conhecimento do CNPQ</td>
-            </tr>
-            <tr>
-                <td><a href='#table_CIDADES'>/CIDADES</a></td>
-                <td>Todas as cidades do Brasil, seus respectivos códigos, nomes e UFs ao qual pertencem</td>
-            </tr>
-            <tr>
-                <td><a href='#table_CURSOS'>/CURSOS</a></td>
-                <td>Dados de cursos</td>
-            </tr>
-            <tr>
-                <td><a href='#table_CURSOS_ALUNOS'>/CURSOS_ALUNOS</a></td>
-                <td>Associações de ALUNOS em CURSOS</tr>
-            <tr>
-                <td><a href='#table_DIARIO_CLASSE'>/DIARIO_CLASSE</a></td>
-                <td>Associações de ALUNOS em matrículas em DISCIPLINAS</td>
-            </tr>
-            <tr>
-                <td><a href='#table_DISCIPLINAS'>/DISCIPLINAS</a></td>
-                <td>Todas as disciplinas que estão sendo ou foram ofertadas, sua
-                unidade associada, Cargas Horária teórica e prática correspondentes,
-                área do conhecimento correpondente a disciplina,créditos e situação
-                (Ativida ou Inativa)</td>
-            </tr>
-            <tr>
-                <td><a href='#table_TAB_ESTRUTURADA'>/TAB_ESTRUTURADA</a></td>
-                <td>Serve como dicionário, contendo metadados para campos _ITEM e _TAB de outros Endpoints</td>
-            </tr>
-            <tr>
-                <td><a href='#table_V_FORMA_INGRESSO'>/V_FORMA_INGRESSO</a></td>
-                <td>Contém todas as formas de ingresso, atualamente ativas ou não, da UNIRIO.</td>
-            </tr>
-            <tr>
-                <td><a href='#table_V_SERVIDORES'>/V_SERVIDORES</a></td>
-                <td>Disponibiliza uma visão geral de todos os servidores situação
-                (ativo, afastado, aposentado...), unidade de lotação, função, data
-                de ingresso na UNIRIo, data de saída, aposentadoria, matrícula SIAPE,
-                 etnia, tipo de jornada de trabalho, estado civil, sexo, etc </td>
-            </tr>
-            <tr>
-                <td><a href='#table_VERSOES_CURSOS'>/VERSOES_CURSOS</td>
-                <td>Um curso possui várias versões ao longo tempo. Aqui você encontra todas elas e se a mesma está corrente ou não</td>
-            </tr>
-        </tbody>
-    </table>
-    <h3 id='descr_fields'>Descrição detelhada dos campos</h3>
-    {{for tabela in tabelas:}}
-        {{=tabela}}
-    {{pass}}
+
+    <div id="containerblabla">
+        <div id="endpoints_names">
+            <ul>
+                {{for endpoint in endpoints:}}
+                    <li>{{=A(endpoint, callback=URL('default', 'ajaxEndpointDescription', args=endpoint), target='endpoints_descriptions')}}</li>
+                {{pass}}
+            </ul>
+        </div>
+        <div id="endpoints_descriptions">
+            <div class="alert alert-info">
+            	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            	<strong>&laquo;</strong> Selecione um Endpoint ...
+            </div>
+        </div>
+    </div>
 
     <h1>Quer contribuir?</h1>
     <ul>

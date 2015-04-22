@@ -10,10 +10,6 @@ class TableBeautify(object):
         :param db: gluon.dal.DAL
         """
         self.db = db
-        self.tables = {table: [] for table in self.db.tables}
-
-    def beautifyDatabaseTables(self):
-        return [self.printTable(tableName) for tableName in self.db.tables if tableName not in self.excludedTables]
 
     def printTable(self, name):
         """
@@ -26,13 +22,13 @@ class TableBeautify(object):
                 TR(TH(name, _colspan=3)),
                 TR(TH('Field'), TH('Type'), TH('Description'))
             ),
-            TBODY(*self._formatTableRows(name)),
+            TBODY(*self.__formatTableRows(name)),
             _id='table_' + name,
             _class='tableDescriptions'
         )
         return table
 
-    def _formatTableRows(self, name):
+    def __formatTableRows(self, name):
         """
         Para uma determinada tabela, retorna uma Lista de TR contendo duas colunas: "nome no campo" e "tipo de dado"
 
@@ -44,10 +40,10 @@ class TableBeautify(object):
             yield TR(
                 TD(field),
                 TD(fieldDataType, _class="row_type_" + fieldDataType),
-                TD(self._getFieldDescription(name, field))
+                TD(self.__getFieldDescription(name, field))
             )
 
-    def _getFieldDescription(self, name, field):
+    def __getFieldDescription(self, name, field):
         if self.db[name][field].label:
             return self.db[name][field].label
         return "Sem descrição"

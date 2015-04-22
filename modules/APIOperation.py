@@ -1,6 +1,7 @@
 # coding=utf-8
 from datetime import datetime, date
 from gluon import current, HTTP
+import abc
 
 __all__ = ['APIDelete', 'APIInsert', 'APIOperation', 'APIQuery', 'APIUpdate']
 
@@ -14,6 +15,8 @@ except ImportError:
 
 
 class APIOperation(object):
+    __metaclass__ = abc.ABCMeta
+
     def __init__(self, endpoint):
         """
 
@@ -23,23 +26,10 @@ class APIOperation(object):
         self.endpoint = endpoint
         self.db = current.datasource
         self.table = self.db[self.endpoint]
-        try:
-            self.pKeyField = self.table[self.table._primarykey[0]]
-        except AttributeError:
-            HTTP(400, "O Endpoint requisitado não possui uma chave primária válida para esta operação.")
-        self.pKeyColumn = self.table._primarykey[0]
 
     @property
     def baseResourseURI(self):
         return current.request.env.http_host + current.request.env.PATH_INFO + "/"
-
-    def primarykeyInParameters(self, parameters):
-        """
-        Método utilizado para validar se a chave primária encontra-se na lista de parâmetros
-
-        :rtype : bool
-        """
-        return self.pKeyColumn in parameters['valid']
 
     @property
     def defaultFieldsForSIETables(self):
@@ -60,6 +50,26 @@ class APIOperation(object):
     @property
     def _uniqueIdentifierColumn(self):
         return self.table._primarykey[0]
+
+
+class APIAlterOperation(APIOperation):
+    __metaclass__ = abc.ABCMeta
+
+    def __init__(self, endpoint):
+        super(APIAlterOperation, self).__init__(endpoint)
+        try:
+            self.pKeyField = self.table[self.table._primarykey[0]]
+        except AttributeError:
+            HTTP(400, "O Endpoint requisitado não possui uma chave primária válida para esta operação.")
+        self.pKeyColumn = self.table._primarykey[0]
+
+    def primarykeyInParameters(self, parameters):
+        """
+        Método utilizado para validar se a chave primária encontra-se na lista de parâmetros
+
+        :rtype : bool
+        """
+        return self.pKeyColumn in parameters['valid']
 
 
 class APIQuery(APIOperation):
@@ -94,11 +104,9 @@ class APIQuery(APIOperation):
         conditions = []
         # Consultas normais
         for field in self.fields:
-            if self.table[field].type == 'integer':
-                conditions.append(self.table[field] == self.request_vars[field])
-            elif self.table[field].type == 'string':
+            if self.table[field].type == 'string':
                 conditions.append(self.table[field].contains(self.request_vars[field], case_sensitive=False))
-            elif self.table[field].type == 'date':
+            else:
                 conditions.append(self.table[field] == self.request_vars[field])
 
         # Trata condições especiais
@@ -157,6 +165,17 @@ class APIQuery(APIOperation):
         if self.request_vars["DISTINCT"]:
             return True
 
+    def __orderby(self):
+        """
+        :raise HTTP: 400
+        """
+        if self.request_vars["ORDERBY"] in self.table.fields:
+            return self.request_vars["ORDERBY"]
+        elif self.table._primarykey:
+            return self.table._primarykey
+
+        raise HTTP(400, "Esse endpoint necessita que o parâmet ORDERBY seja especificada.")
+
     def execute(self):
         """
         O método realiza uma consulta no banco de dados, retornando HTTP Status Code 200 (OK) e um dicionário em seu
@@ -170,25 +189,24 @@ class APIQuery(APIOperation):
         """
         conditions = self._getQueryStatement()
         recordsSubset = self._getRecordsSubset()
+
         if conditions:
-            count = self.db(reduce(lambda a, b: (a & b), conditions)).count()
-            ret = self.db(reduce(lambda a, b: (a & b), conditions)).select(*self._getReturnTableFields(),
-                                                                           limitby=recordsSubset,
-                                                                           distinct=self._distinctStyle(),
-                                                                           orderby=self.request_vars["ORDERBY"])
+            rows = self.db(reduce(lambda a, b: (a & b), conditions)).select(*self._getReturnTableFields(),
+                                                                            limitby=recordsSubset,
+                                                                            distinct=self._distinctStyle(),
+                                                                            orderby=self.__orderby())
         else:
-            count = self.db(self.table._id > 0).count()
-            ret = self.db(self.table).select(*self._getReturnTableFields(),
-                                             limitby=recordsSubset,
-                                             distinct=self._distinctStyle(),
-                                             orderby=self.request_vars["ORDERBY"])
+            rows = self.db().select(*self._getReturnTableFields(),
+                                    limitby=recordsSubset,
+                                    distinct=self._distinctStyle(),
+                                    orderby=self.__orderby())
 
-        if ret:
+        if rows:
             print self.db._lastsql
-            return {"count": count, "content": ret, "subset": recordsSubset}
+            return {"content": rows, "subset": recordsSubset}
 
 
-class APIInsert(APIOperation):
+class APIInsert(APIAlterOperation):
     def __init__(self, endpoint, parameters):
         """
         Classe responsável por lidar com requisições do tipo POST, que serão transformadas
@@ -206,9 +224,8 @@ class APIInsert(APIOperation):
 
     @property
     def defaultFieldsForSIEInsert(self):
-        pkey = self.table._primarykey[0]
         fields = dict(self.defaultFieldsForSIETables)
-        fields.update({pkey: self.nextValueForSequence()})
+        fields.update({self._uniqueIdentifierColumn: self.nextValueForSequence()})
         return fields
 
     def nextValueForSequence(self):
@@ -262,7 +279,7 @@ class APIInsert(APIOperation):
             raise HTTP(201, "Conteúdo inserido com sucesso.", **headers)
 
 
-class APIUpdate(APIOperation):
+class APIUpdate(APIAlterOperation):
     def __init__(self, endpoint, parameters):
         """
         Classe responsável por lidar com requisições do tipo PUT, que serão transformadas
@@ -319,7 +336,7 @@ class APIUpdate(APIOperation):
             raise HTTP(200, "Conteúdo atualizado com sucesso", **headers)
 
 
-class APIDelete(APIOperation):
+class APIDelete(APIAlterOperation):
     def __init__(self, endpoint, parameters):
         """
         Classe responsável por lidar com requisições do tipo DELETE, que serão transformadas

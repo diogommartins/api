@@ -5,17 +5,21 @@ from TableBeautify import TableBeautify
 def index():
     response.title = 'API UNIRIO'
 
-    tableBeautify = TableBeautify(datasource)
-
-    accessPermissions = db(db.auth_group).select(db.auth_group.role,
+    roles = db(db.auth_group).select(db.auth_group.role,
                                                  cache=(cache.ram, 172800),
-                                                 cacheable=True).as_list()
+                                                 cacheable=True)
 
     return dict(
-        accessPermissions=accessPermissions,
+        roles=[p.role for p in roles],
         avaiableData=datasource.tables,
-        tabelas=tableBeautify.beautifyDatabaseTables()
+        endpoints=sorted(datasource.tables)
     )
+
+
+def ajaxEndpointDescription():
+    endpoint = request.args[0]
+
+    return TableBeautify(datasource).printTable(endpoint)
 
 
 def user():

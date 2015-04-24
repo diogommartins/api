@@ -1,7 +1,6 @@
 # coding=utf-8
 from gluon import current
 from gluon.dal import Field
-import time
 import thread
 import threading
 
@@ -11,28 +10,44 @@ class DefinerThreadWorker():
 
     def __init__(self, job, tables):
         """
+        This class is responsible for dividing the table definition workload equally between threads
+
         :type job: callable
         :type tables: list
         """
         self.job = job
         self.tables = tables
-        self.chunks = self.chunks(self.tables, self.TABLES_PER_THREAD)
-        self.threads = tuple(self.create_thread(tables) for tables in self.chunks)
+        self.chunks = self.__chunks(self.tables, self.TABLES_PER_THREAD)
+        self.threads = tuple(self.__create_thread(tables) for tables in self.chunks)
 
-    def chunks(self, l, n):
-        """ Yield successive n-sized chunks from l.
+    def __chunks(self, l, n):
+        """
+        Yield successive n-sized chunks from l.
         """
         for i in xrange(0, len(l), n):
             yield l[i:i+n]
 
-    def create_thread(self, tables):
+    def __create_thread(self, tables):
+        """
+        Spawns a new thread, responsible for defining the `tables`
+
+        :param tables: A list of tables
+        :return: A new Thread object
+        :rtype : threading.Thread
+        """
         return threading.Thread(target=self.job, args=(tables,))
 
     def start(self):
+        """
+        Starts all threads activities
+        """
         for thread in self.threads:
             thread.start()
 
     def join(self):
+        """
+        Wait for all threads to terminate before leaving.
+        """
         for thread in self.threads:
             thread.join()
 
@@ -68,8 +83,6 @@ class BaseTableDefiner(object):
         field_collection = self.tables()
         indexes = self.indexes()
 
-        t1 = time.time()
-
         def _define(tables):
             for table in tables:
                 """
@@ -82,7 +95,6 @@ class BaseTableDefiner(object):
                     pkey = []
 
                 self.db.define_table(table, *field_collection[table], migrate=False, primarykey=pkey)
-
             thread.exit()
 
         tables = field_collection.keys()
@@ -91,8 +103,6 @@ class BaseTableDefiner(object):
 
         worker.start()
         worker.join()
-
-        print "Definicão %s" % (time.time() - t1)
 
     def _fetch_columns(self):
         """

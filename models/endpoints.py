@@ -5,7 +5,7 @@ from APIRequest import APIRequest
 
 def _lazy():
     """
-    Checks if the requested URL was rewritten in routes.py, if so, it assumes the requested controller is an ENDPOINT
+    Checks if the requested URL was rewritten in `routes.py`. If so, it assumes the requested controller is an ENDPOINT
      and that we should use an `on demand` table definition approach
 
     :rtype : list

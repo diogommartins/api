@@ -56,12 +56,17 @@ class BaseTableDefiner(object):
 
     def __init__(self, datasource, schema, cache_model=current.cache.ram, cache_time=86400, lazy_tables=None):
         """
+        This is an abstract class used as a base for table model definer classes.
+        The default object initialization would result in defining all endpoints for the selected `schema`
+        and `datasource`, while initializing with `lazy_tables` as a list of valid endpoints names would
+        define only those.
+        If many tables need to be defined, a `DefinerThreadWorker` object is created to deal with the definition using
+        multiple threads
 
-        :type lazy_tables: list or tuple
         :type datasource: gluon.dal.base.DAL
         :type schema: str
         :type cache_time: int
-        :type verbose: bool
+        :type lazy_tables: list or tuple
         """
         self.db = datasource
         self.schema = schema

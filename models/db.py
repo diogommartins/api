@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from definers import Endpoints
 from gluon import current
 from gluon.contrib.login_methods.ldap_auth import ldap_auth
 from gluon.tools import Auth, Service, Crud
+
 
 # Dummy code to enable code completion in IDE's. Can be removed at production apps
 if 0:
@@ -67,6 +67,3 @@ db.define_table("api_group_permissions",
 )
 
 db.api_group_permissions.http_method.requires = IS_IN_DB(db, db.api_methods.id, '%(http_method)s')
-
-endpoints = Endpoints(datasource, schema='DBSM')
-# endpoints = Endpoints(jic, schema='public')

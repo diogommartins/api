@@ -26,7 +26,7 @@ class DefinerThreadWorker():
             yield l[i:i+n]
 
     def create_thread(self, tables):
-        return threading.Thread(target=self.job, args=tuple(tables,))
+        return threading.Thread(target=self.job, args=(tables,))
 
     def start(self):
         for thread in self.threads:
@@ -70,29 +70,20 @@ class BaseTableDefiner(object):
 
         t1 = time.time()
 
-        def _define(*tables):
-            try:
-                for table in tables:
-                    """
-                    A primary key must be a list. If None is passed into `primarykey` parameter of the `define_table` method,
-                    it will automatically define an `Id` field as a primary key.
+        def _define(tables):
+            for table in tables:
+                """
+                A primary key must be a list. If None is passed into `primarykey` parameter of the `define_table` method,
+                it will automatically define an `Id` field as a primary key.
+                """
+                try:
+                    pkey = indexes[table]
+                except KeyError:
+                    pkey = []
 
-                    :type table: str
-                    :rtype : list
-                    """
-                    try:
-                        pkey = indexes[table]
-                    except KeyError:
-                        pkey = []
+                self.db.define_table(table, *field_collection[table], migrate=False, primarykey=pkey)
 
-                    self.db.define_table(
-                        table,
-                        *field_collection[table],
-                        migrate=False,
-                        primarykey=pkey
-                    )
-            except SyntaxError:
-                thread.exit()
+            thread.exit()
 
         tables = field_collection.keys()
 

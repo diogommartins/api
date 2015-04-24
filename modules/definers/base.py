@@ -7,13 +7,17 @@ import threading
 
 
 class DefinerThreadWorker():
-    TABLES_PER_THREAD = 300
+    TABLES_PER_THREAD = 500
 
     def __init__(self, job, tables):
+        """
+        :type job: callable
+        :type tables: list
+        """
         self.job = job
         self.tables = tables
         self.chunks = self.chunks(self.tables, self.TABLES_PER_THREAD)
-        self.threads = [self.create_thread(tables) for tables in self.chunks]
+        self.threads = tuple(self.create_thread(tables) for tables in self.chunks)
 
     def chunks(self, l, n):
         """ Yield successive n-sized chunks from l.
@@ -27,6 +31,10 @@ class DefinerThreadWorker():
     def start(self):
         for thread in self.threads:
             thread.start()
+
+    def join(self):
+        for thread in self.threads:
+            thread.join()
 
 
 class BaseTableDefiner(object):
@@ -60,49 +68,38 @@ class BaseTableDefiner(object):
         field_collection = self.tables()
         indexes = self.indexes()
 
-        def _primarykey(table):
-            """
-            A primary key must be a list. If None is passed into `primarykey` parameter of the `define_table` method,
-            it will automatically define an `Id` field as a primary key.
-
-            :type table: str
-            :rtype : list
-            """
-            try:
-                return indexes[table]
-            except KeyError:
-                if self.verbose:
-                    print "[ALERT] Tabela %s não possui chave primária e alguns recursos podem não funcionar" % table
-                return []
-
         t1 = time.time()
 
         def _define(*tables):
             try:
                 for table in tables:
+                    """
+                    A primary key must be a list. If None is passed into `primarykey` parameter of the `define_table` method,
+                    it will automatically define an `Id` field as a primary key.
+
+                    :type table: str
+                    :rtype : list
+                    """
+                    try:
+                        pkey = indexes[table]
+                    except KeyError:
+                        pkey = []
+
                     self.db.define_table(
                         table,
                         *field_collection[table],
                         migrate=False,
-                        primarykey=_primarykey(table)
+                        primarykey=pkey
                     )
             except SyntaxError:
                 thread.exit()
 
         tables = field_collection.keys()
-        threads = []
 
-        thread1 = DefinerThread(_define, tuple(tables,))
-        thread2 = DefinerThread(_define, tuple(reversed(tables),))
+        worker = DefinerThreadWorker(_define, tables)
 
-        thread1.start()
-        thread2.start()
-
-        threads.append(thread1)
-        threads.append(thread2)
-
-        for t in threads:
-            t.join()
+        worker.start()
+        worker.join()
 
         print "Definicão %s" % (time.time() - t1)
 

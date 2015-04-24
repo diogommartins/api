@@ -11,9 +11,9 @@ response.title = request.application.replace('_',' ').title()
 response.subtitle = ''
 
 ## read more at http://dev.w3.org/html5/markup/meta.name.html
-response.meta.author = 'Your Name <you@example.com>'
-response.meta.description = 'a cool new app'
-response.meta.keywords = 'web2py, python, framework'
+response.meta.author = 'Diogo Magalhães Martins <diogo.martins@unirio.br>'
+response.meta.description = 'RESTful API powered by Web2py framework'
+response.meta.keywords = 'unirio, api, rest, json, dados abertos, opendata'
 response.meta.generator = 'Web2py Web Framework'
 
 ## your http://google.com/analytics id
@@ -39,19 +39,5 @@ adminMenu = [('Administração', False, False,[
 
 if auth.has_membership('Desenvolvedor'):
     response.menu += adminMenu
-
-DEVELOPMENT_MENU = False
-
-#########################################################################
-## provide shortcuts for development. remove in production
-#########################################################################
-
-def _():
-    # shortcuts
-    app = request.application
-    ctr = request.controller
-    # useful links to internal and external resources
-
-if DEVELOPMENT_MENU: _()
 
 if "auth" in locals(): auth.wikimenu()

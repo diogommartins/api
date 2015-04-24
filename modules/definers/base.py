@@ -6,9 +6,27 @@ import thread
 import threading
 
 
-class DefinerThread(threading.Thread):
-    def __init__(self, target, args):
-        super(DefinerThread, self).__init__(target=target, args=args)
+class DefinerThreadWorker():
+    TABLES_PER_THREAD = 300
+
+    def __init__(self, job, tables):
+        self.job = job
+        self.tables = tables
+        self.chunks = self.chunks(self.tables, self.TABLES_PER_THREAD)
+        self.threads = [self.create_thread(tables) for tables in self.chunks]
+
+    def chunks(self, l, n):
+        """ Yield successive n-sized chunks from l.
+        """
+        for i in xrange(0, len(l), n):
+            yield l[i:i+n]
+
+    def create_thread(self, tables):
+        return threading.Thread(target=self.job, args=tuple(tables,))
+
+    def start(self):
+        for thread in self.threads:
+            thread.start()
 
 
 class BaseTableDefiner(object):

@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-
 from AESCipher import AESCipher
-from gluon import current, cache
+from gluon import current
 
 
 class APIKey(object):
-    def __init__(self, hash=None):
+    def __init__(self, db, hash=None):
+        self.db = db
+        self.cache = (current.cache.ram, 86400)
         self.hash = hash
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.auth = self.authForHash(hash)
@@ -20,7 +21,7 @@ class APIKey(object):
         :rtype : int
         :return:
         """
-        authKeyOwner = current.db(current.db.api_auth.auth_key == self.hash).select(current.db.api_auth.user_id).first()
+        authKeyOwner = self.db(self.db.api_auth.auth_key == self.hash).select(self.db.api_auth.user_id).first()
         if authKeyOwner:
             return authKeyOwner.user_id
 
@@ -42,18 +43,18 @@ class APIKey(object):
         :param user_id:
         :return:
         """
-        user = current.db(current.db.auth_user.id == user_id).select(current.db.auth_user.username).first()
+        user = self.db(current.db.auth_user.id == user_id).select(self.db.auth_user.username).first()
         if user:
             newKey = self._makeHash(user.username)
             previousApiKey = current.db(
-                (current.db.api_auth.user_id == user_id) &
-                (current.db.api_auth.active == True)
+                (self.db.api_auth.user_id == user_id) &
+                (self.db.api_auth.active == True)
             ).select().first()
             if previousApiKey:
                 previousApiKey.update_record(active=False)
             # Insere nova chave no banco.
             # TODO: Não deveria estar funcionando sem o commit, mas...
-            current.db.api_auth.insert(
+            self.db.api_auth.insert(
                 auth_key=newKey,
                 user_id=user_id,
                 dt_creation=self.timestamp,
@@ -83,18 +84,18 @@ class APIKey(object):
         :rtype : gluon.DAL.Row
         :return: Uma entrada da tabela api_auth
         """
-        return current.db(
-            (current.db.api_auth.auth_key == hash)
-            & (current.db.api_auth.active == True)
-        ).select(cache=(current.cache.ram, 3600), cacheable=True).first()
+        return self.db(
+            (self.db.api_auth.auth_key == hash)
+            & (self.db.api_auth.active == True)
+        ).select(cache=self.cache, cacheable=True).first()
 
     def requestLimits(self):
-        limits = current.db(
-            (current.db.auth_membership.user_id == self.auth.user_id)
-            & (current.db.auth_membership.group_id == current.db.api_request_type.group_id)
-        ).select(current.db.api_request_type.max_requests,
+        limits = self.db(
+            (self.db.auth_membership.user_id == self.auth.user_id)
+            & (self.db.auth_membership.group_id == current.db.api_request_type.group_id)
+        ).select(self.db.api_request_type.max_requests,
                  current.db.api_request_type.max_entries,
-                 cache=(current.cache.ram, 86400), cacheable=True).first()
+                 cache=self.cache, cacheable=True).first()
 
         return limits.max_requests, limits.max_entries
 

@@ -5,7 +5,7 @@ from APIKeyPermissions import APIKeyPermissions
 
 
 def index():
-    apiKey = APIKey(request.vars.API_KEY)
+    apiKey = APIKey(db, request.vars.API_KEY)
     if apiKey.auth:
         keyPermissions = APIKeyPermissions(request)
         if keyPermissions.canPerformAPICall():

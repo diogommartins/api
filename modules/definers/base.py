@@ -55,8 +55,10 @@ class DefinerThreadWorker():
 class BaseTableDefiner(object):
     types = {}
 
-    def __init__(self, datasource, schema, cache_model=current.cache.ram, cache_time=86400, verbose=False):
+    def __init__(self, datasource, schema, cache_model=current.cache.ram, cache_time=86400, lazy_tables=None):
         """
+
+        :type lazy_tables: list or tuple
         :type datasource: gluon.dal.base.DAL
         :type schema: str
         :type cache_time: int
@@ -66,7 +68,7 @@ class BaseTableDefiner(object):
         self.schema = schema
         self.cache = cache_model
         self.cache_time = cache_time
-        self.verbose = verbose
+        self.lazy_tables = lazy_tables
         self.tables = lambda: self.cache(self.db._uri_hash, lambda: self._fetch_columns(), time_expire=self.cache_time)
         self.indexes = lambda: self.cache(self.db._uri_hash + 'indexes', lambda: self._fetch_indexes(), time_expire=self.cache_time)
         self._define_source_tables()
@@ -79,7 +81,6 @@ class BaseTableDefiner(object):
         raise NotImplementedError
 
     def _define_tables(self):
-
         field_collection = self.tables()
         indexes = self.indexes()
 
@@ -95,14 +96,16 @@ class BaseTableDefiner(object):
                     pkey = []
 
                 self.db.define_table(table, *field_collection[table], migrate=False, primarykey=pkey)
-            thread.exit()
 
-        tables = field_collection.keys()
+        tables = self.lazy_tables or field_collection.keys()
 
-        worker = DefinerThreadWorker(_define, tables)
+        if len(tables) < DefinerThreadWorker.TABLES_PER_THREAD:
+            _define(tables)
+        else:
+            worker = DefinerThreadWorker(_define, tables)
 
-        worker.start()
-        worker.join()
+            worker.start()
+            worker.join()
 
     def _fetch_columns(self):
         """

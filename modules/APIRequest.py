@@ -41,25 +41,25 @@ class APIRequest(object):
         }
 
     @staticmethod
-    def controllerForRewritedURL(request, db):
+    def controllerForRewritedURL(request, db, lazy=False):
         """
         O método retorna o nome do controller requisitado, antes do URL Rewrite realizado
         pelo `routes.py`. Na API, um controller é mapeado diretamente a uma tabela modelado
         e esse nome é utilizado para reconhecer qual tabela foi originalmente requisitada
 
         Ex.:
-            Dada uma requisição `https://sistemas.unirio.br/api/DOC_PESSOAS?API_KEY=xyz`
-            request.env.PATH_INFO == '/api/DOC_PESSOAS' -> 'DOC_PESSOAS'
+            Dada uma requisição `https://myurl.com/api/ENDPOINT?API_KEY=xyz`
+            request.env.PATH_INFO == '/api/ENDPOINT' -> 'ENDPOINT'
 
         :rtype : str
         :return: Nome original do controller requisitado
         """
         pathList = request.env.PATH_INFO.split("/")
         table = pathList[len(pathList)-1]
-        if table in db:
+        if table in db or lazy:
             return table
         else:
-            raise HTTP(404, 'Recurso requisitado é inválido: ' + table)
+            raise HTTP(404, "Recurso requisitado é inválido: %s" % table)
 
     def performRequest(self):
         """

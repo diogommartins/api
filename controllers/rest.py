@@ -10,7 +10,6 @@ def index():
         keyPermissions = APIKeyPermissions(request)
         if keyPermissions.canPerformAPICall():
             apiRequest = APIRequest(apiKey, request)
-            resp = apiRequest.performRequest()
-            return resp
+            return apiRequest.performRequest()
     else:
-        raise HTTP(403, "API Key Inválida ou Inativa")
+        raise HTTP(403, "API Key inválida ou inativa")

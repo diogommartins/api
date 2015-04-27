@@ -1,5 +1,5 @@
 # coding=utf-8
-from gluon import current
+from gluon import current, HTTP
 from gluon.dal import Field
 import threading
 
@@ -98,8 +98,10 @@ class BaseTableDefiner(object):
                     pkey = indexes[table]
                 except KeyError:
                     pkey = []
-
-                self.db.define_table(table, *field_collection[table], migrate=False, primarykey=pkey)
+                try:
+                    self.db.define_table(table, *field_collection[table], migrate=False, primarykey=pkey)
+                except KeyError:
+                    raise HTTP(404, "Recurso requisitado é inválido: %s" % table)
 
         tables = self.lazy_tables or field_collection.keys()
 

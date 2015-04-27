@@ -43,10 +43,10 @@ class APIKey(object):
         :param user_id:
         :return:
         """
-        user = self.db(current.db.auth_user.id == user_id).select(self.db.auth_user.username).first()
+        user = self.db(self.db.auth_user.id == user_id).select(self.db.auth_user.username).first()
         if user:
             newKey = self._makeHash(user.username)
-            previousApiKey = current.db(
+            previousApiKey = self.db(
                 (self.db.api_auth.user_id == user_id) &
                 (self.db.api_auth.active == True)
             ).select().first()
@@ -90,30 +90,17 @@ class APIKey(object):
         ).select(cache=self.cache, cacheable=True).first()
 
     def requestLimits(self):
+        """
+        Dada uma chave, retorna uma tupla com o máximo de requisições diárias e o máximo de entradas que podem ser
+        retornadas por vez.
+
+        :rtype : tuple
+        """
         limits = self.db(
             (self.db.auth_membership.user_id == self.auth.user_id)
-            & (self.db.auth_membership.group_id == current.db.api_request_type.group_id)
+            & (self.db.auth_membership.group_id == self.db.api_request_type.group_id)
         ).select(self.db.api_request_type.max_requests,
-                 current.db.api_request_type.max_entries,
+                 self.db.api_request_type.max_entries,
                  cache=self.cache, cacheable=True).first()
 
         return limits.max_requests, limits.max_entries
-
-    @staticmethod
-    def isValidKey(hash):
-        """
-        Método utilizado para validar se um hash é válido como API Key
-
-        :rtype : bool
-        :param hash: O hash de uma API Key a ser vaidada
-        :return: Uma entrada da tabela api_auth
-        """
-        return True if current.db(
-            (current.db.api_auth.auth_key == hash)
-            & (current.db.api_auth.active == True)
-        ).select(current.db.api_auth.id).first() else False
-
-    @staticmethod
-    def checkKeyForUser(apiKey, user_id):
-        return current.db(
-            (current.db.api_auth.auth_key == apiKey) & (current.db.api_auth.user_id == user_id)).select().first()

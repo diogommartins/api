@@ -3,15 +3,7 @@ from datetime import datetime, date
 from gluon import current, HTTP
 import abc
 
-__all__ = ['APIDelete', 'APIInsert', 'APIOperation', 'APIQuery', 'APIUpdate']
-
-try:
-    import pyodbc
-except ImportError:
-    try:
-        import gluon.contrib.pypyodbc as pyodbc
-    except Exception, e:
-        raise ImportError(str(e))
+__all__ = ['APIDelete', 'APIInsert', 'APIQuery', 'APIUpdate']
 
 
 class APIOperation(object):
@@ -74,7 +66,6 @@ class APIAlterOperation(APIOperation):
 
 class APIQuery(APIOperation):
     ENTRIES_PER_QUERY_DEFAULT = 10
-    ENTRIES_PER_QUERY_MAX = 99999
 
     # TODO rever documetação
     def __init__(self, request):
@@ -174,7 +165,7 @@ class APIQuery(APIOperation):
         elif self.table._primarykey:
             return self.table._primarykey
 
-        raise HTTP(400, "Esse endpoint necessita que o parâmet ORDERBY seja especificada.")
+        raise HTTP(400, "Esse endpoint necessita que o parâmetro ORDERBY seja especificada.")
 
     def execute(self):
         """
@@ -365,7 +356,7 @@ class APIDelete(APIAlterOperation):
         try:
             affectedRows = self.db(self.pKeyField == self.rowId).delete()
             print self.db._lastsql
-        except pyodbc.IntegrityError:
+        except IntegrityError:
             self.db.rollback()
             raise HTTP(403, "Não foi possível deletar.")
         except Exception as e:

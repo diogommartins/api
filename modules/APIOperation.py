@@ -164,8 +164,8 @@ class APIQuery(APIOperation):
             return self.request_vars["ORDERBY"]
         elif self.table._primarykey:
             return self.table._primarykey
-
-        raise HTTP(400, "Esse endpoint necessita que o parâmetro ORDERBY seja especificada.")
+        else:
+            return self.table.fields[0]
 
     def execute(self):
         """

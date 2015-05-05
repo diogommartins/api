@@ -2,7 +2,8 @@
 from datetime import datetime
 import thread
 from gluon import current, HTTP
-from APIOperation import APIInsert, APIQuery, APIDelete, APIUpdate
+from .operations import APIInsert, APIQuery, APIDelete, APIUpdate
+
 
 __all__ = ['APIRequest']
 
@@ -21,7 +22,7 @@ class APIRequest(object):
         """
 
         :type request: Request
-        :type apiKey: APIKey.APIKey
+        :type apiKey: key.APIKey
         """
         self.request = request
         self.HTTPMethod = self.request.env.request_method

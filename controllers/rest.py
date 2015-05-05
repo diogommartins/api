@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from APIKey import APIKey
-from APIRequest import APIRequest
-from APIKeyPermissions import APIKeyPermissions
+from api.key import APIKey, APIKeyPermissions
+from api.request import APIRequest
 
 
 def index():

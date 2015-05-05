@@ -71,8 +71,8 @@ class APIQuery(APIOperation):
     def __init__(self, request):
         """
 
-        :type request: APIRequest.APIRequest
-        :type apiKey: APIKey.APIKey
+        :type request: request.APIRequest
+        :type apiKey: key.APIKey
         :param endpoint: string relativa ao nome da tabela modela no banco datasource
         :param fields: Uma lista de colunas que devem ser retornadas pela consulta
         """

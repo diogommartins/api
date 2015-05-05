@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from api.key import APIKey
+
+
 @auth.requires_login()
 def index():
     apiKeysGrid = SQLFORM.grid(( db.api_auth.user_id == auth.user.id ),
@@ -15,9 +18,7 @@ def index():
 
 @auth.requires_login()
 def createKeyAuth():
-    from APIKey import APIKey
-
-    apiKey = APIKey()
+    apiKey = APIKey(db)
     currentAPIKey = APIKey.getCurrentActiveKeyForUser(auth.user.id)
 
     # Se ainda não existir uma chave válida
@@ -37,16 +38,9 @@ def createKeyAuth():
     return dict(form=form)
 
 
-def createKeyGuest():
-    pass
-
-
-# ===============================================================================
-# Utilizado para gerar novas chaves para Sistemas
-# TODO: melhorar a aparência desta porra porque está uma merda
-#===============================================================================
 @auth.requires(auth.has_membership('Desenvolvedor'))
 def createNewSystemKey():
+    # TODO: melhorar a aparência desta porra porque está uma merda
     key = ''
 
     # Retorna todos os usuários cadastrados como sistemas
@@ -57,10 +51,9 @@ def createNewSystemKey():
         SELECT([OPTION(sistema.first_name, _value=sistema.id) for sistema in sistemas], _name='user_id'),
         INPUT(_value="Gerar nova Chave", _type="submit")
     )
-    if form.process().accepted:
-        from APIKey import APIKey
 
-        apiKey = APIKey()
+    if form.process().accepted:
+        apiKey = APIKey(db)
         currentAPIKey = APIKey.getCurrentActiveKeyForUser(form.vars.user_id)
 
         #Se ainda não existir uma chave válida

@@ -1,1 +1,1 @@
-{{from latin import json}}{{=XML(json(response._vars))}}
+{{from parsers import json}}{{=XML(json(response._vars))}}

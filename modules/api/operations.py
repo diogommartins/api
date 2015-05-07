@@ -356,12 +356,9 @@ class APIDelete(APIAlterOperation):
         try:
             affectedRows = self.db(self.pKeyField == self.rowId).delete()
             print self.db._lastsql
-        except IntegrityError:
+        except Exception:
             self.db.rollback()
             raise HTTP(403, "Não foi possível deletar.")
-        except Exception as e:
-            self.db.rollback()
-            raise HTTP(422, "O ID possui um tipo imcompatível.")
         if affectedRows == 0:
             raise HTTP(204, "Ooops... A princesa está em um castelo com outro ID.")
         else:

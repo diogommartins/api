@@ -69,23 +69,15 @@ class APIRequest(object):
         :return: depende do tipo de dado requisitado. Padrão é validResponseFormats['DEFAULT']
         """
         if self.HTTPMethod == "GET":
-            req = APIQuery(self)        # Cria query com os parâmetros processados em APIRequest
-            self._defineReturnType()    # Define qual view será usada
+            req = APIQuery(self)
+            self._defineResponseReturnType()
         elif self.HTTPMethod == "POST":
-            req = APIInsert(
-                self.endpoint,
-                self.parameters
-            )
+            req = APIInsert(self.endpoint, self.parameters)
         elif self.HTTPMethod == "PUT":
-            req = APIUpdate(
-                self.endpoint,
-                self.parameters
-            )
+            req = APIUpdate(self.endpoint, self.parameters)
         elif self.HTTPMethod == "DELETE":
-            req = APIDelete(
-                self.endpoint,
-                self.parameters
-            )
+            req = APIDelete(self.endpoint, self.parameters)
+
         # Gera log da requisição
         thread.start_new_thread(self.__saveAPIRequest, tuple())
 
@@ -112,7 +104,7 @@ class APIRequest(object):
         )
         self.db.commit()
 
-    def _defineReturnType(self):
+    def _defineResponseReturnType(self):
         """
         Define o formato de resposta (HTML,XML,JSON,..) de acordo com o parâmetro
         requisitado pelo usuário, setando a view correspondente que será utilizada

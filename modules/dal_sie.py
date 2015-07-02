@@ -3,7 +3,10 @@ import base64
 try:
     from gluon.dal.adapters import DB2Adapter
 except ImportError:
-    from gluon.dal import DB2Adapter    # Necessário para manter backward compatibility de versões < 2.9.12
+    try:
+        from pydal.adapters import DB2Adapter
+    except ImportError:
+        from gluon.dal import DB2Adapter    # Necessário para manter backward compatibility de versões < 2.9.12
 
 
 class SIEDB2BaseAdapter(DB2Adapter):

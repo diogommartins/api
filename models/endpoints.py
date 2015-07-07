@@ -1,6 +1,6 @@
 # coding=utf-8
+from applications.api.modules.api.request import APIRequest
 from definers import Endpoints
-from APIRequest import APIRequest
 
 
 def _lazy():
@@ -10,7 +10,7 @@ def _lazy():
 
     :rtype : list
     """
-    if request.env.PATH_INFO != request.env.path_info:
+    if request.controller == 'rest':
         return [APIRequest.controllerForRewritedURL(request, datasource, lazy=True)]
 
 endpoints = Endpoints(datasource, schema='DBSM', lazy_tables=_lazy())

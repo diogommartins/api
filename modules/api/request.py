@@ -59,9 +59,9 @@ class APIRequest(object):
         :return: Nome original do controller requisitado
         """
         pathList = request.env.PATH_INFO.split("/")
-        table = pathList[len(pathList)-1]
-        if table in db or lazy:
-            return table
+        resource = pathList[len(pathList)-1]
+        if resource in db or lazy:
+            return resource
 
     def performRequest(self):
         """

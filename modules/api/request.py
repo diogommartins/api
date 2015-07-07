@@ -32,6 +32,9 @@ class APIRequest(object):
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.apiKey = apiKey
         self.endpoint = self.controllerForRewritedURL(self.request, self.datasource)
+        if not self.endpoint:
+            raise HTTP(404, "Recurso requisitado é inválido")
+
         self.parameters = self._validateFields()
         self.return_fields = self._validateReturnFields()
         self.validContentTypes = {
@@ -59,8 +62,6 @@ class APIRequest(object):
         table = pathList[len(pathList)-1]
         if table in db or lazy:
             return table
-        else:
-            raise HTTP(404, "Recurso requisitado é inválido: %s" % table)
 
     def performRequest(self):
         """

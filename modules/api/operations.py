@@ -43,6 +43,10 @@ class APIOperation(object):
     def _uniqueIdentifierColumn(self):
         return self.table._primarykey[0]
 
+    @abc.abstractmethod
+    def execute(self):
+        raise NotImplementedError("Should be implemented on subclasses")
+
 
 class APIAlterOperation(APIOperation):
     __metaclass__ = abc.ABCMeta

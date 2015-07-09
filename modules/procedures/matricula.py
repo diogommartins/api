@@ -106,7 +106,30 @@ class MatricularAlunos(BaseSIEProcedure):
             & (self.datasource.VERSOES_CURSOS.SITUACAO_VERSAO == SITUACAO_VERSAO)
         ).select(self.datasource.VERSOES_CURSOS.ID_VERSAO_CURSO).first()
 
+    def _count_matriculados(self, ano, semestre, ID_VERSAO_CURSO):
+        return self.datasource((self.datasource.CURSOS_ALUNOS.ANO_INGRESSO==ano)
+                               & (self.datasource.CURSOS_ALUNOS.PERIODO_INGRE_ITEM==self.PERIODO_INGRE_ITEM[semestre])
+                               & (self.datasource.CURSOS_ALUNOS.ID_VERSAO_CURSO==ID_VERSAO_CURSO)).count()
 
+    def _novo_numero_matricula(self, dataset):
+        matriculados = self._count_matriculados(dataset['ano'], dataset['semestre'], dataset['ID_VERSAO_CURSO'])
+
+        def _cod_curso(cod):
+            """
+            Cursos presenciais e de gradução possuem COD_CURSO numérico e, para cursos com menos de 3 dígitos, é
+            preciso realizar padding a esquerda. Cursos de pós-graduação funcionam de forma diferente e o código
+            costuma ser uma string
+
+            :rtype : str
+            :param cod: atributo COD_CURSO de uma entrada na tabela CURSOS
+            :return: COD_CURSO formatado
+            """
+            try:
+                return "%0*d" % (3, int(cod))   # Completa com 0 a esquerda se int(cod) < 3
+            except ValueError:
+                return cod
+
+        return "%s%s%s%i" % (dataset['ano'], dataset['semestre'], _cod_curso(dataset['COD_CURSO']), matriculados+1)
 
     def _criar_curso_aluno(self, dataset):
         return self.datasource.CURSOS_ALUNOS.insert(MATR_ALUNO=self._novo_numero_matricula(dataset),

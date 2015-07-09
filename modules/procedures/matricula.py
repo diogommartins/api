@@ -24,12 +24,15 @@ class MatricularAlunos(BaseSIEProcedure):
         ]
     )
     consts = {
+        'IND_SEM_CEP': 'N',         # TODO não faço ideia do que seja isso, mas é campo obrigatório
         'TIPO_ORIGEM_TAB': 141,     # Tipo Origem do Endereço
         'TIPO_ORIGEM_ITEM': 11,     # Aluno
         'TIPO_ENDERECO': 'R',       # Residencial
         'TIPO_END_TAB': 240,        # Tipos de endereços
         'TIPO_END_ITEM': 1,         # Residencial
+        'NATUREZA_JURIDICA': 'F',   # Pessoa física
         'PERIODO_INGRE_TAB': 608,   # Períodos base do Sistema Acadêmico
+        'PER_INGR_INST_TAB': 608,   # Deve ser igual ao PERIODO_INGRE
         'FORMA_INGRE_TAB': 612,     # Forma de ingresso do aluno
         'FORMA_EVASAO_TAB': 613,    # Forma de evasão do aluno
         'FORMA_EVASAO_ITEM': 1,     # Sem evasao
@@ -63,18 +66,17 @@ class MatricularAlunos(BaseSIEProcedure):
         """
         :type dataset: dict
         """
-        IND_SEM_CEP = 'N'   # todo não faço ideia do que seja isso, mas é campo obrigatório
+
         try:
             return self.datasource.ENDERECOS.insert(
                 ID_ORIGEM=dataset['ID_ALUNO'],
-                IND_SEM_CEP=IND_SEM_CEP,
                 FONE_RESIDENCIAL=dataset['TELEFONE1'],
                 FONE_CELULAR=dataset['TELEFONE2'],
                 IND_CORRESP='S',
                 **self._dataset_for_table(self.datasource.ENDERECOS, dataset)
             )
         except Exception as e:
-            # todo por algum motivo o driver da um erro louco no primeiro item da queue
+            # TODO por algum motivo o driver da um erro louco no primeiro item da queue
             pass
 
     def _remover_ind_correspondencia(self, TIPO_ORIGEM_ITEM, ID_ALUNO):
@@ -132,8 +134,12 @@ class MatricularAlunos(BaseSIEProcedure):
         return "%s%s%s%i" % (dataset['ano'], dataset['semestre'], _cod_curso(dataset['COD_CURSO']), matriculados+1)
 
     def _criar_curso_aluno(self, dataset):
-        return self.datasource.CURSOS_ALUNOS.insert(MATR_ALUNO=self._novo_numero_matricula(dataset),
-                                                    **self._dataset_for_table(self.datasource.ALUNOS, dataset))
+        return self.datasource.CURSOS_ALUNOS.insert(
+            MATR_ALUNO=self._novo_numero_matricula(dataset),
+            PERIODO_INGRE_ITEM=self.PERIODO_INGRE_ITEM[dataset['semestre']],
+            PER_INGR_INST_ITEM=self.PERIODO_INGRE_ITEM[dataset['semestre']],
+            **self._dataset_for_table(self.datasource.CURSOS_ALUNOS, dataset)
+        )
 
     def perform_work(self, dataset):
         """
@@ -151,39 +157,42 @@ class MatricularAlunos(BaseSIEProcedure):
         """
 
         dataset.update(self.consts)
+        try:
+            # 1
+            pessoa = self._pessoa_for_cpf(dataset['CPF'])
+            if pessoa:
+                dataset.update({'ID_PESSOA': pessoa})
+            else:
+                self.datasource.PESSOAS.insert(**self._dataset_for_table(self.datasource.PESSOAS, dataset))
 
-        # 1
-        pessoa = self._pessoa_for_cpf(dataset['CPF'])
-        if pessoa:
-            dataset.update({'ID_PESSOA': pessoa})
-        else:
-            self.datasource.PESSOAS.insert(**self._dataset_for_table(self.datasource.PESSOAS, dataset))
+            # 2
+            for ID_TDOC_PESSOA, dataset_key in self.documentos.iteritems():
+                if not self._existe_documento(ID_TDOC_PESSOA, dataset['ID_PESSOA']):
+                    self.datasource.DOC_PESSOAS.insert(
+                        ID_TDOC_PESSOA=ID_TDOC_PESSOA,
+                        NUMERO_DOCUMENTO=dataset[dataset_key],
+                        **self._dataset_for_table(self.datasource.DOC_PESSOAS, dataset)
+                    )
 
-        # 2
-        for ID_TDOC_PESSOA, dataset_key in self.documentos.iteritems():
-            if not self._existe_documento(ID_TDOC_PESSOA, dataset['ID_PESSOA']):
-                self.datasource.DOC_PESSOAS.insert(
-                    ID_TDOC_PESSOA=ID_TDOC_PESSOA,
-                    NUMERO_DOCUMENTO=dataset[dataset_key],
-                    **self._dataset_for_table(self.datasource.DOC_PESSOAS, dataset)
-                )
+            # 3
+            aluno = self.datasource(self.datasource.ALUNOS.ID_PESSOA == dataset['ID_PESSOA']).select().first()
+            if aluno:
+                dataset.update({'ID_ALUNO': aluno.ID_ALUNO})
+            else:
+                self.datasource.ALUNOS.insert(**self._dataset_for_table(self.datasource.ALUNOS, dataset))
 
-        # 3
-        aluno = self.datasource(self.datasource.ALUNOS.ID_PESSOA == dataset['ID_PESSOA']).select().first()
-        if aluno:
-            dataset.update({'ID_ALUNO': aluno.ID_ALUNO})
-        else:
-            self.datasource.ALUNOS.insert(**self._dataset_for_table(self.datasource.ALUNOS, dataset))
+            # 4
+            self._remover_ind_correspondencia(dataset['TIPO_ORIGEM_ITEM'], dataset['ID_ALUNO'])
+            self._criar_endereco(dataset)
 
-        # 4
-        self._remover_ind_correspondencia(dataset['TIPO_ORIGEM_ITEM'], dataset['ID_ALUNO'])
-        self._criar_endereco(dataset)
+            # 5
+            curso_corrente = self._versao_corrente_curso(dataset['COD_CURSO'])
+            dataset.update(curso_corrente)
 
-        # 5
-        curso_corrente = self._versao_corrente_curso(dataset['COD_CURSO'])
-        dataset.update(curso_corrente)
+            if not self._is_aluno_matriculado(dataset['ID_ALUNO'], dataset['ID_VERSAO_CURSO']):
+                self._criar_curso_aluno(dataset)
 
-        if not self._is_aluno_matriculado(dataset['ID_ALUNO'], dataset['ID_VERSAO_CURSO']):
-            self._criar_curso_aluno(dataset)
-
-        # self.datasource.comm
+            self.datasource.rollback()
+        except Exception as e:
+            self.datasource.rollback()
+        # self.datasource.commit()

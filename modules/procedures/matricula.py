@@ -1,4 +1,5 @@
 # coding=utf-8
+from datetime import date, datetime
 from applications.api.modules.procedures.base import BaseSIEProcedure
 
 
@@ -22,6 +23,25 @@ class MatricularAlunos(BaseSIEProcedure):
             "TELEFONE2"
         ]
     )
+    consts = {
+        'TIPO_ORIGEM_TAB': 141,     # Tipo Origem do Endereço
+        'TIPO_ORIGEM_ITEM': 11,     # Aluno
+        'TIPO_ENDERECO': 'R',       # Residencial
+        'TIPO_END_TAB': 240,        # Tipos de endereços
+        'TIPO_END_ITEM': 1,         # Residencial
+        'PERIODO_INGRE_TAB': 608,   # Períodos base do Sistema Acadêmico
+        'FORMA_INGRE_TAB': 612,     # Forma de ingresso do aluno
+        'FORMA_EVASAO_TAB': 613,    # Forma de evasão do aluno
+        'FORMA_EVASAO_ITEM': 1,     # Sem evasao
+        'DIREITO_MATR_TAB': 818,    # Direito a matrícula
+        'DIREITO_MATR_ITEM': 1,     # Tem direito
+        'IND_FORMANDO': 'N',        # Não formado
+        "COD_OPERADOR": 1,          # admin
+        "CONCORRENCIA": 999,
+        "DT_ALTERACAO": str(date.today()),
+        "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S")
+    }
+
     documentos = {1: 'CPF', 2: 'RG'}
     PERIODO_INGRE_ITEM = {1: 201, 2: 202}
 
@@ -87,22 +107,10 @@ class MatricularAlunos(BaseSIEProcedure):
         ).select(self.datasource.VERSOES_CURSOS.ID_VERSAO_CURSO).first()
 
 
-    def _novo_numero_matricula(self, dataset):
-        pass
-        # return "%s%s%s%s" % (ano, semestre, COD_CURSO, str(sequencial))
-
 
     def _criar_curso_aluno(self, dataset):
-        MATR_ALUNO = gerarNumeroMatricula(matricula)
-        PERIODO_INGRE_TAB = 608
-        FORMA_INGRE_TAB = 612  #Forma de ingresso
-        FORMA_INGRE_ITEM = str(FORMA_INGRE_ITEM)  #Recebe como parâmetro da aplicação
-        FORMA_EVASAO_TAB = 613  #Forma de evasão
-        FORMA_EVASAO_ITEM = 1  #1 = sem evasao
-        DIREITO_MATR_TAB = 818  # Direito a matrícula
-        DIREITO_MATR_ITEM = 1  # Tem direito
-        IND_FORMANDO = 'N'  # Não formado
-
+        return self.datasource.CURSOS_ALUNOS.insert(MATR_ALUNO=self._novo_numero_matricula(dataset),
+                                                    **self._dataset_for_table(self.datasource.ALUNOS, dataset))
 
     def perform_work(self, dataset):
         """
@@ -118,6 +126,9 @@ class MatricularAlunos(BaseSIEProcedure):
         :type dataset: dict
         :param dataset:
         """
+
+        dataset.update(self.consts)
+
         # 1
         pessoa = self._pessoa_for_cpf(dataset['CPF'])
         if pessoa:
@@ -142,15 +153,6 @@ class MatricularAlunos(BaseSIEProcedure):
             self.datasource.ALUNOS.insert(**self._dataset_for_table(self.datasource.ALUNOS, dataset))
 
         # 4
-        endereco_consts = {
-            'TIPO_ORIGEM_TAB': 141,
-            'TIPO_ORIGEM_ITEM': 11,  # Aluno
-            'TIPO_ENDERECO': 'R',  # Residencial
-            'TIPO_END_TAB': 240,
-            'TIPO_END_ITEM': 1  # Residencial
-        }
-        dataset.update(endereco_consts)
-
         self._remover_ind_correspondencia(dataset['TIPO_ORIGEM_ITEM'], dataset['ID_ALUNO'])
         self._criar_endereco(dataset)
 

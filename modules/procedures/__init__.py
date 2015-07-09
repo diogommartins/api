@@ -13,6 +13,7 @@ class Procedure(object):
         """
         Simple `Factory` class for BaseProcedure subclasses that returns a class reference
 
+        :rtype : .base.BaseProcedure
         :param name: The name of a BaseProcedure subclass
         :raise SyntaxError: Raised when trying to call a nonexistent procedure
         """

@@ -49,8 +49,7 @@ class MatricularAlunos(BaseSIEProcedure):
     PERIODO_INGRE_ITEM = {1: 201, 2: 202}
 
     def _pessoa_for_cpf(self, cpf):
-        result = self.datasource.executesql(
-            "SELECT ID_PESSOA FROM DBSM.DOC_PESSOAS WHERE REPLACE(REPLACE(NUMERO_DOCUMENTO, '.',''), '-','') = '" + cpf + "' FETCH FIRST 1 ROWS ONLY")
+        result = self.datasource.executesql("SELECT ID_PESSOA FROM DBSM.DOC_PESSOAS WHERE REPLACE(REPLACE(NUMERO_DOCUMENTO, '.',''), '-','') = '" + cpf + "' FETCH FIRST 1 ROWS ONLY")
         if result:
             return result[0][0]
 
@@ -114,6 +113,15 @@ class MatricularAlunos(BaseSIEProcedure):
                                & (self.datasource.CURSOS_ALUNOS.ID_VERSAO_CURSO==ID_VERSAO_CURSO)).count()
 
     def _novo_matricula_aluno(self, dataset):
+        """
+        Uma matrícula é formada pela concatenação do ano, semestre, código do curso e um número `sequencial` único.
+        Para gerar uma nova matrícula única, toma-se como pré suposto que a nova posição válida para o `sequencial` é
+        equivalente a quantidade total de matriculados em um curso, neste ano e semestre, acrescido de 1. Após gerar,
+        verifica-se se o mesmo é único e, se não, repete a verificação sucessivamente com sequencial+1 até que seja
+        gerado uma matrícula única.
+
+        :return: Uma string correspondente a um MATR_ALUNO único
+        """
         matriculados = self._count_matriculados(dataset['ano'], dataset['semestre'], dataset['ID_VERSAO_CURSO'])
 
         _pad = lambda a: "%0*d" % (3, int(a))   # Completa com 0 a esquerda se int(a) < 3
@@ -203,8 +211,7 @@ class MatricularAlunos(BaseSIEProcedure):
             self._criar_endereco(dataset)
 
             # 5
-            curso_corrente = self._versao_corrente_curso(dataset['COD_CURSO'])
-            dataset.update(curso_corrente)
+            dataset.update(self._versao_corrente_curso(dataset['COD_CURSO']))
 
             if not self._is_aluno_matriculado(dataset['ID_ALUNO'], dataset['ID_VERSAO_CURSO']):
                 curso_aluno = self._criar_curso_aluno(dataset)

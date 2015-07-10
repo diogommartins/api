@@ -1,3 +1,4 @@
+# coding=utf-8
 import simplejson
 from procedures import Procedure
 from datetime import datetime, time
@@ -14,6 +15,23 @@ class ProcedureWorker(object):
         self.queue = []
 
     def update_queue(self):
+        """
+        Pega todas as entradas da queue que não tenham dt_conclusão e sejam do tipo self.procedure
+
+        """
+        pass
+
+    def _update_entry(self, entry):
+        """
+        Atualiza a entrada como concluída
+        :param entry:
+        """
+        pass
+
+    def start(self):
+        pass
+
+    def stop(self):
         pass
 
     def _notify_websocket_server(self, entry, message):
@@ -27,6 +45,7 @@ class ProcedureWorker(object):
         for entry in self.queue:
             dataset = simplejson.loads(entry.json_data)
             message = self.procedure.perform_work(dataset)
+            self._update_entry(entry)
             self._notify_websocket_server(entry, message)
 
         time.sleep(self.sleep_time)

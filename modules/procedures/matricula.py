@@ -113,8 +113,10 @@ class MatricularAlunos(BaseSIEProcedure):
                                & (self.datasource.CURSOS_ALUNOS.PERIODO_INGRE_ITEM==self.PERIODO_INGRE_ITEM[semestre])
                                & (self.datasource.CURSOS_ALUNOS.ID_VERSAO_CURSO==ID_VERSAO_CURSO)).count()
 
-    def _novo_numero_matricula(self, dataset):
+    def _novo_matricula_aluno(self, dataset):
         matriculados = self._count_matriculados(dataset['ano'], dataset['semestre'], dataset['ID_VERSAO_CURSO'])
+
+        _pad = lambda a: "%0*d" % (3, int(a))   # Completa com 0 a esquerda se int(a) < 3
 
         def _cod_curso(cod):
             """
@@ -127,15 +129,30 @@ class MatricularAlunos(BaseSIEProcedure):
             :return: COD_CURSO formatado
             """
             try:
-                return "%0*d" % (3, int(cod))   # Completa com 0 a esquerda se int(cod) < 3
+                return _pad(cod)
             except ValueError:
                 return cod
 
-        return "%s%s%s%i" % (dataset['ano'], dataset['semestre'], _cod_curso(dataset['COD_CURSO']), matriculados+1)
+        def _matricula_existe(MATR_ALUNO):
+            """
+            :param MATR_ALUNO: str correspondente ao campo MATR_ALUNO da tabela CURSOS_ALUNOS
+            :return: gluon.dal.Row ou None caso não exista
+            """
+            return self.datasource(self.datasource.CURSOS_ALUNOS.MATR_ALUNO==MATR_ALUNO).select()
+
+        def _MATR_ALUNO(dataset, sequencial):
+            return "%s%s%s%s" % (dataset['ano'], dataset['semestre'], _cod_curso(dataset['COD_CURSO']), _pad(sequencial))
+
+        MATR_ALUNO = _MATR_ALUNO(dataset, matriculados+1)
+
+        while _matricula_existe(MATR_ALUNO):
+            MATR_ALUNO = _MATR_ALUNO(dataset, matriculados+1)
+
+        return MATR_ALUNO
 
     def _criar_curso_aluno(self, dataset):
         return self.datasource.CURSOS_ALUNOS.insert(
-            MATR_ALUNO=self._novo_numero_matricula(dataset),
+            MATR_ALUNO=self._novo_matricula_aluno(dataset),
             PERIODO_INGRE_ITEM=self.PERIODO_INGRE_ITEM[dataset['semestre']],
             PER_INGR_INST_ITEM=self.PERIODO_INGRE_ITEM[dataset['semestre']],
             **self._dataset_for_table(self.datasource.CURSOS_ALUNOS, dataset)
@@ -190,7 +207,7 @@ class MatricularAlunos(BaseSIEProcedure):
             dataset.update(curso_corrente)
 
             if not self._is_aluno_matriculado(dataset['ID_ALUNO'], dataset['ID_VERSAO_CURSO']):
-                self._criar_curso_aluno(dataset)
+                curso_aluno = self._criar_curso_aluno(dataset)
 
             self.datasource.rollback()
         except Exception as e:

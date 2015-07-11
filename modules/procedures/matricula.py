@@ -158,9 +158,9 @@ class MatricularAlunos(BaseSIEProcedure):
 
         return MATR_ALUNO
 
-    def _criar_curso_aluno(self, dataset):
+    def _criar_curso_aluno(self, dataset, matricula):
         return self.datasource.CURSOS_ALUNOS.insert(
-            MATR_ALUNO=self._novo_matricula_aluno(dataset),
+            MATR_ALUNO=matricula,
             PERIODO_INGRE_ITEM=self.PERIODO_INGRE_ITEM[dataset['semestre']],
             PER_INGR_INST_ITEM=self.PERIODO_INGRE_ITEM[dataset['semestre']],
             **self._dataset_for_table(self.datasource.CURSOS_ALUNOS, dataset)
@@ -177,6 +177,7 @@ class MatricularAlunos(BaseSIEProcedure):
         * [4] Insere ou atualiza, nova entrada em ENDERECO para logradouro, email e telefones
         * [5] Insere uma nova entrada na tabela CURSOS_ALUNOS, que representa uma nova matrícula de ALUNO em VERSOES_CURSOS
 
+        :rtype : dict
         :type dataset: dict
         :param dataset:
         """
@@ -214,9 +215,11 @@ class MatricularAlunos(BaseSIEProcedure):
             dataset.update(self._versao_corrente_curso(dataset['COD_CURSO']))
 
             if not self._is_aluno_matriculado(dataset['ID_ALUNO'], dataset['ID_VERSAO_CURSO']):
-                curso_aluno = self._criar_curso_aluno(dataset)
+                matricula = self._novo_matricula_aluno(dataset)
+                self._criar_curso_aluno(dataset, matricula)
 
-            self.datasource.rollback()
+            self.datasource.rollback()  # self.datasource.commit()
+            return dataset
         except Exception as e:
+            # TODO Que tipos de exceptions podem ocorrer aqui além de um DBException ?
             self.datasource.rollback()
-        # self.datasource.commit()

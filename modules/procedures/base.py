@@ -44,6 +44,8 @@ class BaseProcedure(object):
     def perform_work(self, dataset):
         """
         Something that should be done with dataset
+
+        :returns A json serializable object
         :type dataset: dict
         """
         raise NotImplementedError("Should be implemented on subclasses")

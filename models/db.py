@@ -71,6 +71,7 @@ db.define_table("api_procedure_queue",
                 Field("json_data", "json"),
                 Field("dt_creation", "datetime", default=datetime.now()),
                 Field("dt_conclusion", "datetime"),
+                Field("ws_group", label='Websocket group to notify'),
                 migrate=True
                 )
 

@@ -6,6 +6,7 @@ import time
 from gluon.contrib.websocket_messaging import websocket_send
 import threading
 
+
 class ProcedureWorker(object):
     def __init__(self, db, datasource, name, websocket, sleep_time=3):
         """
@@ -45,8 +46,10 @@ class ProcedureWorker(object):
         """
         Detach and start a new thread
         """
-        self.thread = threading.Thread(target=self.work)
-        self.thread.start()
+        self.thread = threading.Thread(target=self.work, name=self.name)
+        if not self.thread.isAlive():
+            self.__running = True
+            self.thread.start()
 
     def stop(self):
         """

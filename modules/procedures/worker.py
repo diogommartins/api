@@ -1,51 +1,75 @@
 # coding=utf-8
 import simplejson
 from procedures import Procedure
-from datetime import datetime, time
+from datetime import datetime
+import time
 from gluon.contrib.websocket_messaging import websocket_send
-
+import threading
 
 class ProcedureWorker(object):
-    def __init__(self, datasource, name, ws_server_uri, sleep_time):
+    def __init__(self, db, datasource, name, websocket, sleep_time=3):
+        """
+        :type db: gluon.dal.DAL
+        :type datasource: gluon.dal.DAL
+        :type name: str
+        :type websocket: dict
+        :type sleep_time: int or float
+        """
+        self.db = db
         self.datasource = datasource
-        callable_procedure = Procedure()(name)
+        self.name = name
+        callable_procedure = Procedure()(self.name)
         self.procedure = callable_procedure(datasource=self.datasource)
-        self.ws_server_uri = ws_server_uri
+        self.ws = websocket
         self.sleep_time = sleep_time
         self.queue = []
+        self.__running = False
+        self.thread = None
 
     def update_queue(self):
         """
-        Pega todas as entradas da queue que não tenham dt_conclusão e sejam do tipo self.procedure
-
+        Fetches all queue entries of `self.procedure` type that weren't already processed and update the queue list
         """
-        pass
+        self.queue = self.db(
+            (self.db.api_procedure_queue.dt_conclusion != None)
+            & (self.db.api_procedure_queue.name == self.name)).select()
 
     def _update_entry(self, entry):
         """
-        Atualiza a entrada como concluída
-        :param entry:
+        Changes an entry status to finished
+        :type entry: gluon.dal.Row
         """
-        pass
+        entry.update_record(dt_conclusion=datetime.now())
 
     def start(self):
-        pass
+        """
+        Detach and start a new thread
+        """
+        self.thread = threading.Thread(target=self.work)
+        self.thread.start()
 
     def stop(self):
-        pass
+        """
+        Sets running to False, which will end the thread target callable main loop, causing it to end
+        """
+        self.__running = False
 
     def _notify_websocket_server(self, entry, message):
         """
+
         :type entry: gluon.dal.Row
         :param message: a json serializable
         """
-        websocket_send(self.ws_server_uri, simplejson.dumps(message))
+        notification_group = entry.ws_group or self.name
+        websocket_send(self.ws['uri'], simplejson.dumps(message), self.ws['password'], notification_group)
 
     def work(self):
-        for entry in self.queue:
-            dataset = simplejson.loads(entry.json_data)
-            message = self.procedure.perform_work(dataset)
-            self._update_entry(entry)
-            self._notify_websocket_server(entry, message)
+        while self.__running:
+            for entry in self.queue:
+                dataset = simplejson.loads(entry.json_data)
+                message = self.procedure.perform_work(dataset)
+                self._update_entry(entry)
+                self._notify_websocket_server(entry, message)
 
-        time.sleep(self.sleep_time)
+            time.sleep(self.sleep_time)
+            self.update_queue()

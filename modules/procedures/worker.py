@@ -11,10 +11,13 @@ class ProcedureWorker(object):
     def __init__(self, db, datasource, name, websocket, sleep_time=3):
         """
         :type db: gluon.dal.DAL
+        :param db: The DAL where api_procedure_queue table is defined
+        :type websocket: dict
+        :param websocket: Dictionary containing websocket parameters and the keys `uri` and `password`
+        :type sleep_time: int or float
+        :param sleep_time: Time in seconds, to wait between checking for new itens on queue
         :type datasource: gluon.dal.DAL
         :type name: str
-        :type websocket: dict
-        :type sleep_time: int or float
         """
         self.db = db
         self.datasource = datasource

@@ -1,6 +1,7 @@
 # coding=utf-8=
 from .base import BaseTableDefiner
 from gluon.dal import Field
+from unicodedata import normalize
 
 
 class DB2TableDefiner(BaseTableDefiner):
@@ -99,8 +100,12 @@ class DB2TableDefiner(BaseTableDefiner):
 
         for col in cols:
             try:
-                tables[col.TABNAME].append(
-                    Field(col.COLNAME, __type(col), length=col.LENGTH, label=col.REMARKS))
+                tables[col.TABNAME].append(Field(col.COLNAME, __type(col), length=col.LENGTH, label=col.REMARKS))
+            except SyntaxError:
+                # Some colnames may have non-ascii characters, wich needs to be removed and passed as rname
+                normalized_name = normalize('NFKD', col.COLNAME.decode(self.db._db_codec)).encode('ASCII', 'ignore')
+                tables[col.TABNAME].append(Field(normalized_name, __type(col),
+                                                 length=col.LENGTH, label=col.REMARKS, rname=col.COLNAME))
             except KeyError:
                 print "Não foi possível adicionar a coluna %s de %s - tipo %s desconhecido" % (col.COLNAME,
                                                                                                col.TABNAME,

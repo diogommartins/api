@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # CREATE OR REPLACE VIEW v_api_calls AS
 # SELECT distinct
 #     aa.auth_key,
@@ -23,16 +23,16 @@
 #===============================================================================
 
 db.define_table("v_api_calls",
-                Field("auth_key","string"),
-                Field("dt_creation","datetime"),
-                Field("active","boolean"),
-                Field("user_id",db.api_auth),
-                Field("group_role","string"),
-                Field("group_id",db.auth_group),
-                Field("max_requests","integer"),
-                Field("max_entries","integer"),
-                Field("total_requests","integer"),
-                Field("total_day_requests","integer"),
-                Field("dt_request","date"),
+                Field("auth_key", "string"),
+                Field("dt_creation", "datetime"),
+                Field("active", "boolean"),
+                Field("user_id", db.api_auth),
+                Field("group_role", "string"),
+                Field("group_id", db.auth_group),
+                Field("max_requests", "integer"),
+                Field("max_entries", "integer"),
+                Field("total_requests", "integer"),
+                Field("total_day_requests", "integer"),
+                Field("dt_request", "date"),
                 primarykey=['user_id', 'active'],
                 migrate=False)

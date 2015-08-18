@@ -23,6 +23,7 @@ class APIOperation(object):
     def baseResourseURI(self):
         return current.request.env.http_host + current.request.env.PATH_INFO + "/"
 
+    # TODO Isso não deveria existir aqui, já que é relacionado somente ao SIE
     @property
     def defaultFieldsForSIETables(self):
         """
@@ -216,7 +217,6 @@ class APIInsert(APIAlterOperation):
         """
         super(APIInsert, self).__init__(endpoint)
         self.parameters = parameters
-        self.db = current.dbSie
 
     @property
     def defaultFieldsForSIEInsert(self):

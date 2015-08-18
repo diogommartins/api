@@ -68,6 +68,25 @@ class APIAlterOperation(APIOperation):
         """
         return self.pKeyColumn in parameters['valid']
 
+    @abc.abstractmethod
+    def contentWithValidParameters(self):
+        """
+        :rtype : dict
+        """
+        raise NotImplementedError("Should be implemented on subclasses")
+
+    def blob_fields(self, parameters):
+        """
+        Retorna uma tupla de Fields do tipo blob que estejam na lista de parâmetros
+        :type parameters: dict
+        :rtype : tuple
+        """
+        return tuple(field for field in parameters['valid'] if self.table[field].type == 'blob')
+
+    @abc.abstractmethod
+    def prepared_statement(self, parameters, blob_fields):
+        raise NotImplementedError("Should be implemented on subclasses")
+
 
 class APIQuery(APIOperation):
     ENTRIES_PER_QUERY_DEFAULT = 10
@@ -316,8 +335,15 @@ class APIUpdate(APIAlterOperation):
         :raise HTTP: 404 A chave primária informada é inválida e nenhuma entrada foi afetada
         """
         try:
-            affectedRows = self.db(self.pKeyField == current.request.vars[self.pKeyColumn]).update(
-                **self.contentWithValidParameters())
+            blob_fields = self.blob_fields(self.parameters)
+            if not blob_fields:
+                affectedRows = self.db(self.pKeyField == current.request.vars[self.pKeyColumn]).update(
+                    **self.contentWithValidParameters())
+            else:
+                parameters = self.contentWithValidParameters()
+                stmt = self.prepared_statement(parameters, blob_fields)
+                affectedRows = self.db.executesql(stmt, tuple(parameters[k] for k in blob_fields))
+                pass
         except SyntaxError:
             self.db.rollback()
             raise HTTP(204, "Nenhum conteúdo foi passado")
@@ -330,6 +356,15 @@ class APIUpdate(APIAlterOperation):
             self.db.commit()
             headers = {"Affected": affectedRows}
             raise HTTP(200, "Conteúdo atualizado com sucesso", **headers)
+
+    def prepared_statement(self, parameters, blob_fields):
+        stmt_parameters = parameters.copy()
+
+        for k in blob_fields:
+            stmt_parameters[k] = '?'
+
+        stmt = self.db(self.pKeyField == current.request.vars[self.pKeyColumn])._update(**stmt_parameters)
+        return stmt
 
 
 class APIDelete(APIAlterOperation):

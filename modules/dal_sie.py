@@ -19,8 +19,8 @@ class SIEDB2BaseAdapter(DB2Adapter):
 
     def represent_exceptions(self, obj, fieldtype):
         if fieldtype == 'blob':
-            return "BLOB('%s')" % obj
-        elif fieldtype == 'datetime':
+            return '?'  # Adiciona placeholder
+        if fieldtype == 'datetime':
             super(SIEDB2BaseAdapter, self).represent_exceptions(obj, fieldtype)
         return None
 

@@ -86,7 +86,7 @@ class APIAlterOperation(APIOperation):
 
     def blob_values(self, parameters, fields):
         """
-        Retorna uma tupla de valores correpondentes aos campos blob a serem usados no
+        Retorna uma tupla de valores correpondentes aos campos blob a serem usados em um prepared statement
         :type parameters: dict
         :type fields: list or tuple
         :rtype : tuple
@@ -246,9 +246,10 @@ class APIInsert(APIAlterOperation):
     @property
     def defaultFieldsForSIEInsert(self):
         fields = dict(self.defaultFieldsForSIETables)
-        fields.update({self._uniqueIdentifierColumn: self.nextValueForSequence()})
+        fields.update({self._uniqueIdentifierColumn: self.nextValueForSequence})
         return fields
 
+    @property
     def nextValueForSequence(self):
         """
         Por uma INFELIZ particularidade do DB2 de não possuir auto increment, ao inserir algum novo conteúdo em uma
@@ -283,8 +284,14 @@ class APIInsert(APIAlterOperation):
 
     def execute(self):
         try:
-            newId = self.table.insert(**self.contentWithValidParameters())
-            print self.db._lastsql
+            blob_fields = self.blob_fields(self.parameters)
+            parameters = self.contentWithValidParameters()
+            if not blob_fields:
+                newId = self.table.insert(**parameters)
+            else:
+                stmt = self.table._insert(**parameters)
+                self.db.executesql(stmt, self.blob_values(parameters, blob_fields))
+                newId = self.nextValueForSequence   # TODO Como pegar este id ? Desta forma só vai funcionar com o DB2. self.db._adapter.lastrowid(self.table) não funciona
         except Exception as e:
             print self.db._lastsql
             self.db.rollback()
@@ -305,7 +312,7 @@ class APIUpdate(APIAlterOperation):
         """
         Classe responsável por lidar com requisições do tipo PUT, que serão transformadas
         em um UPDATE no banco de dados e retornarão uma resposta HTTP adequada a atualizaçao do recurso.
-
+brew cask install dbeaver-enterprise
         :type parameters: dict
         :type endpoint: str
         :param endpoint: string relativa ao nome da tabela modela no banco datasource

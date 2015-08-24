@@ -287,7 +287,7 @@ class APIInsert(APIAlterOperation):
             blob_fields = self.blob_fields(self.parameters)
             parameters = self.contentWithValidParameters()
             if not blob_fields:
-                newId = self.table.insert(**parameters)
+                newId = self.table.insert(**parameters)[self._uniqueIdentifierColumn]
             else:
                 stmt = self.table._insert(**parameters)
                 self.db.executesql(stmt, self.blob_values(parameters, blob_fields))
@@ -301,8 +301,8 @@ class APIInsert(APIAlterOperation):
             headers = {
                 # "Location": self.baseResourseURI + "?" + self.table._primarykey[0] + "=" + str(
                 #     newId[self.table._primarykey[0]]),
-                "Location": "%s?%s=%i" % (self.baseResourseURI, self._uniqueIdentifierColumn, newId[self._uniqueIdentifierColumn]),
-                "id": newId[self._uniqueIdentifierColumn]
+                "Location": "%s?%s=%i" % (self.baseResourseURI, self._uniqueIdentifierColumn, newId),
+                "id": newId
             }
             raise HTTP(201, "Conteúdo inserido com sucesso.", **headers)
 
@@ -312,7 +312,6 @@ class APIUpdate(APIAlterOperation):
         """
         Classe responsável por lidar com requisições do tipo PUT, que serão transformadas
         em um UPDATE no banco de dados e retornarão uma resposta HTTP adequada a atualizaçao do recurso.
-brew cask install dbeaver-enterprise
         :type parameters: dict
         :type endpoint: str
         :param endpoint: string relativa ao nome da tabela modela no banco datasource

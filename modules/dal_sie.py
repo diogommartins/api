@@ -46,3 +46,9 @@ class SIEDB2BaseAdapter(DB2Adapter):
                 time_expire)
         else:
             return self._select_aux(sql,fields,attributes)
+
+    def _insert(self, table, fields):
+        return super(SIEDB2BaseAdapter, self)._insert(table, fields).decode('utf-8')
+
+    def _update(self, tablename, query, fields):
+        return super(SIEDB2BaseAdapter, self)._update(tablename, query, fields).decode('utf-8')

@@ -91,7 +91,7 @@ class APIAlterOperation(APIOperation):
         :type fields: list or tuple
         :rtype : tuple
         """
-        return tuple(base64.b64decode(parameters[k]) for k in fields)
+        return tuple(parameters[k] for k in fields)
 
 
 class APIQuery(APIOperation):
@@ -190,8 +190,18 @@ class APIQuery(APIOperation):
         """
         :raise HTTP: 400
         """
+
         if self.request_vars["ORDERBY"] in self.table.fields:
             return self.request_vars["ORDERBY"]
+        elif self.request_vars["ORDERBY"]:
+            try:
+                field, order = self.request_vars["ORDERBY"].split()
+                if field in self.table.fields and order in ("ASC", "DESC"):
+                    return self.request_vars["ORDERBY"]
+                else:
+                    raise HTTP(400, "Bad request")
+            except ValueError:
+                raise HTTP(400,"Bad request")
         elif self.table._primarykey:
             return self.table._primarykey
         else:
@@ -215,8 +225,7 @@ class APIQuery(APIOperation):
             rows = self.db(reduce(lambda a, b: (a & b), conditions)).select(*self._getReturnTableFields(),
                                                                             limitby=recordsSubset,
                                                                             distinct=self._distinctStyle(),
-                                                                            orderby=self.__orderby(),
-                                                                            force_unicode=True)
+                                                                            orderby=self.__orderby())
         else:
             rows = self.db().select(*self._getReturnTableFields(),
                                     limitby=recordsSubset,

@@ -1,5 +1,6 @@
 # coding=utf-8
 import base64
+import os, tempfile, subprocess,shutil
 from datetime import datetime, date
 from gluon import current, HTTP
 import abc
@@ -91,7 +92,8 @@ class APIAlterOperation(APIOperation):
         :type fields: list or tuple
         :rtype : tuple
         """
-        return tuple(parameters[k] for k in fields)
+
+        return tuple(base64.b64decode(parameters[k]) for k in fields)
 
 
 class APIQuery(APIOperation):
@@ -291,27 +293,55 @@ class APIInsert(APIAlterOperation):
             if self.table[field].type == "blob":
                 content[field] = self.table.store(content[field])
 
+    def insert_blob_fields_callback(self,new_id, blobs):
+        """
+        Gambiarra para inserir blobs.
+        #TODO Deveria funcionar como um campo qualquer, mas não driver do DB2 não funciona.
+        #TODO Commits? Rollback?
+        :return:
+        """
+
+        directory_name = tempfile.mkdtemp()
+
+        for field, blob in blobs:
+            file_path = os.path.join(directory_name,field)
+            f = open(file_path,"wb")
+            f.write(blob)
+            f.close()
+
+        jar_path = os.path.join(current.request.folder,"modules","blob.jar")
+        properties_path = os.path.join(current.request.folder,"properties","1_db_conn.properties")
+
+        #Chama java externo
+        subprocess.check_call(["java","-jar",jar_path,directory_name, str(self.table), str(new_id), self._uniqueIdentifierColumn, properties_path],stderr=subprocess.STDOUT)
+
+
+        shutil.rmtree(directory_name) #os.removedirs não deleta diretório que não esteja vazio.
+
     def execute(self):
         try:
             blob_fields = self.blob_fields(self.parameters)
             parameters = self.contentWithValidParameters()
             if not blob_fields:
-                newId = self.table.insert(**parameters)[self._uniqueIdentifierColumn]
+                new_id = self.table.insert(**parameters)[self._uniqueIdentifierColumn]
             else:
                 stmt = self.table._insert(**parameters)
-                self.db.executesql(stmt, self.blob_values(parameters, blob_fields))
-                newId = self.nextValueForSequence   # TODO Como pegar este id ? Desta forma só vai funcionar com o DB2. self.db._adapter.lastrowid(self.table) não funciona
+                blob_values = self.blob_values(parameters,blob_fields) #Essa inserção não funcionará. É necessário reinserir pelo Java.
+                self.db.executesql(stmt, blob_values)
+                new_id = parameters[self._uniqueIdentifierColumn]
         except Exception as e:
             print self.db._lastsql
             self.db.rollback()
             raise HTTP(404, "Não foi possível completar a operação.")
         else:
             self.db.commit()
+            if new_id and blob_fields:
+                self.insert_blob_fields_callback(new_id,zip(blob_fields,blob_values)) #Reinsere blobs pelo JAVA
             headers = {
                 # "Location": self.baseResourseURI + "?" + self.table._primarykey[0] + "=" + str(
                 #     newId[self.table._primarykey[0]]),
-                "Location": "%s?%s=%i" % (self.baseResourseURI, self._uniqueIdentifierColumn, newId),
-                "id": newId
+                "Location": "%s?%s=%i" % (self.baseResourseURI, self._uniqueIdentifierColumn, new_id),
+                "id": new_id
             }
             raise HTTP(201, "Conteúdo inserido com sucesso.", **headers)
 

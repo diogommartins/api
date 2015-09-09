@@ -35,7 +35,7 @@ class ProcedureWorker(object):
         Fetches all queue entries of `self.procedure` type that weren't already processed and update the queue list
         """
         self.queue = self.db(
-            (self.db.api_procedure_queue.dt_conclusion != None)
+            (self.db.api_procedure_queue.dt_conclusion == None)
             & (self.db.api_procedure_queue.name == self.name)).select()
 
     def _update_entry(self, entry):

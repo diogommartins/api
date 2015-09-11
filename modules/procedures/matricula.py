@@ -1,6 +1,6 @@
 # coding=utf-8
 from datetime import date, datetime
-from applications.api.modules.procedures.base import BaseSIEProcedure
+from procedures.base import BaseSIEProcedure
 
 
 class MatricularAlunos(BaseSIEProcedure):

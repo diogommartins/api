@@ -1,5 +1,5 @@
-from applications.api.modules.api.request import APIRequest
-from applications.api.modules.procedures.base import ProcedureDatasetValidator
+from api.request import APIRequest
+from procedures.base import ProcedureDatasetValidator
 from gluon.contrib import simplejson
 from procedures import Procedure
 from datetime import date, datetime

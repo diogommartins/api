@@ -301,7 +301,7 @@ class APIInsert(APIAlterOperation):
         :return:
         """
 
-        directory_name = tempfile.mkdtemp()
+        directory_name = tempfile.mkdtemp() #cria diretório temporário para copiar arquivos
 
         for field, blob in blobs:
             file_path = os.path.join(directory_name,field)
@@ -313,7 +313,9 @@ class APIInsert(APIAlterOperation):
         properties_path = os.path.join(current.request.folder,"properties","1_db_conn.properties")
 
         #Chama java externo
-        subprocess.check_call(["java","-jar",jar_path,directory_name, str(self.table), str(new_id), self._uniqueIdentifierColumn, properties_path],stderr=subprocess.STDOUT)
+        subprocess.check_call(["java","-jar",jar_path,directory_name, str(self.table), str(new_id),
+                                self._uniqueIdentifierColumn, properties_path],
+                              stderr=subprocess.STDOUT)
 
 
         shutil.rmtree(directory_name) #os.removedirs não deleta diretório que não esteja vazio.
@@ -447,3 +449,7 @@ class APIDelete(APIAlterOperation):
             self.db.commit()
             headers = {"Affected": affectedRows}
             raise HTTP(200, "Conteúdo atualizado com sucesso", **headers)
+
+    def contentWithValidParameters(self):
+        #TODO Retirar a obrigação de implementar esse cara aqui.
+        pass

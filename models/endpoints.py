@@ -1,5 +1,5 @@
 # coding=utf-8
-from applications.api.modules.api.request import APIRequest
+from api.request import APIRequest
 from definers import Endpoints
 
 

@@ -1,5 +1,7 @@
 # coding=utf-8
 import abc
+from datetime import datetime
+
 
 class ProcedureDatasetValidator(object):
     __metaclass__ = abc.ABCMeta
@@ -49,6 +51,27 @@ class BaseProcedure(object):
         :type dataset: dict
         """
         raise NotImplementedError("Should be implemented on subclasses")
+
+    @staticmethod
+    def convert_date_format(date, input_format="%d/%m/%Y", output_format="%Y-%m-%d"):
+        """
+        :type date: str
+        :type output_format: str
+        :type input_format: str
+        :param date: A date to be converted
+        :param input_format: Input format used at `date`
+        :param output_format: Output format to be returned
+        :rtype : str
+        """
+        # todo isso não deveria estar aqui... MESMO !
+        try:
+            input_date = datetime.strptime(date, input_format)
+        except ValueError:
+            try:
+                input_date = datetime.strptime(date, output_format)  # It's already on the output format ?
+            except ValueError:
+                raise ValueError('"%s" is not a valid date format.' % date)  # Impossible to deal with
+        return input_date.strftime(output_format)
 
 
 class BaseSIEProcedure(BaseProcedure):

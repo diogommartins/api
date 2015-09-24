@@ -128,7 +128,7 @@ class APIQuery(APIOperation):
         # Consultas normais
         for field in self.fields:
             if self.table[field].type == 'string':
-                conditions.append(self.table[field].contains(self.request_vars[field], case_sensitive=False))
+                conditions.append(self.table[field].contains(self.request_vars[field], case_sensitive=False,all=True))
             else:
                 conditions.append(self.table[field] == self.request_vars[field])
 

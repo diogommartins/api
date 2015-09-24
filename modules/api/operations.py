@@ -1,6 +1,9 @@
 # coding=utf-8
 import base64
-import os, tempfile, subprocess,shutil
+import os
+import tempfile
+import subprocess
+import shutil
 from datetime import datetime, date
 from gluon import current, HTTP
 import abc
@@ -203,7 +206,7 @@ class APIQuery(APIOperation):
                 else:
                     raise HTTP(400, "Bad request")
             except ValueError:
-                raise HTTP(400,"Bad request")
+                raise HTTP(400, "Bad request")
         elif self.table._primarykey:
             return self.table._primarykey
         else:
@@ -293,7 +296,7 @@ class APIInsert(APIAlterOperation):
             if self.table[field].type == "blob":
                 content[field] = self.table.store(content[field])
 
-    def insert_blob_fields_callback(self,new_id, blobs):
+    def insert_blob_fields_callback(self, new_id, blobs):
         """
         Gambiarra para inserir blobs.
         #TODO Deveria funcionar como um campo qualquer, mas não driver do DB2 não funciona.
@@ -301,24 +304,23 @@ class APIInsert(APIAlterOperation):
         :return:
         """
 
-        directory_name = tempfile.mkdtemp() #cria diretório temporário para copiar arquivos
+        directory_name = tempfile.mkdtemp()  # cria diretório temporário para copiar arquivos
 
         for field, blob in blobs:
-            file_path = os.path.join(directory_name,field)
-            f = open(file_path,"wb")
+            file_path = os.path.join(directory_name, field)
+            f = open(file_path, "wb")
             f.write(blob)
             f.close()
 
-        jar_path = os.path.join(current.request.folder,"modules","blob.jar")
-        properties_path = os.path.join(current.request.folder,"properties","1_db_conn.properties")
+        jar_path = os.path.join(current.request.folder, "modules", "blob.jar")
+        properties_path = os.path.join(current.request.folder, "properties", "1_db_conn.properties")
 
-        #Chama java externo
-        subprocess.check_call(["java","-jar",jar_path,directory_name, str(self.table), str(new_id),
-                                self._uniqueIdentifierColumn, properties_path],
+        # Chama java externo
+        subprocess.check_call(["java", "-jar", jar_path, directory_name, str(self.table), str(new_id),
+                               self._uniqueIdentifierColumn, properties_path],
                               stderr=subprocess.STDOUT)
 
-
-        shutil.rmtree(directory_name) #os.removedirs não deleta diretório que não esteja vazio.
+        shutil.rmtree(directory_name)  # os.removedirs não deleta diretório que não esteja vazio.
 
     def execute(self):
         try:
@@ -328,7 +330,8 @@ class APIInsert(APIAlterOperation):
                 new_id = self.table.insert(**parameters)[self._uniqueIdentifierColumn]
             else:
                 stmt = self.table._insert(**parameters)
-                blob_values = self.blob_values(parameters,blob_fields) #Essa inserção não funcionará. É necessário reinserir pelo Java.
+                # Essa inserção não funcionará. É necessário reinserir pelo Java.
+                blob_values = self.blob_values(parameters, blob_fields)
                 self.db.executesql(stmt, blob_values)
                 new_id = parameters[self._uniqueIdentifierColumn]
         except Exception as e:
@@ -338,7 +341,7 @@ class APIInsert(APIAlterOperation):
         else:
             self.db.commit()
             if new_id and blob_fields:
-                self.insert_blob_fields_callback(new_id,zip(blob_fields,blob_values)) #Reinsere blobs pelo JAVA
+                self.insert_blob_fields_callback(new_id, zip(blob_fields, blob_values))  # Reinsere blobs pelo JAVA
             headers = {
                 # "Location": self.baseResourseURI + "?" + self.table._primarykey[0] + "=" + str(
                 #     newId[self.table._primarykey[0]]),
@@ -451,5 +454,5 @@ class APIDelete(APIAlterOperation):
             raise HTTP(200, "Conteúdo atualizado com sucesso", **headers)
 
     def contentWithValidParameters(self):
-        #TODO Retirar a obrigação de implementar esse cara aqui.
+        # TODO Retirar a obrigação de implementar esse cara aqui.
         pass

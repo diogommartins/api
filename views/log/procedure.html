@@ -1,0 +1,42 @@
+{{extend "layout.html"}}
+<h1>{{=ws_group}}</h1>
+<div class="table_container">
+    <table id="ws_result">
+        {{=THEAD(TR([TH(k) for k in required_fields]))}}
+        <tbody>
+            {{for row in finished:}}
+            {{data = row.resulting_dataset}}
+            <tr>
+                {{for k in required_fields:}}
+                    <td>{{=data[k]}}</td>
+                {{pass}}
+            </tr>
+            {{pass}}
+        </tbody>
+    </table>
+</div>
+
+<div class="table_container">
+    <table id="ws_error">
+        {{=THEAD(TR([TH(k) for k in ['error']+required_fields]))}}
+        <tbody>
+            {{for row in errors:}}
+            {{data = row.resulting_dataset}}
+            {{error = row.status_description}}
+            <tr>
+                <td>{{=row.status_description}}</td>
+                {{for k in required_fields:}}
+                    <td>{{=data[k]}}</td>
+                {{pass}}
+            </tr>
+            {{pass}}
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+    var ws_host = "{{=ws_server['host']}}";
+    var ws_port = "{{=ws_server['port']}}";
+    var ws_group = "{{=ws_group}}";
+</script>
+<script src="{{=URL('static','js/ws_message_handler.js')}}"></script>

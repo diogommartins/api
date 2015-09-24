@@ -1,0 +1,5 @@
+.table_container{
+    height: 400px;
+    max-height: 400px;
+    overflow-x: scroll;
+}

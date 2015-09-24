@@ -1,7 +1,7 @@
 # coding=utf-8
 from datetime import date, datetime
 from .base import BaseSIEProcedure
-from .exceptions import ProcedureDatasetException, DateConversionException
+from .exceptions import ProcedureDatasetException, DateConversionException, InvalidDatasetException
 from gluon.contrib.pypyodbc import DataError
 from br_documents import CPF
 
@@ -167,6 +167,20 @@ class MatricularAlunos(BaseSIEProcedure):
             **self._dataset_for_table(self.datasource.CURSOS_ALUNOS, dataset)
         )
 
+    def _get_nacionalidade_item(self, nacionalidade):
+        """
+        :type nacionalidade: str
+        :return: ITEM_TABELA correspondente da TAB_ESTRUTURADA
+        :raises KeyError: Caso uma descrição compatível não seja encontrada
+
+        """
+        nacionalidade = self.datasource(
+            (self.datasource.TAB_ESTRUTURADA.COD_TABELA == 163)
+            & (self.datasource.TAB_ESTRUTURADA.DESCRICAO.contains(nacionalidade))
+        ).select(self.datasource.TAB_ESTRUTURADA.ITEM_TABELA)
+
+        return nacionalidade[0]['ITEM_TABELA']
+
     def _documento_com_mascara(self, NUMERO_DOCUMENTO, ID_TDOC_PESSOAS):
         """
 
@@ -199,11 +213,18 @@ class MatricularAlunos(BaseSIEProcedure):
             self.datasource._adapter.reconnect()
 
         dataset.update(self.consts)
+
         try:
             dataset.update({k: self.convert_date_format(v) for k, v in dataset.iteritems()
                             if self.required_fields.get(k, None) == 'date'})
         except ValueError as e:
             raise DateConversionException(dataset, e)
+
+        try:
+            dataset.update(NACIONALIDADE_ITEM=self._get_nacionalidade_item(dataset['NACIONALIDADE']))
+        except KeyError as e:
+            raise InvalidDatasetException(dataset, e)
+
         try:
             # 1
             pessoa = self._pessoa_for_cpf(dataset['CPF'])
@@ -234,8 +255,7 @@ class MatricularAlunos(BaseSIEProcedure):
             if not self._is_aluno_matriculado(dataset['ID_ALUNO'], dataset['ID_VERSAO_CURSO']):
                 dataset.update(MATR_ALUNO=self._novo_matricula_aluno(dataset))
                 self._criar_curso_aluno(dataset)
-
-            self.datasource.commit()  # self.datasource.commit()
+            self.datasource.rollback()  # self.datasource.commit()
             return dataset
         except Exception as e:
             self.datasource.rollback()

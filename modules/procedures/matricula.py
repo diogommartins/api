@@ -255,7 +255,7 @@ class MatricularAlunos(BaseSIEProcedure):
             if not self._is_aluno_matriculado(dataset['ID_ALUNO'], dataset['ID_VERSAO_CURSO']):
                 dataset.update(MATR_ALUNO=self._novo_matricula_aluno(dataset))
                 self._criar_curso_aluno(dataset)
-            self.datasource.rollback()  # self.datasource.commit()
+            self.datasource.commit()
             return dataset
         except Exception as e:
             self.datasource.rollback()

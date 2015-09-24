@@ -1,5 +1,6 @@
 # coding=utf-8
 import simplejson
+from .exceptions import ProcedureDatasetException
 from procedures import Procedure
 from datetime import datetime
 import time
@@ -30,13 +31,17 @@ class ProcedureWorker(object):
         self.__running = False
         self.thread = None
 
-    def update_queue(self):
+    def get_entries(self):
         """
         Fetches all queue entries of `self.procedure` type that weren't already processed and update the queue list
         """
-        self.queue = self.db(
-            (self.db.api_procedure_queue.dt_conclusion != None)
-            & (self.db.api_procedure_queue.name == self.name)).select()
+        # todo Não deveria ser necessário reconectar, mas após o final de uma requisição, o web2py fecha todas
+        # as conexões. Ver : gluon.main l468
+        if not self.db._adapter.connection:
+            self.db._adapter.reconnect()
+
+        return self.db((self.db.api_procedure_queue.dt_conclusion == None)
+                       & (self.db.api_procedure_queue.name == self.name)).select()
 
     def _update_entry(self, entry):
         """
@@ -67,15 +72,33 @@ class ProcedureWorker(object):
         :param message: a json serializable
         """
         notification_group = entry.ws_group or self.name
-        websocket_send(self.ws['uri'], simplejson.dumps(message), self.ws['password'], notification_group)
+        websocket_send("http://%s:%s" % (self.ws['host'], self.ws['port']), simplejson.dumps(message), self.ws['password'], notification_group)
 
     def work(self):
         while self.__running:
             for entry in self.queue:
                 dataset = simplejson.loads(entry.json_data)
-                message = self.procedure.perform_work(dataset)
-                self._update_entry(entry)
+                try:
+                    message = self.procedure.perform_work(dataset)
+                    entry.update_record(
+                        did_finish_correctly=True,
+                        dt_conclusion=datetime.now(),
+                        resulting_dataset=message
+                    )
+                except ProcedureDatasetException as e:
+                    entry.update_record(
+                        did_finish_correctly=False,
+                        status_description=e.cause,
+                        dt_conclusion=datetime.now(),
+                        resulting_dataset=e.dataset
+                    )
+                    message = e.dataset
+                    # todo Que erro deve ser enviado ? Deve ser enviado o nome da exception tb ?
+                    message.update(error=str(e.cause))
+                finally:
+                    self.db.commit()
                 self._notify_websocket_server(entry, message)
 
             time.sleep(self.sleep_time)
-            self.update_queue()
+            self.queue = self.get_entries()
+

@@ -15,7 +15,7 @@ class SIEDB2BaseAdapter(DB2Adapter):
     drivers = ('ibm_db_dbi', )
 
     def parse_blob(self, value, field_type):
-        return base64.b64encode(str(value))
+        return base64.b64encode(value)
 
     def represent_exceptions(self, obj, fieldtype):
         if fieldtype == 'blob':

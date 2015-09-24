@@ -215,8 +215,7 @@ class APIQuery(APIOperation):
             rows = self.db(reduce(lambda a, b: (a & b), conditions)).select(*self._getReturnTableFields(),
                                                                             limitby=recordsSubset,
                                                                             distinct=self._distinctStyle(),
-                                                                            orderby=self.__orderby(),
-                                                                            force_unicode=True)
+                                                                            orderby=self.__orderby())
         else:
             rows = self.db().select(*self._getReturnTableFields(),
                                     limitby=recordsSubset,

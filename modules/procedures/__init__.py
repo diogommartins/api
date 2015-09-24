@@ -1,10 +1,10 @@
-from applications.api.modules.procedures.matricula import MatricularAlunos
-from applications.api.modules.procedures.projetos import CadastrarProjeto
+from .matricula import MatricularAlunos
+from .projetos import CadastrarProjeto
 
 
 PROCEDURES = {
     'MatricularAlunos': MatricularAlunos,
-    'CadastrarProjeto': CadastrarProjeto
+    # 'CadastrarProjeto': CadastrarProjeto
 }
 
 

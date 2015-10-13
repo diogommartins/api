@@ -7,6 +7,12 @@ import shutil
 from datetime import datetime, date
 from gluon import current, HTTP
 import abc
+from gluon.contrib.websocket_messaging import websocket_send
+from gluon.serializers import json
+try:
+    import httplib as http
+except ImportError:
+    import http.client as http
 
 __all__ = ['APIDelete', 'APIInsert', 'APIQuery', 'APIUpdate']
 
@@ -62,7 +68,7 @@ class APIAlterOperation(APIOperation):
         try:
             self.pKeyField = self.table[self.table._primarykey[0]]
         except AttributeError:
-            HTTP(400, "O Endpoint requisitado não possui uma chave primária válida para esta operação.")
+            HTTP(http.BAD_REQUEST, "O Endpoint requisitado não possui uma chave primária válida para esta operação.")
         self.pKeyColumn = self.table._primarykey[0]
 
     def primarykeyInParameters(self, parameters):
@@ -98,6 +104,9 @@ class APIAlterOperation(APIOperation):
 
         return tuple(base64.b64decode(parameters[k]) for k in fields)
 
+    def notify_clients(self, message):
+        websocket_send("http://%s:%s" % (self.ws['host'], self.ws['port']), json(message), self.ws['password'], self.table)
+
 
 class APIQuery(APIOperation):
     ENTRIES_PER_QUERY_DEFAULT = 10
@@ -131,7 +140,7 @@ class APIQuery(APIOperation):
         # Consultas normais
         for field in self.fields:
             if self.table[field].type == 'string':
-                conditions.append(self.table[field].contains(self.request_vars[field], case_sensitive=False))
+                conditions.append(self.table[field].contains(self.request_vars[field], case_sensitive=False,all=True))
             else:
                 conditions.append(self.table[field] == self.request_vars[field])
 
@@ -204,9 +213,9 @@ class APIQuery(APIOperation):
                 if field in self.table.fields and order in ("ASC", "DESC"):
                     return self.request_vars["ORDERBY"]
                 else:
-                    raise HTTP(400, "Bad request")
+                    raise HTTP(http.BAD_REQUEST, "Bad request")
             except ValueError:
-                raise HTTP(400, "Bad request")
+                raise HTTP(http.BAD_REQUEST, "Bad request")
         elif self.table._primarykey:
             return self.table._primarykey
         else:
@@ -239,7 +248,7 @@ class APIQuery(APIOperation):
 
         if rows:
             print self.db._lastsql
-            return {"content": rows, "subset": recordsSubset}
+            return {"content": rows, "subset": recordsSubset, "fields": self.table.fields}
 
 
 class APIInsert(APIAlterOperation):
@@ -336,8 +345,9 @@ class APIInsert(APIAlterOperation):
                 new_id = parameters[self._uniqueIdentifierColumn]
         except Exception as e:
             print self.db._lastsql
+            print e
             self.db.rollback()
-            raise HTTP(404, "Não foi possível completar a operação.")
+            raise HTTP(http.BAD_REQUEST, "Não foi possível completar a operação.")
         else:
             self.db.commit()
             if new_id and blob_fields:
@@ -348,7 +358,7 @@ class APIInsert(APIAlterOperation):
                 "Location": "%s?%s=%i" % (self.baseResourseURI, self._uniqueIdentifierColumn, new_id),
                 "id": new_id
             }
-            raise HTTP(201, "Conteúdo inserido com sucesso.", **headers)
+            raise HTTP(http.CREATED, "Conteúdo inserido com sucesso.", **headers)
 
 
 class APIUpdate(APIAlterOperation):
@@ -365,7 +375,7 @@ class APIUpdate(APIAlterOperation):
         super(APIUpdate, self).__init__(endpoint)
         self.parameters = parameters
         if not self.primarykeyInParameters(self.parameters):
-            raise HTTP(400, "Não é possível atualizar um conteúdo sem sua chave primária.")
+            raise HTTP(http.CREATED, "Não é possível atualizar um conteúdo sem sua chave primária.")
 
     def contentWithValidParameters(self):
         """
@@ -402,16 +412,16 @@ class APIUpdate(APIAlterOperation):
                 # TODO As entradas são atualizadas corretamente, mas rowcount retorna -1 O.o
         except SyntaxError:
             self.db.rollback()
-            raise HTTP(204, "Nenhum conteúdo foi passado")
+            raise HTTP(http.NO_CONTENT, "Nenhum conteúdo foi passado")
         except ValueError:
             self.db.rollback()
-            raise HTTP(422, "Algum parâmetro possui tipo inválido")
+            raise HTTP(http.UNPROCESSABLE_ENTITY, "Algum parâmetro possui tipo inválido")
         if affectedRows == 0:
-            raise HTTP(404, "Ooops... A princesa está em um castelo com outro ID.")
+            raise HTTP(http.NOT_FOUND, "Ooops... A princesa está em um castelo com outro ID.")
         else:
             self.db.commit()
             headers = {"Affected": affectedRows}
-            raise HTTP(200, "Conteúdo atualizado com sucesso", **headers)
+            raise HTTP(http.OK, "Conteúdo atualizado com sucesso", **headers)
 
 
 class APIDelete(APIAlterOperation):
@@ -426,7 +436,7 @@ class APIDelete(APIAlterOperation):
         """
         super(APIDelete, self).__init__(endpoint)
         if not self.primarykeyInParameters(parameters):
-            raise HTTP(400, "Não é possível remover um conteúdo sem sua chave primária.")
+            raise HTTP(http.BAD_REQUEST, "Não é possível remover um conteúdo sem sua chave primária.")
         self.rowId = current.request.vars[self.pKeyColumn]
 
     def execute(self):
@@ -445,13 +455,13 @@ class APIDelete(APIAlterOperation):
             print self.db._lastsql
         except Exception:
             self.db.rollback()
-            raise HTTP(403, "Não foi possível deletar.")
+            raise HTTP(http.FORBIDDEN, "Não foi possível deletar.")
         if affectedRows == 0:
-            raise HTTP(204, "Ooops... A princesa está em um castelo com outro ID.")
+            raise HTTP(http.NO_CONTENT, "Ooops... A princesa está em um castelo com outro ID.")
         else:
             self.db.commit()
             headers = {"Affected": affectedRows}
-            raise HTTP(200, "Conteúdo atualizado com sucesso", **headers)
+            raise HTTP(http.OK, "Conteúdo atualizado com sucesso", **headers)
 
     def contentWithValidParameters(self):
         # TODO Retirar a obrigação de implementar esse cara aqui.

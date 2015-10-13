@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from api.key import APIKey, APIKeyPermissions
 from api.request import APIRequest
+try:
+    import httplib as http
+except ImportError:
+    import http.client as http
 
 
 def index():
@@ -11,4 +15,4 @@ def index():
             apiRequest = APIRequest(apiKey, request)
             return apiRequest.performRequest()
     else:
-        raise HTTP(403, "API Key inválida ou inativa")
+        raise HTTP(http.UNAUTHORIZED, "API Key inválida ou inativa")

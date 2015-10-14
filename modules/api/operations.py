@@ -375,7 +375,7 @@ class APIUpdate(APIAlterOperation):
         super(APIUpdate, self).__init__(endpoint)
         self.parameters = parameters
         if not self.primarykeyInParameters(self.parameters):
-            raise HTTP(http.CREATED, "Não é possível atualizar um conteúdo sem sua chave primária.")
+            raise HTTP(http.BAD_REQUEST, "Não é possível atualizar um conteúdo sem sua chave primária.")
 
     def contentWithValidParameters(self):
         """
@@ -455,7 +455,7 @@ class APIDelete(APIAlterOperation):
             print self.db._lastsql
         except Exception:
             self.db.rollback()
-            raise HTTP(http.FORBIDDEN, "Não foi possível deletar.")
+            raise HTTP(http.INTERNAL_SERVER_ERROR, "Não foi possível deletar.")
         if affectedRows == 0:
             raise HTTP(http.NO_CONTENT, "Ooops... A princesa está em um castelo com outro ID.")
         else:

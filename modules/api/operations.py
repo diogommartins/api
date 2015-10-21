@@ -413,7 +413,7 @@ class APIUpdate(APIAlterOperation):
         except SyntaxError:
             self.db.rollback()
             raise HTTP(http.NO_CONTENT, "Nenhum conteúdo foi passado")
-        except ValueError:
+        except Exception:
             self.db.rollback()
             raise HTTP(http.UNPROCESSABLE_ENTITY, "Algum parâmetro possui tipo inválido")
         if affectedRows == 0:

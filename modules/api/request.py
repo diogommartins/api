@@ -2,8 +2,12 @@
 from datetime import datetime
 import thread
 from gluon import current, HTTP
+from gluon.serializers import json
 from .operations import APIInsert, APIQuery, APIDelete, APIUpdate
-
+try:
+    import httplib as http
+except ImportError:
+    import http.client as http
 
 __all__ = ['APIRequest']
 
@@ -11,12 +15,13 @@ __all__ = ['APIRequest']
 class APIRequest(object):
     DEFAULT_SUFIX_SIZE = 4
     validSufixes = ('_MIN', '_MAX', '_BET', '_SET')
-    validResponseFormats = {
+    valid_response_formats = {
         'JSON': 'generic.json',
         'XML': 'generic.xml',
         'HTML': 'generic.html',
         'DEFAULT': 'generic.json'
     }
+    valid_parameters = ('FORMAT', 'FIELDS', 'API_KEY', 'LMIN', 'LMAX', 'ORDERBY')
 
     def __init__(self, apiKey, request):
         """
@@ -69,19 +74,21 @@ class APIRequest(object):
 
         :return: depende do tipo de dado requisitado. Padrão é validResponseFormats['DEFAULT']
         """
-        if self.HTTPMethod == "GET":
-            req = APIQuery(self)
-            self._defineResponseReturnType()
-        elif self.HTTPMethod == "POST":
-            req = APIInsert(self.endpoint, self.parameters)
-        elif self.HTTPMethod == "PUT":
-            req = APIUpdate(self.endpoint, self.parameters)
-        elif self.HTTPMethod == "DELETE":
-            req = APIDelete(self.endpoint, self.parameters)
+        try:
+            methods = {
+                'GET':      APIQuery(self),
+                'POST':     APIInsert(self.endpoint, self.parameters),
+                'PUT':      APIUpdate(self.endpoint, self.parameters),
+                'DELETE':   APIDelete(self.endpoint, self.parameters)
+            }
+            req = methods[self.HTTPMethod]
+        except KeyError:
+            raise HTTP(http.METHOD_NOT_ALLOWED, "Método não suportado")
 
         # Gera log da requisição
         thread.start_new_thread(self.__saveAPIRequest, tuple())
 
+        self._defineResponseReturnType()
         return req.execute()
 
     def __saveAPIRequest(self):
@@ -112,14 +119,14 @@ class APIRequest(object):
         e o Content-Type adequado.
 
         """
-        format = self.request.vars.FORMAT
-        if format in self.validResponseFormats:
-            current.response.view = self.validResponseFormats[format]
-            current.response.headers['Content-Type'] = self.validContentTypes[format]
-        else:
-            current.response.view = self.validResponseFormats['DEFAULT']
-            current.response.headers['Content-Type'] = self.validContentTypes['DEFAULT']
-
+        if self.HTTPMethod == 'GET':
+            format = self.request.vars.FORMAT
+            if format in self.valid_response_formats:
+                current.response.view = self.valid_response_formats[format]
+                current.response.headers['Content-Type'] = self.validContentTypes[format]
+            else:
+                current.response.view = self.valid_response_formats['DEFAULT']
+                current.response.headers['Content-Type'] = self.validContentTypes['DEFAULT']
 
     def _validateFields(self):
         """
@@ -135,12 +142,18 @@ class APIRequest(object):
         :return: Um dicionário contendo os campos válidos
         """
         fields = {"valid": [], "special": []}
+        invalid_fields = []
         for k, v in self.request.vars.iteritems():
             if k in self.datasource[self.endpoint].fields:
                 fields['valid'].append(k)
             elif self._isValidFieldWithSufix(k):
                 fields['special'].append(k)
-
+            else:
+                if k not in self.valid_parameters:
+                    invalid_fields.append(k)
+        if invalid_fields:
+            headers = {"InvalidParameters": json(invalid_fields)}
+            raise HTTP(http.BAD_REQUEST, "Alguns parâmetros da requisição são incompatíveis.", **headers)
         return fields
 
     def _validateReturnFields(self):

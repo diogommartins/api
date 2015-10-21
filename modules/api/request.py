@@ -76,12 +76,12 @@ class APIRequest(object):
         """
         try:
             methods = {
-                'GET':      APIQuery(self),
-                'POST':     APIInsert(self.endpoint, self.parameters),
-                'PUT':      APIUpdate(self.endpoint, self.parameters),
-                'DELETE':   APIDelete(self.endpoint, self.parameters)
+                'GET':      APIQuery,
+                'POST':     APIInsert,
+                'PUT':      APIUpdate,
+                'DELETE':   APIDelete
             }
-            req = methods[self.HTTPMethod]
+            req = methods[self.HTTPMethod](self)
         except KeyError:
             raise HTTP(http.METHOD_NOT_ALLOWED, "Método não suportado")
 

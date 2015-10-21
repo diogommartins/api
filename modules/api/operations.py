@@ -20,13 +20,14 @@ __all__ = ['APIDelete', 'APIInsert', 'APIQuery', 'APIUpdate']
 class APIOperation(object):
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, endpoint):
+    def __init__(self, request):
         """
 
         :type endpoint: str
         :param endpoint: Str relativa ao nome da tabela modela no banco datasource
         """
-        self.endpoint = endpoint
+        self.request = request
+        self.endpoint = self.request.endpoint
         self.db = current.datasource
         self.table = self.db[self.endpoint]
 
@@ -63,8 +64,9 @@ class APIOperation(object):
 class APIAlterOperation(APIOperation):
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, endpoint):
-        super(APIAlterOperation, self).__init__(endpoint)
+    def __init__(self, request):
+        super(APIAlterOperation, self).__init__(request)
+        self.parameters = request.parameters
         try:
             self.pKeyField = self.table[self.table._primarykey[0]]
         except AttributeError:
@@ -120,8 +122,7 @@ class APIQuery(APIOperation):
         :param endpoint: string relativa ao nome da tabela modela no banco datasource
         :param fields: Uma lista de colunas que devem ser retornadas pela consulta
         """
-        super(APIQuery, self).__init__(request.endpoint)
-        self.request = request
+        super(APIQuery, self).__init__(request)
         self.fields = self.request.parameters['valid']
         self.special_fields = self.request.parameters['special']
         self.request_vars = self.request.request.vars
@@ -252,19 +253,15 @@ class APIQuery(APIOperation):
 
 
 class APIInsert(APIAlterOperation):
-    def __init__(self, endpoint, parameters):
+    def __init__(self, request):
         """
         Classe responsável por lidar com requisições do tipo POST, que serão transformadas
         em um INSERT no banco de dados e retornarão uma resposta HTTP adequada a criação do novo
         recurso.
 
-        :type endpoint: str
-        :type parameters: dict
-        :param endpoint: string relativa ao nome da tabela modela no banco datasource
-        :param parameters: dict de parâmetros que serão inseridos
+        :type request: APIRequest
         """
-        super(APIInsert, self).__init__(endpoint)
-        self.parameters = parameters
+        super(APIInsert, self).__init__(request)
 
     @property
     def defaultFieldsForSIEInsert(self):
@@ -362,18 +359,15 @@ class APIInsert(APIAlterOperation):
 
 
 class APIUpdate(APIAlterOperation):
-    def __init__(self, endpoint, parameters):
+    def __init__(self, request):
         """
         Classe responsável por lidar com requisições do tipo PUT, que serão transformadas
         em um UPDATE no banco de dados e retornarão uma resposta HTTP adequada a atualizaçao do recurso.
-        :type parameters: dict
-        :type endpoint: str
-        :param endpoint: string relativa ao nome da tabela modela no banco datasource
-        :param parameters: dict de parâmetros que serão inseridos
-        :raise HTTP: 400 O dicionário `parameters` deve conter obrigatoriamente a primary key da tabela `tablename`
+        :type request: APIRequest
+
+        :raises HTTP: 400 O dicionário `parameters` deve conter obrigatoriamente a primary key da tabela `tablename`
         """
-        super(APIUpdate, self).__init__(endpoint)
-        self.parameters = parameters
+        super(APIUpdate, self).__init__(request)
         if not self.primarykeyInParameters(self.parameters):
             raise HTTP(http.BAD_REQUEST, "Não é possível atualizar um conteúdo sem sua chave primária.")
 
@@ -425,17 +419,14 @@ class APIUpdate(APIAlterOperation):
 
 
 class APIDelete(APIAlterOperation):
-    def __init__(self, endpoint, parameters):
+    def __init__(self, request):
         """
         Classe responsável por lidar com requisições do tipo DELETE, que serão transformadas
         em um DELETE no banco de dados e retornarão uma resposta HTTP adequada a remoção de um recurso.
-
-        :type endpoint: str
-        :param endpoint: String relativa ao nome da tabela modela no banco datasource
-        :param parameters: dict de parâmetros
+        :type request: APIRequest
         """
-        super(APIDelete, self).__init__(endpoint)
-        if not self.primarykeyInParameters(parameters):
+        super(APIDelete, self).__init__(request)
+        if not self.primarykeyInParameters(self.parameters):
             raise HTTP(http.BAD_REQUEST, "Não é possível remover um conteúdo sem sua chave primária.")
         self.rowId = current.request.vars[self.pKeyColumn]
 

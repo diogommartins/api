@@ -50,12 +50,18 @@ class ProcedureWorker(object):
         """
         entry.update_record(dt_conclusion=datetime.now())
 
+    def __thread_is_alive(self, thread):
+        for t in threading.enumerate():
+            if t.name == thread.name:
+                return True
+        return False
+
     def start(self):
         """
         Detach and start a new thread
         """
         self.thread = threading.Thread(target=self.work, name=self.name)
-        if not self.thread.isAlive():
+        if not self.__thread_is_alive(self.thread):
             self.__running = True
             self.thread.start()
 

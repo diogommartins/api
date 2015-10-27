@@ -9,6 +9,7 @@ from gluon import current, HTTP
 import abc
 from gluon.contrib.websocket_messaging import websocket_send
 from gluon.serializers import json
+
 try:
     import httplib as http
 except ImportError:
@@ -107,7 +108,8 @@ class APIAlterOperation(APIOperation):
         return tuple(base64.b64decode(parameters[k]) for k in fields)
 
     def notify_clients(self, message):
-        websocket_send("http://%s:%s" % (self.ws['host'], self.ws['port']), json(message), self.ws['password'], self.table)
+        websocket_send("http://%s:%s" % (self.ws['host'], self.ws['port']), json(message), self.ws['password'],
+                       self.table)
 
 
 class APIQuery(APIOperation):
@@ -129,6 +131,14 @@ class APIQuery(APIOperation):
         self.apiKey = self.request.apiKey
         self.return_fields = self.request.return_fields
 
+    def _utf8_lower(self,string):
+        """
+        Como python não suporta a chamada .lower() de uma string, tem que se passar por este workaround.
+        :param string: a string que se deseja converter.
+        :return: string convertida.
+        """
+        return string.decode('utf-8').lower().encode('utf-8') # TODO Sim, é uma gambiarra. Só mudando para python 3.
+
     def _getQueryStatement(self):
         """
         O método gera diferentes tipos de consultas para tipos de dados diferentes. Cada tipo de dado gera uma
@@ -141,7 +151,16 @@ class APIQuery(APIOperation):
         # Consultas normais
         for field in self.fields:
             if self.table[field].type == 'string':
-                conditions.append(self.table[field].contains(self.request_vars[field], case_sensitive=False,all=True))
+                try:
+                    if isinstance(self.request_vars[field],list):
+                        lower_encoded_field = map(lambda x: self._utf8_lower(x),self.request_vars[field]) # TODO PYTHON 2.x DOESN'T SUPPORT .lower() of unicode strings.
+                    else:
+                        lower_encoded_field = self._utf8_lower(self.request_vars[field]) # TODO PYTHON 2.x DOESN'T SUPPORT .lower() of unicode strings.
+                    conditions.append(self.table[field].contains(lower_encoded_field, case_sensitive=False, all=True))
+                except UnicodeDecodeError:
+                    headers = {"InvalidEncoding": json(dict(campo=field))}
+                    raise HTTP(http.BAD_REQUEST, "Encoding do parâmetro é inválido (tem certeza que é utf-8?)",
+                               **headers)
             else:
                 conditions.append(self.table[field] == self.request_vars[field])
 

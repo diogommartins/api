@@ -70,7 +70,7 @@ class APIAlterOperation(APIOperation):
         self.parameters = request.parameters
         try:
             self.pKeyField = self.table[self.table._primarykey[0]]
-        except AttributeError:
+        except (AttributeError, IndexError):
             HTTP(http.BAD_REQUEST, "O Endpoint requisitado não possui uma chave primária válida para esta operação.")
         self.pKeyColumn = self.table._primarykey[0]
 
@@ -114,6 +114,8 @@ class APIAlterOperation(APIOperation):
 
 class APIQuery(APIOperation):
     ENTRIES_PER_QUERY_DEFAULT = 10
+
+    __sorting_options = ("ASC", "DESC",)
 
     # TODO rever documetação
     def __init__(self, request):
@@ -222,20 +224,20 @@ class APIQuery(APIOperation):
 
     def __orderby(self):
         """
-        :raise HTTP: 400
+        :raises HTTP: http.BAD_REQUEST
+        :rtype: str
         """
+        order_field = self.request_vars["ORDERBY"]
+        sort_order = self.request_vars['SORT'] or 'ASC'
 
-        if self.request_vars["ORDERBY"] in self.table.fields:
-            return self.request_vars["ORDERBY"]
-        elif self.request_vars["ORDERBY"]:
-            try:
-                field, order = self.request_vars["ORDERBY"].split()
-                if field in self.table.fields and order in ("ASC", "DESC"):
-                    return self.request_vars["ORDERBY"]
-                else:
-                    raise HTTP(http.BAD_REQUEST, "Bad request")
-            except ValueError:
-                raise HTTP(http.BAD_REQUEST, "Bad request")
+        if order_field:
+            if order_field not in self.table.fields:
+                headers = {"InvalidParameters": json(order_field)}
+                raise HTTP(http.BAD_REQUEST, "%s não é um campo válido para ordenação." % order_field, **headers)
+            if sort_order not in self.__sorting_options:
+                headers = {"InvalidParameters": json(sort_order)}
+                raise HTTP(http.BAD_REQUEST, "%s não é uma ordenacão válida." % sort_order, **headers)
+            return "%s %s" % (self.table[order_field], sort_order)
         elif self.table._primarykey:
             return self.table._primarykey
         else:

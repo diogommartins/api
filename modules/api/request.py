@@ -21,7 +21,7 @@ class APIRequest(object):
         'HTML': 'generic.html',
         'DEFAULT': 'generic.json'
     }
-    valid_parameters = ('FORMAT', 'FIELDS', 'API_KEY', 'LMIN', 'LMAX', 'ORDERBY')
+    valid_parameters = ('FORMAT', 'FIELDS', 'API_KEY', 'LMIN', 'LMAX', 'ORDERBY', 'SORT')
 
     def __init__(self, apiKey, request):
         """

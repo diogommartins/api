@@ -14,7 +14,7 @@ __all__ = ['APIRequest']
 
 class APIRequest(object):
     DEFAULT_SUFIX_SIZE = 4
-    validSufixes = ('_MIN', '_MAX', '_BET', '_SET')
+    validSufixes = ('_MIN', '_MAX', '_BET', '_SET',)
     valid_response_formats = {
         'JSON': 'generic.json',
         'XML': 'generic.xml',
@@ -141,10 +141,11 @@ class APIRequest(object):
         :rtype : dict
         :return: Um dicionário contendo os campos válidos
         """
+        endpoint_fields = self.datasource[self.endpoint].fields
         fields = {"valid": [], "special": []}
         invalid_fields = []
         for k, v in self.request.vars.iteritems():
-            if k in self.datasource[self.endpoint].fields:
+            if k in endpoint_fields:
                 fields['valid'].append(k)
             elif self._isValidFieldWithSufix(k):
                 fields['special'].append(k)
@@ -181,9 +182,9 @@ class APIRequest(object):
         :param field: Uma string reference a um campo
         :return: True se for um campo um campo válido, acrescido de um sufixo válido
         """
-        if self.specialFieldChop(field):
-            field = self.specialFieldChop(field)
-            if field in self.datasource[self.endpoint].fields:
+        choped = self.specialFieldChop(field)
+        if choped:
+            if choped in self.datasource[self.endpoint].fields:
                 return True
 
     @staticmethod

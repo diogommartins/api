@@ -175,8 +175,7 @@ class APIQuery(APIOperation):
                 elif special_field.endswith('_MAX'):
                     conditions.append(self.table[field] < self.request_vars[special_field])
                 elif special_field.endswith('_SET'):
-                    items = self.request_vars[special_field].split(',')
-                    conditions.append(self.table[field].belongs(items))
+                    conditions.append(self.table[field].belongs(self.request_vars[special_field]))
 
         return conditions
 

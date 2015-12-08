@@ -50,7 +50,7 @@ class APIOperation(object):
             "DT_ALTERACAO": str(date.today()),
             "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
             "ENDERECO_FISICO": current.request.env.remote_addr,
-            "COD_OPERADOR": 1  # DBSM.USUARIOS.ID_USUARIO admin
+            "COD_OPERADOR": 1  # TODO DBSM.USUARIOS.ID_USUARIO admin REMOVER COD_OPERADOR DAQUI.
         }
 
     @property
@@ -69,10 +69,10 @@ class APIAlterOperation(APIOperation):
         super(APIAlterOperation, self).__init__(request)
         self.parameters = request.parameters
         try:
-            self.pKeyField = self.table[self.table._primarykey[0]]
+            self.p_key_fields = { column:self.table[column] for column in self.table._primarykey}
         except (AttributeError, IndexError):
             HTTP(http.BAD_REQUEST, "O Endpoint requisitado não possui uma chave primária válida para esta operação.")
-        self.pKeyColumn = self.table._primarykey[0]
+        self.p_key_columns = self.table._primarykey # lista de colunas que sao primary keys.
 
     def primarykeyInParameters(self, parameters):
         """
@@ -80,7 +80,7 @@ class APIAlterOperation(APIOperation):
 
         :rtype : bool
         """
-        return self.pKeyColumn in parameters['valid']
+        return set(self.p_key_columns).issubset(set(parameters['valid']))
 
     @abc.abstractmethod
     def contentWithValidParameters(self):
@@ -282,12 +282,23 @@ class APIInsert(APIAlterOperation):
         :type request: APIRequest
         """
         super(APIInsert, self).__init__(request)
+        if self.has_composite_primary_key() and not self.primarykeyInParameters(self.parameters):
+            raise HTTP(http.BAD_REQUEST, "Não é possível inserir um conteúdo sem sua chave primária composta.")
+        if not self.has_composite_primary_key() and self.primarykeyInParameters(self.parameters):
+            raise HTTP(http.BAD_REQUEST, "Não é possível inserir um conteúdo com sua chave primária.")
 
     @property
     def defaultFieldsForSIEInsert(self):
         fields = dict(self.defaultFieldsForSIETables)
-        fields.update({self._uniqueIdentifierColumn: self.nextValueForSequence})
+
+        if not self.has_composite_primary_key():
+            #Se a chave não é composta, procura o próximo valor válido da sequence da pkey para popular a query.
+            fields.update({self._uniqueIdentifierColumn: self.nextValueForSequence})
+
         return fields
+
+    def has_composite_primary_key(self):
+        return len(self.p_key_columns) > 1
 
     @property
     def nextValueForSequence(self):
@@ -353,8 +364,13 @@ class APIInsert(APIAlterOperation):
             blob_fields = self.blob_fields(self.parameters)
             parameters = self.contentWithValidParameters()
             if not blob_fields:
-                new_id = self.table.insert(**parameters)[self._uniqueIdentifierColumn]
+                if self.has_composite_primary_key():
+                    new_id = 1 # TODO O que podemos retornar no caso de sucesso que faça sentido?
+                else:
+                    new_id = self.table.insert(**parameters)[self._uniqueIdentifierColumn]
             else:
+                if self.has_composite_primary_key():
+                    raise NotImplementedError # TODO Precisa atualizar o JAR que faz inserção para lidar id composta
                 stmt = self.table._insert(**parameters)
                 # Essa inserção não funcionará. É necessário reinserir pelo Java.
                 blob_values = self.blob_values(parameters, blob_fields)
@@ -391,6 +407,8 @@ class APIUpdate(APIAlterOperation):
         if not self.primarykeyInParameters(self.parameters):
             raise HTTP(http.BAD_REQUEST, "Não é possível atualizar um conteúdo sem sua chave primária.")
 
+        self.identifiers_values = [ (column, request.request.vars[column]) for column in self.p_key_columns]
+
     def contentWithValidParameters(self):
         """
         Retorna um dicionário contendo somente os k,v onde k são colunas válidas da tabela em que se quer atualizar.
@@ -399,7 +417,9 @@ class APIUpdate(APIAlterOperation):
         :rtype : dict
         """
         validContent = {column: current.request.vars[column] for column in self.parameters['valid'] if
-                        column != self.pKeyColumn}
+                        column not in self.p_key_columns}
+
+        #TODO Atualizar campo CONCORRENCIA somente quando o mesmo não existir
         validContent.update({k: v for k, v in self.defaultFieldsForSIETables.iteritems() if k in self.table.fields})
         return validContent
 
@@ -416,12 +436,14 @@ class APIUpdate(APIAlterOperation):
         """
         try:
             blob_fields = self.blob_fields(self.parameters)
+            conditions = [ self.p_key_fields[field] == valor for field,valor in self.identifiers_values]
             if not blob_fields:
-                affectedRows = self.db(self.pKeyField == current.request.vars[self.pKeyColumn]).update(
+                affectedRows = self.db(reduce(lambda a, b: (a & b), conditions)).update(
                     **self.contentWithValidParameters())
             else:
-                parameters = self.contentWithValidParameters()
-                stmt = self.db(self.pKeyField == current.request.vars[self.pKeyColumn])._update(**parameters)
+                parameters = self.contentWithValidParameters() #TODO Funciona atualização de blob?
+
+                stmt = self.db(reduce(lambda a, b: (a & b), conditions))._update(**parameters)
                 affectedRows = self.db.executesql(stmt, self.blob_values(parameters, blob_fields))
                 # TODO As entradas são atualizadas corretamente, mas rowcount retorna -1 O.o
         except SyntaxError:
@@ -448,7 +470,7 @@ class APIDelete(APIAlterOperation):
         super(APIDelete, self).__init__(request)
         if not self.primarykeyInParameters(self.parameters):
             raise HTTP(http.BAD_REQUEST, "Não é possível remover um conteúdo sem sua chave primária.")
-        self.rowId = current.request.vars[self.pKeyColumn]
+        self.identifiers_values = [ (column, request.request.vars[column]) for column in self.p_key_columns]
 
     def execute(self):
         """
@@ -462,7 +484,8 @@ class APIDelete(APIAlterOperation):
         :raise HTTP: 403 A linha requisitada não pode ser deletada porque possui dependências que não foram atendidas
         """
         try:
-            affectedRows = self.db(self.pKeyField == self.rowId).delete()
+            conditions = [ self.p_key_fields[field] == valor for field,valor in self.identifiers_values]
+            affectedRows = self.db(reduce(lambda a, b: (a & b), conditions)).delete()
             print self.db._lastsql
         except Exception:
             self.db.rollback()

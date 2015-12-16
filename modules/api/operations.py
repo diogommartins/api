@@ -45,14 +45,21 @@ class APIOperation(object):
         :rtype : dict
         :return: Um dicionário de parãmetros padrões
         """
-        return {
+        opcoes_default =  {
             "CONCORRENCIA": 999, # Pode ser qualquer valor aqui segundo consultoria feita junto à Sintese.
             "DT_ALTERACAO": str(date.today()),
             "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
             "ENDERECO_FISICO": current.request.env.remote_addr,
-            #"COD_OPERADOR": 1  #
+
         }
 
+        if not self.request.request.post_vars.COD_OPERADOR:
+            #Adiciona COD_OPERADOR na marra TODO Workaround enquanto outros projetos não colocam isso via api_client
+            opcoes_default.update({
+                "COD_OPERADOR":1
+            })
+
+        return opcoes_default
     @property
     def _uniqueIdentifierColumn(self):
         return self.table._primarykey[0]

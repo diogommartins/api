@@ -8,11 +8,11 @@ except ImportError:
 
 
 def index():
-    apiKey = APIKey(db, request.vars.API_KEY)
-    if apiKey.auth:
-        keyPermissions = APIKeyPermissions(request)
-        if keyPermissions.canPerformAPICall():
-            apiRequest = APIRequest(apiKey, request)
-            return apiRequest.perform_request()
+    api_key = APIKey(db, request.vars.API_KEY)
+    if api_key.auth:
+        permissions = APIKeyPermissions(request)
+        if permissions.can_perform_api_call():
+            api_request = APIRequest(api_key, request)
+            return api_request.perform_request()
     else:
         raise HTTP(http.UNAUTHORIZED, "API Key inválida ou inativa")

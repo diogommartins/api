@@ -49,8 +49,7 @@ class APIOperation(object):
             "CONCORRENCIA": 999,
             "DT_ALTERACAO": str(date.today()),
             "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
-            "ENDERECO_FISICO": current.request.env.remote_addr,
-            "COD_OPERADOR": 1  # DBSM.USUARIOS.ID_USUARIO admin
+            "ENDERECO_FISICO": current.request.env.remote_addr
         }
 
     @property
@@ -73,6 +72,8 @@ class APIAlterOperation(APIOperation):
         except (AttributeError, IndexError):
             HTTP(http.BAD_REQUEST, "O Endpoint requisitado não possui uma chave primária válida para esta operação.")
         self.pKeyColumn = self.table._primarykey[0]
+        if 'COD_OPERADOR' not in self.parameters['valid']:
+            HTTP(http.BAD_REQUEST, "A requisição não possui um COD_OPERADOR")
 
     def primarykeyInParameters(self, parameters):
         """
@@ -133,13 +134,13 @@ class APIQuery(APIOperation):
         self.apiKey = self.request.apiKey
         self.return_fields = self.request.return_fields
 
-    def _utf8_lower(self,string):
+    def _utf8_lower(self, string):
         """
         Como python não suporta a chamada .lower() de uma string, tem que se passar por este workaround.
         :param string: a string que se deseja converter.
         :return: string convertida.
         """
-        return string.decode('utf-8').lower().encode('utf-8') # TODO Sim, é uma gambiarra. Só mudando para python 3.
+        return string.decode('utf-8').lower().encode('utf-8')  # TODO Sim, é uma gambiarra. Só mudando para python 3.
 
     def _getQueryStatement(self):
         """
@@ -154,10 +155,12 @@ class APIQuery(APIOperation):
         for field in self.fields:
             if self.table[field].type == 'string':
                 try:
-                    if isinstance(self.request_vars[field],list):
-                        lower_encoded_field = map(lambda x: self._utf8_lower(x),self.request_vars[field]) # TODO PYTHON 2.x DOESN'T SUPPORT .lower() of unicode strings.
+                    if isinstance(self.request_vars[field], list):
+                        lower_encoded_field = map(lambda x: self._utf8_lower(x), self.request_vars[
+                            field])  # TODO PYTHON 2.x DOESN'T SUPPORT .lower() of unicode strings.
                     else:
-                        lower_encoded_field = self._utf8_lower(self.request_vars[field]) # TODO PYTHON 2.x DOESN'T SUPPORT .lower() of unicode strings.
+                        lower_encoded_field = self._utf8_lower(self.request_vars[
+                                                                   field])  # TODO PYTHON 2.x DOESN'T SUPPORT .lower() of unicode strings.
                     conditions.append(self.table[field].contains(lower_encoded_field, case_sensitive=False, all=True))
                 except UnicodeDecodeError:
                     headers = {"InvalidEncoding": json(dict(campo=field))}
@@ -418,7 +421,7 @@ class APIUpdate(APIAlterOperation):
             blob_fields = self.blob_fields(self.parameters)
             if not blob_fields:
                 affectedRows = self.db(self.pKeyField == current.request.vars[self.pKeyColumn]).update(
-                    **self.contentWithValidParameters())
+                        **self.contentWithValidParameters())
             else:
                 parameters = self.contentWithValidParameters()
                 stmt = self.db(self.pKeyField == current.request.vars[self.pKeyColumn])._update(**parameters)

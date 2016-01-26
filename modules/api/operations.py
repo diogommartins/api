@@ -131,7 +131,7 @@ class APIQuery(APIOperation):
         self.special_fields = self.request.parameters['special']
         self.request_vars = self.request.request.vars
         # type: key.APIKey
-        self.api_key = self.request.apiKey
+        self.api_key = self.request.api_key
         self.return_fields = self.request.return_fields
 
     def _utf8_lower(self, string):
@@ -171,7 +171,7 @@ class APIQuery(APIOperation):
 
         # Trata condições especiais
         for special_field in self.special_fields:
-            field = self.request.specialFieldChop(special_field)
+            field = self.request.special_field_chop(special_field)
             if field:
                 if special_field.endswith('_MIN'):
                     conditions.append(self.table[field] > self.request_vars[special_field])
@@ -450,7 +450,7 @@ class APIDelete(APIAlterOperation):
         super(APIDelete, self).__init__(request)
         if not self.primarykey_in_parameters(self.parameters):
             raise HTTP(http.BAD_REQUEST, "Não é possível remover um conteúdo sem sua chave primária.")
-        self.rowId = current.request.vars[self.pkey_column]
+        self.row_id = current.request.vars[self.pkey_column]
 
     def execute(self):
         """
@@ -464,16 +464,16 @@ class APIDelete(APIAlterOperation):
         :raise HTTP: 403 A linha requisitada não pode ser deletada porque possui dependências que não foram atendidas
         """
         try:
-            affectedRows = self.db(self.pkey_field == self.rowId).delete()
+            affected_rows = self.db(self.pkey_field == self.row_id).delete()
             print self.db._lastsql
         except Exception:
             self.db.rollback()
             raise HTTP(http.INTERNAL_SERVER_ERROR, "Não foi possível deletar.")
-        if affectedRows == 0:
+        if affected_rows == 0:
             raise HTTP(http.NO_CONTENT, "Ooops... A princesa está em um castelo com outro ID.")
         else:
             self.db.commit()
-            headers = {"Affected": affectedRows}
+            headers = {"Affected": affected_rows}
             raise HTTP(http.OK, "Conteúdo atualizado com sucesso", **headers)
 
     def content_with_valid_parameters(self):

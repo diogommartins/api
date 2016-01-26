@@ -12,7 +12,7 @@ def _lazy():
     :rtype : list
     """
     if request.controller == 'rest':
-        return [APIRequest.controllerForRewritedURL(request, datasource, lazy=True)]
+        return [APIRequest.controller_for_rewrited_URL(request, datasource, lazy=True)]
 
 model_creator = JSONModelCreator(request.folder + 'private/models.json')
 endpoints = Endpoints(datasource, schema='DBSM', lazy_tables=_lazy(), observer=model_creator)

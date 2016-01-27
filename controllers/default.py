@@ -1,5 +1,5 @@
 # coding=utf-8
-from TableBeautify import TableBeautify
+from tables import TableBeautify
 
 
 def index():
@@ -9,15 +9,15 @@ def index():
 
     return dict(
         roles=[p.role for p in roles],
-        avaiableData=datasource.tables,
+        avaiable_data=datasource.tables,
         endpoints=sorted(datasource.tables)
     )
 
 
-def ajaxEndpointDescription():
+def ajax_endpoint_description():
     endpoint = request.args[0]
 
-    return TableBeautify(datasource).printTable(endpoint)
+    return TableBeautify(datasource).table(endpoint)
 
 
 def user():

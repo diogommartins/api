@@ -21,6 +21,7 @@ class JSONModelCreator(TableDefinerObserver):
     def __writer(self, data):
         with open(self.file_path, 'w') as fp:
             json.dump(data, fp, indent=4)
+            print('Model file created at "{path}".'.format(path=self.file_path))
 
     def __parse_data(self, data):
         return {k: {field.name: field.type for field in v} for k, v in data.iteritems()}

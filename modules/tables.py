@@ -3,7 +3,7 @@ from gluon.html import *
 
 
 class TableBeautify(object):
-    excludedTables = ['COLUMNS']
+    excluded_tables = ['COLUMNS']
 
     def __init__(self, db):
         """
@@ -11,7 +11,7 @@ class TableBeautify(object):
         """
         self.db = db
 
-    def printTable(self, name):
+    def table(self, name):
         """
         Retorna uma tabela HTML correspondente a estrutura de um endpoint
         :param name:
@@ -22,13 +22,13 @@ class TableBeautify(object):
                 TR(TH(name, _colspan=3)),
                 TR(TH('Field'), TH('Type'), TH('Description'))
             ),
-            TBODY(*self.__formatTableRows(name)),
+            TBODY(*self.__format_table_rows(name)),
             _id='table_' + name,
             _class='tableDescriptions'
         )
         return table
 
-    def __formatTableRows(self, name):
+    def __format_table_rows(self, name):
         """
         Para uma determinada tabela, retorna uma Lista de TR contendo duas colunas: "nome no campo" e "tipo de dado"
 
@@ -36,14 +36,14 @@ class TableBeautify(object):
         :return:
         """
         for field in self.db[name].fields:
-            fieldDataType = self.db[name][field].type
+            field_data_type = self.db[name][field].type
             yield TR(
                 TD(field),
-                TD(fieldDataType, _class="row_type_" + fieldDataType),
-                TD(self.__getFieldDescription(name, field))
+                TD(field_data_type, _class="row_type_" + field_data_type),
+                TD(self.__get_field_description(name, field))
             )
 
-    def __getFieldDescription(self, name, field):
+    def __get_field_description(self, name, field):
         if self.db[name][field].label:
             return self.db[name][field].label
         return "Sem descrição"

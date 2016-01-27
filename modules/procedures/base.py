@@ -75,7 +75,7 @@ class BaseProcedure(object):
 
 
 class BaseSIEProcedure(BaseProcedure):
-    #todo esta classe provavelmente não deveria estar no mesmo arquivo
+    # todo esta classe provavelmente não deveria estar no mesmo arquivo
     __metaclass__ = abc.ABCMeta
 
     def _next_value_for_sequence(self, table):

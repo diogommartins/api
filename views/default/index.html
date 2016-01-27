@@ -186,7 +186,7 @@
         <div id="endpoints_names">
             <ul>
                 {{for endpoint in endpoints:}}
-                    <li>{{=A(endpoint, callback=URL('default', 'ajaxEndpointDescription', args=endpoint), target='endpoints_descriptions')}}</li>
+                    <li>{{=A(endpoint, callback=URL('default', 'ajax_endpoint_description', args=endpoint), target='endpoints_descriptions')}}</li>
                 {{pass}}
             </ul>
         </div>

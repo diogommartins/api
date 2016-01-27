@@ -30,7 +30,7 @@ response.menu = [
 ]
 
 adminMenu = [('Administração', False, False,[
-    ('Gerar nova chave de sistema', False, URL('user', 'createNewSystemKey')),
+    ('Gerar nova chave de sistema', False, URL('user', 'create_system_key')),
     ('Usuários', False, URL('user', 'user')),
     ('Gerenciar Grupos', False, URL('user', 'membership')),
     ('Gerenciar permissões', False, URL('user', 'permissions'))

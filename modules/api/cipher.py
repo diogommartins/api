@@ -1,5 +1,4 @@
 # coding=utf-8
-from gluon import current
 from Crypto import Random
 from Crypto.Cipher import AES
 
@@ -9,7 +8,7 @@ unpad = lambda s: s[0:-ord(s[-1])]
 
 
 class AESCipher:
-    def __init__(self, key=current.KEY_HASH):
+    def __init__(self, key=None):
         """
         Requires hex encoded param as a key
         """

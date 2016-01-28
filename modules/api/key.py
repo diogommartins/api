@@ -7,13 +7,16 @@ from gluon import current, HTTP
 
 class APIKey(object):
     def __init__(self, db, hash=None):
+        """
+        :type db: gluon.DAL
+        """
         self.db = db
         self.cache = (current.cache.ram, 86400)
         self.hash = hash
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.auth = self.authForHash(hash)
+        self.auth = self.auth_for_hash(hash)
         if self.auth:
-            self.max_request, self.max_entries = self.requestLimits()
+            self.max_request, self.max_entries = self.request_limits()
 
     def owner(self):
         """
@@ -22,11 +25,11 @@ class APIKey(object):
         :rtype : int
         :return:
         """
-        authKeyOwner = self.db(self.db.api_auth.auth_key == self.hash).select(self.db.api_auth.user_id).first()
-        if authKeyOwner:
-            return authKeyOwner.user_id
+        auth_key_owner = self.db(self.db.api_auth.auth_key == self.hash).select(self.db.api_auth.user_id).first()
+        if auth_key_owner:
+            return auth_key_owner.user_id
 
-    def _makeHash(self, username):
+    def _make_hash(self, username):
         """
         Método utilizado para criar um novo hash a ser utilizado como API Key para o usuário
 
@@ -36,7 +39,7 @@ class APIKey(object):
         aes = AESCipher()
         return aes.encrypt(username + self.timestamp)
 
-    def genarateNewKeyForUser(self, user_id):
+    def genarate_new_key_for_user(self, user_id):
         """
         Gera uma nova chave valida para o usuário, inutiliza a anterior e retorna a nova chave criada.
 
@@ -46,25 +49,24 @@ class APIKey(object):
         """
         user = self.db(self.db.auth_user.id == user_id).select(self.db.auth_user.username).first()
         if user:
-            newKey = self._makeHash(user.username)
-            previousApiKey = self.db(
-                (self.db.api_auth.user_id == user_id) &
-                (self.db.api_auth.active == True)
+            new_key = self._make_hash(user.username)
+            previous_key = self.db(
+                    (self.db.api_auth.user_id == user_id) &
+                    (self.db.api_auth.active == True)
             ).select().first()
-            if previousApiKey:
-                previousApiKey.update_record(active=False)
-            # Insere nova chave no banco.
-            # TODO: Não deveria estar funcionando sem o commit, mas...
+            if previous_key:
+                previous_key.update_record(active=False)
             self.db.api_auth.insert(
-                auth_key=newKey,
-                user_id=user_id,
-                dt_creation=self.timestamp,
-                active=True
+                    auth_key=new_key,
+                    user_id=user_id,
+                    dt_creation=self.timestamp,
+                    active=True
             )
-            return newKey
+            self.db.commit()
+            return new_key
 
     @staticmethod
-    def getCurrentActiveKeyForUser(user_id):
+    def get_current_active_key_for_user(user_id):
         """
         Dado um usuário válido cadastrado em um grupo, e com uma chave válida, o método retorna a chave ativa no momento
 
@@ -72,12 +74,12 @@ class APIKey(object):
         :param user_id: O ID de um usuário na tabela auth_user
         :return: O hash de uma chave válida
         """
-        api_auth = current.db(
-            (current.db.api_auth.user_id == user_id) & (current.db.api_auth.active == True)).select().first()
+        db = current.db
+        api_auth = db((db.api_auth.user_id == user_id) & (db.api_auth.active == True)).select().first()
         if api_auth:
             return api_auth.auth_key
 
-    def authForHash(self, hash):
+    def auth_for_hash(self, hash):
         """
         Dado um determinado hash, o método retornará a entrada da tabela api_auth correspondente,
         caso seja um hash válido e a chave esteja ativa.
@@ -86,11 +88,10 @@ class APIKey(object):
         :return: Uma entrada da tabela api_auth
         """
         return self.db(
-            (self.db.api_auth.auth_key == hash)
-            & (self.db.api_auth.active == True)
+                (self.db.api_auth.auth_key == hash) & (self.db.api_auth.active == True)
         ).select(cache=self.cache, cacheable=True).first()
 
-    def requestLimits(self):
+    def request_limits(self):
         """
         Dada uma chave, retorna uma tupla com o máximo de requisições diárias e o máximo de entradas que podem ser
         retornadas por vez.
@@ -98,8 +99,8 @@ class APIKey(object):
         :rtype : tuple
         """
         limits = self.db(
-            (self.db.auth_membership.user_id == self.auth.user_id)
-            & (self.db.auth_membership.group_id == self.db.api_request_type.group_id)
+                (self.db.auth_membership.user_id == self.auth.user_id) & (
+                self.db.auth_membership.group_id == self.db.api_request_type.group_id)
         ).select(self.db.api_request_type.max_requests,
                  self.db.api_request_type.max_entries,
                  cache=self.cache, cacheable=True).first()
@@ -108,6 +109,8 @@ class APIKey(object):
 
 
 class APIKeyPermissions(object):
+    cache = (current.cache.ram, 86400)
+
     def __init__(self, request):
         """
         TODO: modificar atributos hash e key para receber um objeto do tipo APIKey
@@ -115,16 +118,16 @@ class APIKeyPermissions(object):
         :param request: Uma requisição HTTP
         """
         self.db = current.db
-        self.cache = (current.cache.ram, 86400)
+        self.datasource = current.datasource
         self.request = request
         self.fields = self.request.vars["FIELDS"].split(",") if self.request.vars["FIELDS"] else []
-        self.http_method = APIKeyPermissions.HTTPMethodWithName(self.request.env.request_method)
+        self.http_method = APIKeyPermissions.http_method_with_name(self.request.env.request_method)
         self.hash = self.request.vars.API_KEY
         self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select(cache=self.cache, cacheable=True).first()
-        self.tablename = APIRequest.controllerForRewritedURL(self.request, current.datasource)
+        self.table_name = APIRequest.controller_for_rewrited_URL(self.request, current.datasource)
 
     @staticmethod
-    def HTTPMethodWithName(method):
+    def http_method_with_name(method):
         """
         Dado um determinado método, retorna o seu ID, caso o mesmo seja suportado pela API
 
@@ -132,14 +135,15 @@ class APIKeyPermissions(object):
         :return: O id de um método
         :raise HTTP: 405 caso o método requisitado não seja suportado pela API
         """
-        validMethod = current.db(current.db.api_methods.http_method == method).select(current.db.api_methods.id, cache=(
-            current.cache.ram, 86400)).first()
-        if validMethod:
-            return validMethod.id
+        db = current.db
+        valid_method = db(db.api_methods.http_method == method).select(db.api_methods.id,
+                                                                       cache=APIKeyPermissions.cache).first()
+        if valid_method:
+            return valid_method.id
         else:
             raise HTTP(405, "Método requisitado não é suportado.")
 
-    def canPerformAPICall(self):
+    def can_perform_api_call(self):
         """
         Método responsável por verificar se a chave está ativa e a quantidade de requisições
         ainda não estrapolou o limite diário
@@ -153,7 +157,7 @@ class APIKeyPermissions(object):
         """
         if self.key.active:
             if self.key.total_requests < self.key.max_requests:
-                if self._hasPermissionToRequestFields():
+                if self._has_permission_to_request_fields():
                     return True
                 else:
                     raise HTTP(403, "APIKey não possui permissão para acessar o recurso requisitado.")
@@ -162,7 +166,7 @@ class APIKeyPermissions(object):
         else:
             raise HTTP(403, "Chave inativa")
 
-    def _hasPermissionToRequestFields(self):
+    def _has_permission_to_request_fields(self):
         """
         Caso FIELDS tenham sido especificados, verificará se existe alguma proibição
         de acesso a dados na tabela ou nas colunas requisitadas
@@ -177,20 +181,20 @@ class APIKeyPermissions(object):
         :return:
         """
         if len(self.fields) > 0:
-            validFields = self._validateReturnFields(self.fields)
-            hasPermission = self.db(
-                self.conditionsToRequestContentFromTableColumns(self.tablename, validFields)).select(
-                self.db.api_group_permissions.id, cache=self.cache)
-            if hasPermission:
+            valid_fields = self._validate_return_fields(self.fields)
+            has_permission = self.db(
+                    self.__can_request_columns_from_table(self.table_name, valid_fields)).select(
+                    self.db.api_group_permissions.id, cache=self.cache)
+            if has_permission:
                 return True
         else:
-            hasPermission = self.db(self.conditionsToRequestAnyContentFromTable(self.tablename)).select(
-                self.db.api_group_permissions.id, cache=self.cache)
-            if hasPermission:
+            has_permission = self.db(self.__can_request_any_column_from_table(self.table_name)).select(
+                    self.db.api_group_permissions.id, cache=self.cache)
+            if has_permission:
                 return True
         return False
 
-    def _validateReturnFields(self, fields):
+    def _validate_return_fields(self, fields):
         """
         Método para verificar se os parâmetros de retorno passados são válidos
 
@@ -198,30 +202,10 @@ class APIKeyPermissions(object):
         :param fields: Lista de fields requisitados
         :return: Retorna uma lista com os FIELDS válidos ou uma lista vazia, que é interpretada como todas as colunas
         """
-        return [field for field in fields if field in current.datasource[self.tablename].fields]
+        return [field for field in fields if field in self.datasource[self.table_name].fields]
 
-    def conditionsToRequestContentFromTableWithColumns(self, table, columns):
-        return self.conditionsToRequestContentFromTable(table) | self.conditionsToRequestContentFromTableColumns(table, columns)
-
-    def conditionsToRequestContentFromTable(self, table):
+    def __can_request_column_from_table(self, table, column):
         """
-        Condição para proibição total em uma tabela
-
-        :type table: str
-        :param table: Uma string referente a uma tabela
-        """
-        conditions = (
-            (self.db.api_group_permissions.group_id == self.key.group_id),
-            (self.db.api_group_permissions.table_name == table),
-            (self.db.api_group_permissions.http_method == self.http_method),
-            (self.db.api_group_permissions.all_columns == True)
-        )
-
-        return reduce(lambda a, b: (a & b), conditions)
-
-    def conditionsToRequestContentFromTableColumn(self, table, column):
-        """
-
         :type table: str
         :type column: str
         :param table: Uma string referente a uma tabela
@@ -237,26 +221,26 @@ class APIKeyPermissions(object):
 
         return reduce(lambda a, b: (a & b), conditions)
 
-    def conditionsToRequestContentFromTableColumns(self, table, columns):
+    def __can_request_columns_from_table(self, table, columns):
         """
         Condiçoes para requisitar conteúdo de uma lista de colunas.
         Quando uma lista de colunas é passada, a API deve verificar se o grupo da chave possui permissões para cara uma
         das colunas requisitadas ou se possui a permissao ALL_COLUMNS marcada para a tabela requisitada.
 
         :type table: str
-        :type column: str
+        :type columns: list
         :param table: Uma string referente a uma tabela
-        :param column: Uma string referente a uma coluna
+        :param columns: Uma lista referente a uma colunas da tabela `table`
         """
         conditions = (
             reduce(lambda a, b: (a & b),
-                   [self.conditionsToRequestContentFromTableColumn(table, column) for column in columns]),
-            self.conditionsToRequestAnyContentFromTable(table)
+                   [self.__can_request_column_from_table(table, column) for column in columns]),
+            self.__can_request_any_column_from_table(table)
         )
 
         return reduce(lambda a, b: (a | b), conditions)
 
-    def conditionsToRequestAnyContentFromTable(self, table):
+    def __can_request_any_column_from_table(self, table):
         """
         Condições para requisitar qualquer conteúdo (coluna) de uma tabela.
         Utilizado quando FIELDS não é especificado, visto que significa que foram requisitados todos os FIELDS de uma table.

@@ -1,4 +1,5 @@
 # coding=utf-8
+import abc
 from gluon import current, HTTP
 from gluon.dal import Field
 import threading
@@ -54,7 +55,7 @@ class DefinerThreadWorker():
 class BaseTableDefiner(object):
     types = {}
 
-    def __init__(self, datasource, schema, cache_model=current.cache.ram, cache_time=86400, lazy_tables=None):
+    def __init__(self, datasource, schema, cache_model=current.cache.ram, cache_time=86400, lazy_tables=None, observer=None):
         """
         This is an abstract class used as a base for table model definer classes.
         The default object initialization would result in defining all endpoints for the selected `schema`
@@ -67,12 +68,14 @@ class BaseTableDefiner(object):
         :type schema: str
         :type cache_time: int
         :type lazy_tables: list or tuple
+        :type observer: TableDefinerObserver
         """
         self.db = datasource
         self.schema = schema
         self.cache = cache_model
         self.cache_time = cache_time
         self.lazy_tables = lazy_tables
+        self.observer = observer
         self.tables = lambda: self.cache(self.db._uri_hash, lambda: self._fetch_columns(), time_expire=self.cache_time)
         self.indexes = lambda: self.cache(self.db._uri_hash + 'indexes', lambda: self._fetch_indexes(), time_expire=self.cache_time)
         self._define_source_tables()
@@ -86,6 +89,10 @@ class BaseTableDefiner(object):
 
     def _define_tables(self):
         field_collection = self.tables()
+
+        if isinstance(self.observer, TableDefinerObserver):
+            self.observer.source_tables_did_load(field_collection)
+
         indexes = self.indexes()
 
         def _define(tables):
@@ -236,4 +243,15 @@ class InformationSchema(BaseTableDefiner):
 
     def refresh_cache(self):
         #TODO Escrever método para dar refresh na lista de tabelas para atualizar alterações feitas na estrutura sem que seja necessário reiniciar o webserver
+        raise NotImplementedError
+
+
+class TableDefinerObserver(object):
+    """
+    Class that defines observable actions from the TableDefiners
+    """
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def source_tables_did_load(self, tables):
         raise NotImplementedError

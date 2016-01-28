@@ -1,6 +1,7 @@
 # coding=utf-8
 from api.request import APIRequest
 from definers import Endpoints
+from modelers import JSONModelCreator
 
 
 def _lazy():
@@ -11,7 +12,7 @@ def _lazy():
     :rtype : list
     """
     if request.controller == 'rest':
-        return [APIRequest.controllerForRewritedURL(request, datasource, lazy=True)]
+        return [APIRequest.controller_for_rewrited_URL(request, datasource, lazy=True)]
 
-endpoints = Endpoints(datasource, schema='DBSM', lazy_tables=_lazy())
-# endpoints = Endpoints(datasource, schema='public')
+model_creator = JSONModelCreator(request.folder + 'private/models.json')
+endpoints = Endpoints(datasource, schema='DBSM', lazy_tables=_lazy(), observer=model_creator)

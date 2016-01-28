@@ -14,7 +14,7 @@ __all__ = ['APIRequest']
 
 class APIRequest(object):
     DEFAULT_SUFIX_SIZE = 4
-    validSufixes = ('_MIN', '_MAX', '_BET', '_SET',)
+    valid_sufixes = ('_MIN', '_MAX', '_BET', '_SET',)
     valid_response_formats = {
         'JSON': 'generic.json',
         'XML': 'generic.xml',
@@ -23,11 +23,11 @@ class APIRequest(object):
     }
     valid_parameters = ('FORMAT', 'FIELDS', 'API_KEY', 'LMIN', 'LMAX', 'ORDERBY', 'SORT')
 
-    def __init__(self, apiKey, request):
+    def __init__(self, api_key, request):
         """
 
         :type request: Request
-        :type apiKey: key.APIKey
+        :type api_key: key.APIKey
         """
         self.request = request
         self.HTTPMethod = self.request.env.request_method
@@ -35,14 +35,14 @@ class APIRequest(object):
         self.cache = (current.cache.ram, 86400)
         self.datasource = current.datasource
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.apiKey = apiKey
-        self.endpoint = self.controllerForRewritedURL(self.request, self.datasource)
+        self.api_key = api_key
+        self.endpoint = self.controller_for_rewrited_URL(self.request, self.datasource)
         if not self.endpoint:
             raise HTTP(404, "Recurso requisitado é inválido")
 
-        self.parameters = self._validateFields()
-        self.return_fields = self._validateReturnFields()
-        self.validContentTypes = {
+        self.parameters = self._validate_fields()
+        self.return_fields = self._validate_return_fields()
+        self.valid_content_types = {
             'JSON':     'application/json; charset=%s' % self.datasource._db_codec,
             'XML':      'text/xml',
             'HTML':     'text/html',
@@ -50,7 +50,7 @@ class APIRequest(object):
         }
 
     @staticmethod
-    def controllerForRewritedURL(request, db, lazy=False):
+    def controller_for_rewrited_URL(request, db, lazy=False):
         """
         O método retorna o nome do controller requisitado, antes do URL Rewrite realizado
         pelo `routes.py`. Na API, um controller é mapeado diretamente a uma tabela modelado
@@ -63,12 +63,12 @@ class APIRequest(object):
         :rtype : str
         :return: Nome original do controller requisitado
         """
-        pathList = request.env.PATH_INFO.split("/")
-        resource = pathList[len(pathList)-1]
+        path_list = request.env.PATH_INFO.split("/")
+        resource = path_list[len(path_list)-1]
         if resource in db or lazy:
             return resource
 
-    def performRequest(self):
+    def perform_request(self):
         """
         Método principal, define a ordem e forma de execução de uma requisição a API
 
@@ -81,17 +81,17 @@ class APIRequest(object):
                 'PUT':      APIUpdate,
                 'DELETE':   APIDelete
             }
-            req = methods[self.HTTPMethod](self)
+            operation = methods[self.HTTPMethod](self)
         except KeyError:
             raise HTTP(http.METHOD_NOT_ALLOWED, "Método não suportado")
 
         # Gera log da requisição
-        thread.start_new_thread(self.__saveAPIRequest, tuple())
+        thread.start_new_thread(self.__save_log, tuple())
 
-        self._defineResponseReturnType()
-        return req.execute()
+        self._define_response_return_type()
+        return operation.execute()
 
-    def __saveAPIRequest(self):
+    def __save_log(self):
         """
         Salva a requisição feita pelo usuário no banco.
         Utilizado para auditoria e limitar a quantidade de requisições por API KEY
@@ -101,34 +101,36 @@ class APIRequest(object):
             params = self.request.vars.copy()
             del params['API_KEY']
             return params
-        #TODO Pode ser realizado em
+
         self.db.api_request.insert(
             dt_request=self.timestamp,
             endpoint=self.endpoint,
             parameters=str(__params()),
             ip=self.request.client,
-            auth_key=self.apiKey.auth.id,
+            auth_key=self.api_key.auth.id,
             http_method=self.db(self.db.api_methods.http_method == self.HTTPMethod).select(cache=self.cache).first().id
         )
         self.db.commit()
 
-    def _defineResponseReturnType(self):
+    def _define_response_return_type(self):
         """
         Define o formato de resposta (HTML,XML,JSON,..) de acordo com o parâmetro
         requisitado pelo usuário, setando a view correspondente que será utilizada
         e o Content-Type adequado.
 
         """
-        if self.HTTPMethod == 'GET':
-            format = self.request.vars.FORMAT
-            if format in self.valid_response_formats:
-                current.response.view = self.valid_response_formats[format]
-                current.response.headers['Content-Type'] = self.validContentTypes[format]
-            else:
-                current.response.view = self.valid_response_formats['DEFAULT']
-                current.response.headers['Content-Type'] = self.validContentTypes['DEFAULT']
 
-    def _validateFields(self):
+        if self.HTTPMethod == 'GET':
+            response = current.response
+            response_format = self.request.vars.FORMAT
+            if response_format in self.valid_response_formats:
+                response.view = self.valid_response_formats[response_format]
+                response.headers['Content-Type'] = self.valid_content_types[response_format]
+            else:
+                response.view = self.valid_response_formats['DEFAULT']
+                response.headers['Content-Type'] = self.valid_content_types['DEFAULT']
+
+    def _validate_fields(self):
         """
         Método que verifica se os parâmetros passados são válidos ou não. Um dicionário
         com duas chaves é retornado:
@@ -147,7 +149,7 @@ class APIRequest(object):
         for k, v in self.request.vars.iteritems():
             if k in endpoint_fields:
                 fields['valid'].append(k)
-            elif self._isValidFieldWithSufix(k):
+            elif self._is_valid_field_with_sufix(k):
                 fields['special'].append(k)
             else:
                 if k not in self.valid_parameters:
@@ -157,7 +159,7 @@ class APIRequest(object):
             raise HTTP(http.BAD_REQUEST, "Alguns parâmetros da requisição são incompatíveis.", **headers)
         return fields
 
-    def _validateReturnFields(self):
+    def _validate_return_fields(self):
         """
         Método para verificar se os parâmetros de retorno passados são válidos.
         Retorna uma lista com os FIELDS válidos ou uma lista vazia, que é interpretada
@@ -167,12 +169,12 @@ class APIRequest(object):
         :return: Retorna uma lista contendo somente os itens da lista que forem colunas na tabela requisitada
         """
         if self.request.vars["FIELDS"]:
-            requestedFields = self.request.vars["FIELDS"].split(",")
-            return [field for field in requestedFields if field in self.datasource[self.endpoint].fields]
+            requested_fields = self.request.vars["FIELDS"].split(",")
+            return [field for field in requested_fields if field in self.datasource[self.endpoint].fields]
         else:
             return []
 
-    def _isValidFieldWithSufix(self, field):
+    def _is_valid_field_with_sufix(self, field):
         """
         Campos especiais são strings contidas na lista de colunas de uma tabela,
         acrescidas de um sufixo válido, como _MIN, _MAX, etc. Esse método verifica
@@ -182,13 +184,12 @@ class APIRequest(object):
         :param field: Uma string reference a um campo
         :return: True se for um campo um campo válido, acrescido de um sufixo válido
         """
-        choped = self.specialFieldChop(field)
-        if choped:
-            if choped in self.datasource[self.endpoint].fields:
-                return True
+        chopped_field = self.special_field_chop(field)
+        if chopped_field and chopped_field in self.datasource[self.endpoint].fields:
+            return True
 
     @staticmethod
-    def specialFieldChop(field):
+    def special_field_chop(field):
         """
         Dada uma string fornecida como entrada, o método valida o sufixo e retorna
         o campo correspondente, sem o sufixo.
@@ -196,5 +197,5 @@ class APIRequest(object):
         :param field: Uma string reference a um campo, com sufixo
         :return: Uma string relativa a um campo, sem sufixo
         """
-        if field.endswith(APIRequest.validSufixes):
+        if field.endswith(APIRequest.valid_sufixes):
             return field[:-APIRequest.DEFAULT_SUFIX_SIZE]

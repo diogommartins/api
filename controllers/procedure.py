@@ -12,7 +12,7 @@ def index():
 
     """
     data = simplejson.loads(request.vars['data'])
-    procedure_name = APIRequest.controllerForRewritedURL(request, datasource, True)
+    procedure_name = APIRequest.controller_for_rewrited_URL(request, datasource, True)
 
     procedure = Procedure()(procedure_name)
     validator = ProcedureDatasetValidator(procedure)

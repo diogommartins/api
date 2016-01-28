@@ -7,7 +7,6 @@ import shutil
 from datetime import datetime, date
 from gluon import current, HTTP
 import abc
-from gluon.contrib.websocket_messaging import websocket_send
 from gluon.serializers import json
 
 try:
@@ -16,6 +15,29 @@ except ImportError:
     import http.client as http
 
 __all__ = ['APIDelete', 'APIInsert', 'APIQuery', 'APIUpdate']
+
+
+class APIOperationObserver(object):
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def did_finish_successfully(self, sender, parameters):
+        """
+        :param sender: The APIOperation that triggered the websocket notification
+        :type sender: APIOperation
+        :type parameters: dict
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def did_finish_with_error(self, sender, parameters, error):
+        """
+        :param sender: The APIOperation that triggered the websocket notification
+        :type sender: APIOperation
+        :type parameters: dict
+        :type error: Exception
+        """
+        raise NotImplementedError
 
 
 class APIOperation(object):
@@ -64,14 +86,19 @@ class APIOperation(object):
 class APIAlterOperation(APIOperation):
     __metaclass__ = abc.ABCMeta
 
+    observer = None  # type: APIOperationObserver
+
     def __init__(self, request):
         super(APIAlterOperation, self).__init__(request)
         self.parameters = self.request.parameters
         try:
+            self.pkey_column = self.table._primarykey[0]
             self.pkey_field = self.table[self.table._primarykey[0]]
+            self.pkey_value = current.request.vars[self.pkey_column]
         except (AttributeError, IndexError):
+            # TODO IndexError = sem chave primaria. Liberar exception diferente?
             HTTP(http.BAD_REQUEST, "O Endpoint requisitado não possui uma chave primária válida para esta operação.")
-        self.pkey_column = self.table._primarykey[0]
+
         if 'COD_OPERADOR' not in self.parameters['valid']:
             HTTP(http.BAD_REQUEST, "A requisição não possui um COD_OPERADOR")
 
@@ -108,10 +135,6 @@ class APIAlterOperation(APIOperation):
         """
 
         return tuple(base64.b64decode(parameters[k]) for k in fields)
-
-    def notify_clients(self, message):
-        websocket_send("http://%s:%s" % (self.ws['host'], self.ws['port']), json(message), self.ws['password'],
-                       self.table)
 
 
 class APIQuery(APIOperation):
@@ -353,21 +376,29 @@ class APIInsert(APIAlterOperation):
         shutil.rmtree(directory_name)  # os.removedirs não deleta diretório que não esteja vazio.
 
     def execute(self):
+        blob_fields = self.blob_fields(self.parameters)
+        parameters = self.content_with_valid_parameters()
+        blob_values = self.blob_values(parameters, blob_fields)
         try:
-            blob_fields = self.blob_fields(self.parameters)
-            parameters = self.content_with_valid_parameters()
             if not blob_fields:
                 new_id = self.table.insert(**parameters)[self._unique_identifier_column]
             else:
                 stmt = self.table._insert(**parameters)
                 # Essa inserção não funcionará. É necessário reinserir pelo Java.
-                blob_values = self.blob_values(parameters, blob_fields)
                 self.db.executesql(stmt, blob_values)
                 new_id = parameters[self._unique_identifier_column]
+
+            if self.observer:
+                self.observer.did_finish_successfully(self, parameters)
         except Exception as e:
             print(self.db._lastsql)
             print(e)
+
             self.db.rollback()
+
+            if self.observer:
+                self.observer.did_finish_with_error(self, parameters, e)
+
             raise HTTP(http.BAD_REQUEST, "Não foi possível completar a operação.")
         else:
             self.db.commit()
@@ -416,26 +447,34 @@ class APIUpdate(APIAlterOperation):
         :raise HTTP: 422 Ocorre haja incompatibilidade entre o tipo de dados da coluna e o valor passsado
         :raise HTTP: 404 A chave primária informada é inválida e nenhuma entrada foi afetada
         """
+        parameters = self.content_with_valid_parameters()
         try:
             blob_fields = self.blob_fields(self.parameters)
             if not blob_fields:
-                affected_rows = self.db(self.pkey_field == current.request.vars[self.pkey_column]).update(
-                        **self.content_with_valid_parameters())
+                affected_rows = self.db(self.pkey_field == self.pkey_value).update(**parameters)
             else:
-                parameters = self.content_with_valid_parameters()
-                stmt = self.db(self.pkey_field == current.request.vars[self.pkey_column])._update(**parameters)
+                stmt = self.db(self.pkey_field == self.pkey_value)._update(**parameters)
                 affected_rows = self.db.executesql(stmt, self.blob_values(parameters, blob_fields))
                 # TODO As entradas são atualizadas corretamente, mas rowcount retorna -1 O.o
-        except SyntaxError:
-            self.db.rollback()
-            raise HTTP(http.NO_CONTENT, "Nenhum conteúdo foi passado")
-        except Exception:
-            self.db.rollback()
+        except Exception as e:
+            if self.observer:
+                self.observer.did_finish_with_error(self, parameters, e)
+            if isinstance(e, SyntaxError):
+                self.db.rollback()
+                raise HTTP(http.NO_CONTENT, "Nenhum conteúdo foi passado")
+            else:
+                self.db.rollback()
             raise HTTP(http.UNPROCESSABLE_ENTITY, "Algum parâmetro possui tipo inválido")
+
         if affected_rows == 0:
             raise HTTP(http.NOT_FOUND, "Ooops... A princesa está em um castelo com outro ID.")
         else:
             self.db.commit()
+
+            if self.observer:
+                parameters[self.pkey_column] = self.pkey_value
+                self.observer.did_finish_successfully(self, parameters)
+
             headers = {"Affected": affected_rows}
             raise HTTP(http.OK, "Conteúdo atualizado com sucesso", **headers)
 
@@ -450,7 +489,6 @@ class APIDelete(APIAlterOperation):
         super(APIDelete, self).__init__(request)
         if not self.primarykey_in_parameters(self.parameters):
             raise HTTP(http.BAD_REQUEST, "Não é possível remover um conteúdo sem sua chave primária.")
-        self.row_id = current.request.vars[self.pkey_column]
 
     def execute(self):
         """
@@ -464,7 +502,7 @@ class APIDelete(APIAlterOperation):
         :raise HTTP: 403 A linha requisitada não pode ser deletada porque possui dependências que não foram atendidas
         """
         try:
-            affected_rows = self.db(self.pkey_field == self.row_id).delete()
+            affected_rows = self.db(self.pkey_field == self.pkey_value).delete()
             print self.db._lastsql
         except Exception:
             self.db.rollback()

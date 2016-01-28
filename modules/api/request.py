@@ -3,7 +3,8 @@ from datetime import datetime
 import thread
 from gluon import current, HTTP
 from gluon.serializers import json
-from .operations import APIInsert, APIQuery, APIDelete, APIUpdate
+from .operations import APIInsert, APIQuery, APIDelete, APIUpdate, APIAlterOperation
+from .websockets import WebsocketNotificator
 try:
     import httplib as http
 except ImportError:
@@ -68,6 +69,10 @@ class APIRequest(object):
         if resource in db or lazy:
             return resource
 
+    def __is_notifyable_operation(self, operation):
+        # todo: Isso deveria estar aqui?
+        return isinstance(operation, APIAlterOperation)
+
     def perform_request(self):
         """
         Método principal, define a ordem e forma de execução de uma requisição a API
@@ -85,10 +90,13 @@ class APIRequest(object):
         except KeyError:
             raise HTTP(http.METHOD_NOT_ALLOWED, "Método não suportado")
 
-        # Gera log da requisição
         thread.start_new_thread(self.__save_log, tuple())
 
         self._define_response_return_type()
+
+        if self.__is_notifyable_operation(operation):
+            operation.observer = WebsocketNotificator()
+
         return operation.execute()
 
     def __save_log(self):

@@ -1,6 +1,30 @@
 # coding=utf-8
 import abc
-from datetime import datetime
+from datetime import datetime, date
+from gluon import current
+
+
+def updates_super(func):
+    """
+    Invokes method with the same name from super class, that should return a dict, updates it with
+    the return from the decorated method and than returns it.
+
+    self_dict = {1:'a', 2: 'b'}
+    super_dict = {3:'c'}
+    decorated_return = {1:'a', 2: 'b', 3:'c'}
+
+    :param func:
+    :return: Dictionary updated with the k:v pairs from super method
+    :rtype: dict
+    """
+    # Todo: Não funciona se encadear decorator em subclasses
+    def wrapped(self):
+        super_func = getattr(super(self.__class__, self), func.__name__, None)
+        super_dict = super_func() if callable(super_func) else {}
+        func_dict = func(self)
+        func_dict.update(super_dict)
+        return func_dict
+    return wrapped
 
 
 class ProcedureDatasetValidator(object):
@@ -20,7 +44,8 @@ class ProcedureDatasetValidator(object):
         required_fields = self.procedure.required_fields
         if required_fields <= frozenset(dataset.keys()):
             return True
-        raise ValueError("Every data row passed should contain the required fields: %s" % str(required_fields))
+        missing_fields = ','.join(required_fields - frozenset(dataset.keys()))
+        raise ValueError("Dataset missing required fields: " + missing_fields)
 
 
 class BaseProcedure(object):
@@ -77,6 +102,14 @@ class BaseProcedure(object):
 class BaseSIEProcedure(BaseProcedure):
     # todo esta classe provavelmente não deveria estar no mesmo arquivo
     __metaclass__ = abc.ABCMeta
+    cache = (current.cache.ram, 86400)
+
+    @property
+    def constants(self):
+        return {
+            "DT_ALTERACAO": str(date.today()),
+            "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
+        }
 
     def _next_value_for_sequence(self, table):
         """

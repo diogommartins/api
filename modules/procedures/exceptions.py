@@ -1,4 +1,11 @@
 class ProcedureException(Exception):
+    def __init__(self, msg=None, cause=None, *args, **kwargs):
+        super(ProcedureException, self).__init__(*args, **kwargs)
+        self.msg = msg
+        self.cause = cause
+
+
+class UndefinedProcedureException(ProcedureException):
     pass
 
 
@@ -20,5 +27,4 @@ class DateConversionException(InvalidDatasetException):
     pass
 
 
-class UndefinedProcedureException(ProcedureException):
-    pass
+

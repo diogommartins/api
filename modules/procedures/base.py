@@ -111,6 +111,12 @@ class BaseSIEProcedure(BaseProcedure):
             "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
         }
 
+    @property
+    def required_fields(self):
+        return {
+            'COD_OPERADOR': 'int'
+        }
+
     def _next_value_for_sequence(self, table):
         """
         Por uma INFELIZ particularidade do DB2 de não possuir auto increment, ao inserir algum novo conteúdo em uma

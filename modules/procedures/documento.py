@@ -1,21 +1,32 @@
 # coding=utf-8
 from datetime import date, datetime, timedelta
-from .base import BaseSIEProcedure, updates_super
+from .base import BaseSIEProcedure
 from .exceptions import ProcedureDatasetException
 import abc
+
+
+__all__ = ('CriarDocumentoProjetoPesquisa',)
 
 
 class CriarDocumento(BaseSIEProcedure):
     __metaclass__ = abc.ABCMeta
 
-    TIPO_DOCUMENTO = -1     # Deve ser sobreescrito nas subclasses
+    @abc.abstractproperty
+    def TIPO_DOCUMENTO(self):
+        raise NotImplementedError("Todas as subclasses são um tipo de documento, "
+                                  "portanto, devem ter um atributo TIPO_DOCUMENTO")
 
-    required_fields = {
-        'ID_CRIADOR',       # ID_USUARIO
-        'ID_INTERESSADO',   # ID_CONTRATO_RH
-        'ID_PROCEDENCIA',   # ID_CONTRATO_RH
-        'ID_PROPRIETARIO',  # ID_USUARIO
-    }
+    @property
+    def required_fields(self):
+        super_required = super(CriarDocumento, self).required_fields
+        required = {
+            'ID_CRIADOR': 'int',       # ID_USUARIO
+            'ID_INTERESSADO': 'int',   # ID_CONTRATO_RH
+            'ID_PROCEDENCIA': 'int',   # ID_CONTRATO_RH
+            'ID_PROPRIETARIO': 'int',  # ID_USUARIO
+        }
+        required.update(super_required)
+        return required
 
     @property
     def constants(self):
@@ -29,10 +40,6 @@ class CriarDocumento(BaseSIEProcedure):
         }
         consts.update(super_consts)
         return consts
-
-    def _obter_mascara(self, ID_TIPO_DOC):
-        tipo_documento = self.datasource(self.datasource.TIPOS_DOCUMENTOS.ID_TIPO_DOC == ID_TIPO_DOC).select().first()
-        return tipo_documento["MASCARA_TIPO_DOC"].strip()
 
     def _assunto_relacionado(self, ID_ASSUNTO):
         return self.datasource(self.datasource.ASSUNTOS.ID_ASSUNTO == ID_ASSUNTO).select().first()
@@ -107,10 +114,6 @@ class CriarDocumento(BaseSIEProcedure):
         proximo_numero = self._proximo_num_tipo_doc(ano)
         return self._numero_processo_parser(proximo_numero, ano)
 
-    def perform_work(self, dataset):
-        # todo: deve fazer alguma coisa ?
-        pass
-
 
 class CriarDocumentoProjetoPesquisa(CriarDocumento):
     TIPO_DOCUMENTO = 217
@@ -119,7 +122,7 @@ class CriarDocumentoProjetoPesquisa(CriarDocumento):
     def required_fields(self):
         super_required = super(CriarDocumentoProjetoPesquisa, self).required_fields
         required = {
-            'TEMPO_ARQUIVAMENTO'
+            'TEMPO_ARQUIVAMENTO': 'int'
         }
         required.update(super_required)
         return required

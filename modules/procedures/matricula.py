@@ -8,16 +8,16 @@ from br_documents import CPF
 
 class MatricularAlunos(BaseSIEProcedure):
     required_fields = {
-        "COD_CURSO": "string",
-        "NOME_PESSOA": "string",
-        "SEXO": "string",
-        "NOME_PAI": "string",
-        "NOME_MAE": "string",
-        "NACIONALIDADE": "string",
-        "DESCR_MAIL": "string",
-        "RG": "string",
-        "RG_EXPEDICAO": "string",
-        "CPF": "string",
+        "COD_CURSO": "str",
+        "NOME_PESSOA": "str",
+        "SEXO": "str",
+        "NOME_PAI": "str",
+        "NOME_MAE": "str",
+        "NACIONALIDADE": "str",
+        "DESCR_MAIL": "str",
+        "RG": "str",
+        "RG_EXPEDICAO": "str",
+        "CPF": "str",
         "DT_NASCIMENTO": "date"
     }
 

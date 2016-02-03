@@ -66,7 +66,7 @@ class APIRequest(object):
         """
         path_list = request.env.PATH_INFO.split("/")
         resource = path_list[len(path_list)-1]
-        if resource in db or lazy:
+        if lazy or resource in db:
             return resource
 
     def __is_notifyable_operation(self, operation):

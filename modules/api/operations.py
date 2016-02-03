@@ -55,20 +55,20 @@ class APIOperation(object):
         self.table = self.db[self.endpoint]
 
     @property
-    def base_endpoint_URI(self):
+    def base_endpoint_uri(self):
         return current.request.env.http_host + current.request.env.PATH_INFO + "/"
 
     # TODO Isso não deveria existir aqui, já que é relacionado somente ao SIE
     @property
-    def default_fields_for_SIE_tables(self):
+    def default_fields_for_sie_tables(self):
         """
         Campos que obrigatoriamente devem ser preenchidos em um INSERT e devem ser feitos pela API.
 
         :rtype : dict
         :return: Um dicionário de parãmetros padrões
         """
-        opcoes_default =  {
-            "CONCORRENCIA": 999, # Pode ser qualquer valor aqui segundo consultoria feita junto à Sintese.
+        opcoes_default = {
+            "CONCORRENCIA": 999,  # Pode ser qualquer valor aqui segundo consultoria feita junto à Sintese.
             "DT_ALTERACAO": str(date.today()),
             "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
             "ENDERECO_FISICO": current.request.env.remote_addr
@@ -100,7 +100,7 @@ class APIAlterOperation(APIOperation):
         self.parameters = self.request.parameters
         try:
             self.p_key_fields = {column:self.table[column] for column in self.table._primarykey}
-            self.p_key_columns = self.table._primarykey # lista de colunas que sao primary keys.
+            self.p_key_columns = self.table._primarykey  # lista de colunas que sao primary keys.
         except (AttributeError, IndexError):
             # TODO IndexError = sem chave primaria. Liberar exception diferente?
             HTTP(http.BAD_REQUEST, "O Endpoint requisitado não possui uma chave primária válida para esta operação.")
@@ -109,7 +109,7 @@ class APIAlterOperation(APIOperation):
         # if 'COD_OPERADOR' not in self.parameters['valid']:
         #     HTTP(http.BAD_REQUEST, "A requisição não possui um COD_OPERADOR")
 
-    def primarykey_in_parameters(self, parameters):
+    def primary_key_in_parameters(self, parameters):
         """
         Método utilizado para validar se a chave primária encontra-se na lista de parâmetros
 
@@ -118,7 +118,7 @@ class APIAlterOperation(APIOperation):
         """
         return set(self.p_key_columns).issubset(set(parameters['valid']))
 
-    @abc.abstractmethod
+    @abc.abstractproperty
     def content_with_valid_parameters(self):
         """
         :rtype : dict
@@ -314,23 +314,23 @@ class APIInsert(APIAlterOperation):
         :type request: APIRequest
         """
         super(APIInsert, self).__init__(request)
-        if self.has_composite_primary_key() and not self.primary_key_in_parameters(self.parameters):
+        if self.has_composite_primary_key and not self.primary_key_in_parameters(self.parameters):
             raise HTTP(http.BAD_REQUEST, "Não é possível inserir um conteúdo sem sua chave primária composta.")
-        if not self.has_composite_primary_key() and self.primary_key_in_parameters(self.parameters):
+        if not self.has_composite_primary_key and self.primary_key_in_parameters(self.parameters):
             raise HTTP(http.BAD_REQUEST, "Não é possível inserir um conteúdo com sua chave primária.")
 
     @property
-    def default_fields_for_SIE_insert(self):
+    def default_fields_for_sie_insert(self):
         # TODO Isso não deveria existir aqui, já que é relacionado somente ao SIE
-        fields = dict(self.default_fields_for_SIE_tables)
+        fields = dict(self.default_fields_for_sie_tables)
 
-        if not self.has_composite_primary_key():
-            #Se a chave não é composta, procura o próximo valor válido da sequence da pkey para popular a query.
+        if not self.has_composite_primary_key:
+            # Se a chave não é composta, procura o próximo valor válido da sequence da pkey para popular a query.
             fields[self._unique_identifier_column] = self.next_value_for_sequence
         return fields
 
+    @property
     def has_composite_primary_key(self):
-        # todo: property
         return len(self.p_key_columns) > 1
 
     @property
@@ -346,10 +346,6 @@ class APIInsert(APIAlterOperation):
         return self.db.executesql("SELECT NEXT VALUE FOR DBSM.SEQ_%s FROM SYSIBM.SYSDUMMY1" % self.endpoint)[0][0]
 
     @property
-    def optional_fields_for_SIE_tables(self):
-        # TODO useless
-        return {}
-
     def content_with_valid_parameters(self):
         """
         Retorna um dicionário contendo somente os k,v onde k são colunas válidas da tabela em que se quer inserir.
@@ -358,13 +354,8 @@ class APIInsert(APIAlterOperation):
         :rtype : dict
         """
         content = {column: current.request.vars[column] for column in self.parameters['valid']}
-        content.update({k: v for k, v in self.default_fields_for_SIE_insert.iteritems() if k in self.table.fields})
+        content.update({k: v for k, v in self.default_fields_for_sie_insert.iteritems() if k in self.table.fields})
         return content
-
-    def filter_special_field_types(self, content):
-        for field in content.iteritems():
-            if self.table[field].type == "blob":
-                content[field] = self.table.store(content[field])
 
     def insert_blob_fields_callback(self, new_id, blobs):
         """
@@ -394,19 +385,19 @@ class APIInsert(APIAlterOperation):
 
     def execute(self):
         blob_fields = self.blob_fields(self.parameters)
-        parameters = self.content_with_valid_parameters()
+        parameters = self.content_with_valid_parameters
         blob_values = self.blob_values(parameters, blob_fields)
         try:
             if not blob_fields:
-                if self.has_composite_primary_key():
+                if self.has_composite_primary_key:
                     self.table.insert(**parameters)
                     # TODO O que podemos retornar no caso de sucesso que faça sentido?
                     new_id = 1
                 else:
                     new_id = self.table.insert(**parameters)[self._unique_identifier_column]
             else:
-                if self.has_composite_primary_key():
-                    raise NotImplementedError # TODO Precisa atualizar o JAR que faz inserção para lidar id composta
+                if self.has_composite_primary_key:
+                    raise NotImplementedError  # TODO Precisa atualizar o JAR que faz inserção para lidar id composta
                 stmt = self.table._insert(**parameters)
                 # Essa inserção não funcionará. É necessário reinserir pelo Java.
                 self.db.executesql(stmt, blob_values)
@@ -430,7 +421,7 @@ class APIInsert(APIAlterOperation):
                 self.insert_blob_fields_callback(new_id, zip(blob_fields, blob_values))  # Reinsere blobs pelo JAVA
 
             headers = {
-                "Location": "%s?%s=%i" % (self.base_endpoint_URI, self._unique_identifier_column, new_id),
+                "Location": "%s?%s=%i" % (self.base_endpoint_uri, self._unique_identifier_column, new_id),
                 "id": new_id
             }
             raise HTTP(http.CREATED, "Conteúdo inserido com sucesso.", **headers)
@@ -446,11 +437,12 @@ class APIUpdate(APIAlterOperation):
         :raises HTTP: 400 O dicionário `parameters` deve conter obrigatoriamente a primary key da tabela `tablename`
         """
         super(APIUpdate, self).__init__(request)
-        if not self.primarykey_in_parameters(self.parameters):
+        if not self.primary_key_in_parameters(self.parameters):
             raise HTTP(http.BAD_REQUEST, "Não é possível atualizar um conteúdo sem sua chave primária.")
 
         self.identifiers_values = [(column, request.request.vars[column]) for column in self.p_key_columns]
 
+    @property
     def content_with_valid_parameters(self):
         """
         Retorna um dicionário contendo somente os k,v onde k são colunas válidas da tabela em que se quer atualizar.
@@ -459,8 +451,8 @@ class APIUpdate(APIAlterOperation):
         :rtype : dict
         """
         content = {column: current.request.vars[column] for column in self.parameters['valid'] if
-                        column not in self.pkey_column}
-        content.update({k: v for k, v in self.default_fields_for_SIE_tables.iteritems() if k in self.table.fields})
+                        column not in self.p_key_columns}
+        content.update({k: v for k, v in self.default_fields_for_sie_tables.iteritems() if k in self.table.fields})
         return content
 
     def execute(self):
@@ -474,7 +466,7 @@ class APIUpdate(APIAlterOperation):
         :raise HTTP: 422 Ocorre haja incompatibilidade entre o tipo de dados da coluna e o valor passsado
         :raise HTTP: 404 A chave primária informada é inválida e nenhuma entrada foi afetada
         """
-        parameters = self.content_with_valid_parameters()  # TODO Funciona atualização de blob?
+        parameters = self.content_with_valid_parameters  # TODO Funciona atualização de blob?
         blob_fields = self.blob_fields(self.parameters)
         conditions = [self.p_key_fields[field] == valor for field, valor in self.identifiers_values]
         try:
@@ -501,7 +493,7 @@ class APIUpdate(APIAlterOperation):
 
             if self.observer:
                 # todo: Vai quebrar precisa usar identifiers_values
-                parameters[self.pkey_column] = self.pkey_value
+                parameters[self.p_key_columns] = self.pkey_value
                 self.observer.did_finish_successfully(self, parameters)
 
             headers = {"Affected": affected_rows}
@@ -516,7 +508,7 @@ class APIDelete(APIAlterOperation):
         :type request: APIRequest
         """
         super(APIDelete, self).__init__(request)
-        if not self.primarykey_in_parameters(self.parameters):
+        if not self.primary_key_in_parameters(self.parameters):
             raise HTTP(http.BAD_REQUEST, "Não é possível remover um conteúdo sem sua chave primária.")
         self.identifiers_values = [(column, self.request.request.vars[column]) for column in self.p_key_columns]
 
@@ -545,6 +537,7 @@ class APIDelete(APIAlterOperation):
             headers = {"Affected": affected_rows}
             raise HTTP(http.OK, "Conteúdo atualizado com sucesso", **headers)
 
+    @property
     def content_with_valid_parameters(self):
         # TODO Retirar a obrigação de implementar esse cara aqui.
-        pass
+        return NotImplementedError

@@ -53,17 +53,25 @@ class BaseProcedure(object):
 
     def __init__(self, datasource):
         """
-
         :type datasource: gluon.dal.DAL
         """
         self.datasource = datasource
 
     @abc.abstractproperty
+    def constants(self):
+        """
+        A dict of constant parameters that should be present on the procedure but shouldn't be set by the user
+
+        :rtype: dict
+        """
+        raise NotImplementedError("Should be implemented on subclasses")
+
+    @abc.abstractproperty
     def required_fields(self):
         """
-        A frozenset of required dictionary keys
+        A dict of required dataset k:v parameters
 
-        :rtype : frozenset
+        :rtype : dict
         """
         raise NotImplementedError("Should be implemented on subclasses")
 
@@ -109,6 +117,7 @@ class BaseSIEProcedure(BaseProcedure):
         return {
             "DT_ALTERACAO": str(date.today()),
             "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
+            "CONCORRENCIA": 999
         }
 
     @property

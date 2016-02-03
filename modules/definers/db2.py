@@ -72,7 +72,8 @@ class DB2TableDefiner(BaseTableDefiner):
             self.db.INDEXES.TABNAME,
             self.db.INDEXES.COLNAMES
         )
-        return {table.TABNAME: table.COLNAMES.split('+')[1:] for table in rows}
+        return {table.TABNAME: table.COLNAMES.split('+')[1:] for table in
+                rows}  # CHAVES PRIMARIAS SAO SEPARADAS POR UM   '+' -> Exemplo +ID_DOCUMENTO+ID_APLIC_ACAO
 
     @property
     def _tables(self):

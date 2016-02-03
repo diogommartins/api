@@ -2,7 +2,7 @@
 from datetime import date, datetime, timedelta
 from time import strftime
 
-from .base import BaseSIEProcedure
+from .base import BaseSIEProcedure, as_transaction
 from .exceptions import ProcedureDatasetException
 import abc
 
@@ -134,11 +134,11 @@ class CriarDocumento(BaseSIEProcedure):
 
     # mark - tramitacoes
 
-    def _obter_fluxo_inicial(self):
+    def _fluxo_inicial(self):
         table = self.datasource.FLUXOS
         return self.datasource((table.ID_TIPO_DOC == self.TIPO_DOCUMENTO) &
                                (table.SITUACAO_ATUAL == 1) &
-                               (table.IND_ATIVO == 'S')).select().first()
+                               (table.IND_ATIVO == 'S')).select()
 
     def _tramitacao_atual(self, ID_DOCUMENTO):
         table = self.datasource.TRAMITACOES
@@ -149,7 +149,7 @@ class CriarDocumento(BaseSIEProcedure):
 
         definido_externamente = lambda f: f['IND_QUERY'].strip() == 'S'
 
-        if definido_externamente(tramitacao_atual):
+        if definido_externamente(fluxo):
             raise NotImplementedError("Não suporta fluxos do tipo IND_QUERY")
 
         dt_validade = lambda data, dias: data + timedelta(days=dias)
@@ -167,15 +167,14 @@ class CriarDocumento(BaseSIEProcedure):
             "DT_ALTERACAO": date.today(),
             "HR_ALTERACAO": strftime("%H:%M:%S"),
             "CONCORRENCIA": tramitacao_atual["CONCORRENCIA"] + 1,
-            "ID_USUARIO_INFO": dataset["ID_USUARIO"],
+            "ID_USUARIO_INFO": dataset["ID_CRIADOR"],   # todo: ID_CRIADOR = ID_USUARIO. Dataset deve pedir somente ID_CRIADOR ou ID_USUARIO tb?
             "DT_DESPACHO": date.today(),
             "HR_DESPACHO": strftime("%H:%M:%S"),
             "ID_APLIC_ACAO": fluxo["ID_APLIC_ACAO"]
         })
 
         table = self.datasource.TRAMITACOES
-        result = self.datasource(table.ID_TRAMITACAO == tramitacao_atual['ID_TRAMITACAO']).update(tramitacao_atual)
-        pass
+        self.datasource(table.ID_TRAMITACAO == tramitacao_atual['ID_TRAMITACAO']).update(**tramitacao_atual)
 
 
 class CriarDocumentoProjetoPesquisa(CriarDocumento):
@@ -217,13 +216,18 @@ class CriarDocumentoProjetoPesquisa(CriarDocumento):
                                              numero=str(numero).zfill(4),
                                              ano=ano)
 
-    def perform_work(self, dataset):
+    def _fluxo_inicial(self):
+        return super(CriarDocumentoProjetoPesquisa, self)._fluxo_inicial()[0]
+
+    @as_transaction
+    def perform_work(self, dataset, commit=True):
         """
 
         * [1] Gera número de processo para novo documento
         * [2] Insere uma nova entrada na tabela DOCUMENTOS
         * [3] Insere uma nova entrada na tabela TRAMITACOES
         * [4] Insere uma nova entrada na tabela ESTADOS_DOCUMENTOS
+        * [5] Realiza primeira tramitação
 
         :type dataset: dict
         """
@@ -232,44 +236,42 @@ class CriarDocumentoProjetoPesquisa(CriarDocumento):
             self.datasource._adapter.reconnect()
 
         dataset.update(self.constants)
-        try:
-            # 1
-            if 'NUM_PROCESSO' not in dataset:
-                dataset['NUM_PROCESSO'] = self._gerar_numero_processo(self.TIPO_DOCUMENTO)
+        # 1
+        if 'NUM_PROCESSO' not in dataset:
+            dataset['NUM_PROCESSO'] = self._gerar_numero_processo(self.TIPO_DOCUMENTO)
 
-            # 2
-            documento = self._dataset_for_table(self.datasource.DOCUMENTOS, dataset)
-            self.datasource.DOCUMENTOS.insert(**documento)
+        # 2
+        documento = self._dataset_for_table(self.datasource.DOCUMENTOS, dataset)
+        self.datasource.DOCUMENTOS.insert(**documento)
 
-            # 3
-            # fluxo_inicial = self._obter_fluxo_inicial()
-            # self._tramitar_documento(fluxo_inicial, dataset)
-            self.datasource.TRAMITACOES.insert(
-                    SEQUENCIA=1,  # Primeiro passo da tramitacao
-                    DT_ENVIO=date.today(),
-                    SITUACAO_TRAMIT=self.TRAMITACAO_SITUACAO_AGUARDANDO,
-                    IND_RETORNO_OBRIG=self.TRAMITACAO_IND_RETORNO_OBRIG_NAO,
-                    PRIORIDADE_TAB=5101,  # nivel de prioridade
-                    PRIORIDADE_ITEM=self.TRAMITACAO_PRIORIDADE_NORMAL,
-                    **self._dataset_for_table(self.datasource.TRAMITACOES, dataset)
-            )
+        # 3
+        # fluxo_inicial = self._obter_fluxo_inicial()
+        # self._tramitar_documento(fluxo_inicial, dataset)
+        self.datasource.TRAMITACOES.insert(
+                SEQUENCIA=1,  # Primeiro passo da tramitacao
+                DT_ENVIO=date.today(),
+                SITUACAO_TRAMIT=self.TRAMITACAO_SITUACAO_AGUARDANDO,
+                IND_RETORNO_OBRIG=self.TRAMITACAO_IND_RETORNO_OBRIG_NAO,
+                PRIORIDADE_TAB=5101,  # nivel de prioridade
+                PRIORIDADE_ITEM=self.TRAMITACAO_PRIORIDADE_NORMAL,
+                **self._dataset_for_table(self.datasource.TRAMITACOES, dataset)
+        )
 
-            tramitacao = self.datasource(self.datasource.TRAMITACOES.ID_TRAMITACAO == dataset['ID_TRAMITACAO']).select().first()
-            dataset.update(tramitacao)
+        tramitacao = self.datasource(self.datasource.TRAMITACOES.ID_TRAMITACAO == dataset['ID_TRAMITACAO']).select().first()
+        dataset.update(tramitacao)
 
-            # 4
-            COD_TABELA_SITUACAO_DOCUMENTO = 2001
-            ITEM_SITUACAO_DOCUMENTO_ATIVO = 1
+        # 4
+        COD_TABELA_SITUACAO_DOCUMENTO = 2001
+        ITEM_SITUACAO_DOCUMENTO_ATIVO = 1
 
-            self.datasource.ESTADOS_DOCUMENTOS.insert(
-                    COD_SITUACAO_TAB=COD_TABELA_SITUACAO_DOCUMENTO,
-                    COD_SITUACAO_ITEM=ITEM_SITUACAO_DOCUMENTO_ATIVO,
-                    **self._dataset_for_table(self.datasource.ESTADOS_DOCUMENTOS, dataset)
-            )
+        self.datasource.ESTADOS_DOCUMENTOS.insert(
+                COD_SITUACAO_TAB=COD_TABELA_SITUACAO_DOCUMENTO,
+                COD_SITUACAO_ITEM=ITEM_SITUACAO_DOCUMENTO_ATIVO,
+                **self._dataset_for_table(self.datasource.ESTADOS_DOCUMENTOS, dataset)
+        )
 
-            # self.datasource.commit()
-            self.datasource.rollback()
-            return dataset
-        except Exception as e:
-            self.datasource.rollback()
-            raise ProcedureDatasetException(dataset, e)
+        # 5
+        fluxo = self._fluxo_inicial()
+        self._tramitar_documento(fluxo, dataset)
+
+        return dataset

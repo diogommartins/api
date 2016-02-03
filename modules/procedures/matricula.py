@@ -1,8 +1,7 @@
 # coding=utf-8
 from datetime import date, datetime
-from .base import BaseSIEProcedure
-from .exceptions import ProcedureDatasetException, DateConversionException, InvalidDatasetException
-from gluon.contrib.pypyodbc import DataError
+from .base import BaseSIEProcedure, as_transaction
+from .exceptions import DateConversionException, InvalidDatasetException
 from br_documents import CPF
 
 
@@ -192,7 +191,8 @@ class MatricularAlunos(BaseSIEProcedure):
             return CPF(NUMERO_DOCUMENTO).formated
         return NUMERO_DOCUMENTO
 
-    def perform_work(self, dataset):
+    @as_transaction
+    def perform_work(self, dataset, commit=True):
         """
         Esta procedure realiza uma sequência de inserções referentes a matrícula de um aluno. O conceito de ALUNO no SIE
         é uma PESSOA associada a uma versão corrente CURSO em VERSOES_CURSOS, através da tabela CURSOS_ALUNOS.
@@ -225,40 +225,33 @@ class MatricularAlunos(BaseSIEProcedure):
         except KeyError as e:
             raise InvalidDatasetException(dataset, e)
 
-        try:
-            # 1
-            pessoa = self._pessoa_for_cpf(dataset['CPF'])
-            if pessoa:
-                dataset.update({'ID_PESSOA': pessoa})
-            else:
-                self.datasource.PESSOAS.insert(**self._dataset_for_table(self.datasource.PESSOAS, dataset))
-            # 2
-            for ID_TDOC_PESSOA, dataset_key in self.documentos.iteritems():
-                if not self._existe_documento(ID_TDOC_PESSOA, dataset['ID_PESSOA']):
-                    self.datasource.DOC_PESSOAS.insert(
-                        ID_TDOC_PESSOA=ID_TDOC_PESSOA,
-                        NUMERO_DOCUMENTO=self._documento_com_mascara(dataset[dataset_key], ID_TDOC_PESSOA),
-                        **self._dataset_for_table(self.datasource.DOC_PESSOAS, dataset)
-                    )
-            # 3
-            aluno = self.datasource(self.datasource.ALUNOS.ID_PESSOA == dataset['ID_PESSOA']).select().first()
-            if aluno:
-                dataset.update(ID_ALUNO=aluno.ID_ALUNO)
-            else:
-                self.datasource.ALUNOS.insert(**self._dataset_for_table(self.datasource.ALUNOS, dataset))
-            # 4
-            self._remover_ind_correspondencia(dataset['TIPO_ORIGEM_ITEM'], dataset['ID_ALUNO'])
-            self._criar_endereco(dataset)
-            # 5
-            dataset.update(self._versao_corrente_curso(dataset['COD_CURSO']))
+        # 1
+        pessoa = self._pessoa_for_cpf(dataset['CPF'])
+        if pessoa:
+            dataset.update({'ID_PESSOA': pessoa})
+        else:
+            self.datasource.PESSOAS.insert(**self._dataset_for_table(self.datasource.PESSOAS, dataset))
+        # 2
+        for ID_TDOC_PESSOA, dataset_key in self.documentos.iteritems():
+            if not self._existe_documento(ID_TDOC_PESSOA, dataset['ID_PESSOA']):
+                self.datasource.DOC_PESSOAS.insert(
+                    ID_TDOC_PESSOA=ID_TDOC_PESSOA,
+                    NUMERO_DOCUMENTO=self._documento_com_mascara(dataset[dataset_key], ID_TDOC_PESSOA),
+                    **self._dataset_for_table(self.datasource.DOC_PESSOAS, dataset)
+                )
+        # 3
+        aluno = self.datasource(self.datasource.ALUNOS.ID_PESSOA == dataset['ID_PESSOA']).select().first()
+        if aluno:
+            dataset.update(ID_ALUNO=aluno.ID_ALUNO)
+        else:
+            self.datasource.ALUNOS.insert(**self._dataset_for_table(self.datasource.ALUNOS, dataset))
+        # 4
+        self._remover_ind_correspondencia(dataset['TIPO_ORIGEM_ITEM'], dataset['ID_ALUNO'])
+        self._criar_endereco(dataset)
+        # 5
+        dataset.update(self._versao_corrente_curso(dataset['COD_CURSO']))
 
-            if not self._is_aluno_matriculado(dataset['ID_ALUNO'], dataset['ID_VERSAO_CURSO']):
-                dataset.update(MATR_ALUNO=self._novo_matricula_aluno(dataset))
-                self._criar_curso_aluno(dataset)
-            self.datasource.commit()
-            return dataset
-        except Exception as e:
-            self.datasource.rollback()
-            raise ProcedureDatasetException(dataset, e)
-        except DataError as e:
-            pass
+        if not self._is_aluno_matriculado(dataset['ID_ALUNO'], dataset['ID_VERSAO_CURSO']):
+            dataset.update(MATR_ALUNO=self._novo_matricula_aluno(dataset))
+            self._criar_curso_aluno(dataset)
+        return dataset

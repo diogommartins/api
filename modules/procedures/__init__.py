@@ -1,14 +1,16 @@
+# coding=utf-8
 from .exceptions import UndefinedProcedureException
 from .matricula import MatricularAlunos
-from .projetos import CadastrarProjeto
+from .projetos import CriarProjetoPesquisa, RegistroProjetoPesquisa
 from .documento import CriarDocumentoProjetoPesquisa
 from .base import BaseProcedure
 
-
+# todo: Otimizar essa porra ou essa é uma boa implementação ?
 PROCEDURES = {
     'MatricularAlunos': MatricularAlunos,
-    # 'CadastrarProjeto': CadastrarProjeto
-    'CriarDocumentoProjetoPesquisa': CriarDocumentoProjetoPesquisa
+    'CriarDocumentoProjetoPesquisa': CriarDocumentoProjetoPesquisa,
+    'CriarProjetoPesquisa': CriarProjetoPesquisa,
+    'RegistroProjetoPesquisa': RegistroProjetoPesquisa
 }
 
 

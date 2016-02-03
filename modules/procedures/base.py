@@ -2,6 +2,7 @@
 import abc
 from datetime import datetime, date
 from gluon import current
+from .exceptions import ProcedureDatasetException
 
 
 def updates_super(func):
@@ -25,6 +26,21 @@ def updates_super(func):
         func_dict.update(super_dict)
         return func_dict
     return wrapped
+
+
+def as_transaction(fn):
+    def decorator(self, dataset, commit=True):
+        def controlled_execution():
+            try:
+                resulting_dataset = fn(self, dataset, commit)
+                if commit:
+                    self.datasource.commit()
+                return resulting_dataset
+            except Exception as e:
+                self.datasource.rollback()  # todo: Verificar por commit? Acho que não deve ser necessário
+                raise ProcedureDatasetException(dataset, e)
+        return controlled_execution()
+    return decorator
 
 
 class ProcedureDatasetValidator(object):
@@ -76,7 +92,7 @@ class BaseProcedure(object):
         raise NotImplementedError("Should be implemented on subclasses")
 
     @abc.abstractmethod
-    def perform_work(self, dataset):
+    def perform_work(self, dataset, commit=True):
         """
         Something that should be done with dataset
 
@@ -142,8 +158,12 @@ class BaseSIEProcedure(BaseProcedure):
         :type table: gluon.dal.Table
         :type dataset: dict
         """
+        def has_composite_primary_key(t):
+            return len(t._primarykey) > 1
+
         # todo Deveria estar atualizando o dataset aqui? Isso ta cheirando mal....
-        dataset.update({table._primarykey[0]: self._next_value_for_sequence(table)})
+        if not has_composite_primary_key(table):
+            dataset[table._primarykey[0]] = self._next_value_for_sequence(table)
         table_dataset = {k: v for k, v in dataset.iteritems() if k in table.fields}
 
         return table_dataset

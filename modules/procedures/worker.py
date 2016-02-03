@@ -23,8 +23,7 @@ class ProcedureWorker(object):
         self.db = db
         self.datasource = datasource
         self.name = name
-        callable_procedure = Procedure()(self.name)
-        self.procedure = callable_procedure(datasource=self.datasource)
+        self.procedure = Procedure(self.name, self.datasource)
         self.ws = websocket
         self.sleep_time = sleep_time
         self.queue = []

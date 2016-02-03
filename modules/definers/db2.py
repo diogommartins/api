@@ -68,12 +68,14 @@ class DB2TableDefiner(BaseTableDefiner):
         )
 
     def _fetch_indexes(self):
+        """
+        Chaves primárias são separadas por '+' -> Exemplo +ID_DOCUMENTO+ID_APLIC_ACAO
+        """
         rows = self.db((self.db.INDEXES.TABSCHEMA == self.schema) & (self.db.INDEXES.UNIQUERULE == 'P')).select(
             self.db.INDEXES.TABNAME,
             self.db.INDEXES.COLNAMES
         )
-        return {table.TABNAME: table.COLNAMES.split('+')[1:] for table in
-                rows}  # CHAVES PRIMARIAS SAO SEPARADAS POR UM   '+' -> Exemplo +ID_DOCUMENTO+ID_APLIC_ACAO
+        return {table.TABNAME: table.COLNAMES.split('+')[1:] for table in rows}
 
     @property
     def _tables(self):

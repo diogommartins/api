@@ -1,5 +1,4 @@
 from datetime import date
-from .exceptions import ProcedureDatasetException
 from .documento import CriarDocumentoProjetoPesquisa
 from .base import BaseSIEProcedure, as_transaction
 
@@ -46,6 +45,7 @@ class CriarProjetoPesquisa(CadastrarProjeto):
         consts.update(super_consts)
         return consts
 
+    @as_transaction
     def perform_work(self, dataset, commit=True):
         """
         [1] Insere em projetos - criar_projeto
@@ -56,25 +56,16 @@ class CriarProjetoPesquisa(CadastrarProjeto):
         :param dataset:
         :param commit:
         """
-        try:
-            dataset.update(self.constants)
+        dataset.update(self.constants)
 
-
-            # 2
-            if dataset['TEM_APOIO_FINANCEIRO']:
-                # CADASTRA ORGAO - AGENCIA DE FOMENTO - FINANCIADOR
-                # CADASTRA ARQUIVO - TERMO DE OUTORGA
-                pass
-            else:
-                # TODO CADASTRA UM ARQUIVO - ATA DO DEPARTAMENTO
-                pass
-
-            if commit:
-                # self.datasource.commit()
-                self.datasource.rollback()
-        except Exception as e:
-            self.datasource.rollback()
-            raise ProcedureDatasetException(dataset, e)
+        # 2
+        if dataset['TEM_APOIO_FINANCEIRO']:
+            # CADASTRA ORGAO - AGENCIA DE FOMENTO - FINANCIADOR
+            # CADASTRA ARQUIVO - TERMO DE OUTORGA
+            pass
+        else:
+            # TODO CADASTRA UM ARQUIVO - ATA DO DEPARTAMENTO
+            pass
 
 
 class RegistroProjetoPesquisa(BaseSIEProcedure):

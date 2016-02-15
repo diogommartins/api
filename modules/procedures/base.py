@@ -40,7 +40,7 @@ def as_transaction(fn):
             except Exception as e:
                 self.datasource.rollback()
                 self.on_rollback()
-                raise ProcedureDatasetException(dataset, e)
+                raise ProcedureDatasetException(dataset, e, "Transaction error.")
         return controlled_execution()
     return decorator
 

@@ -10,7 +10,7 @@ class UndefinedProcedureException(ProcedureException):
 
 
 class ProcedureDatasetException(ProcedureException):
-    def __init__(self, dataset, cause):
+    def __init__(self, dataset, cause=None):
         """
         :type dataset: dict
         :type cause: Exception

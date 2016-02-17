@@ -29,7 +29,7 @@ def index():
     for dataset in params['data']:
         if validator.is_valid_dataset(dataset):
             if params['async']:
-                _async(dataset, procedure_name)
+                _async(dataset, params, procedure_name)
             else:
                 _sync(dataset, params, procedure)
 
@@ -37,7 +37,7 @@ def index():
             raise NotImplementedError("Possui dataset inválido...")
 
 
-def _async(dataset, procedure_name):
+def _async(dataset, params, procedure_name):
     try:
         dataset.update({
             "DT_ALTERACAO": str(date.today()),
@@ -47,7 +47,8 @@ def _async(dataset, procedure_name):
 
         db.api_procedure_queue.insert(
                 name=procedure_name,
-                json_data=json(dataset)
+                json_data=json(dataset),
+                result_fields=params['fields']
         )
     except Exception as e:
         raise NotImplementedError("Pode haver alguma? O que fazer neste caso ?")

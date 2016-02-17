@@ -74,7 +74,8 @@ db.define_table("api_procedure_queue",
                 Field("ws_group", label='Websocket group to notify'),
                 Field("did_finish_correctly", "boolean", label="Job finished as expected"),
                 Field("status_description", length=1014),
-                Field("resulting_dataset", "json")
+                Field("resulting_dataset", "json"),
+                Field("result_fields", "list:string", label="list of fields that should be returned")
                 )
 
 db.api_group_permissions.http_method.requires = IS_IN_DB(db, db.api_methods.id, '%(http_method)s')

@@ -97,7 +97,12 @@ class ProcedureWorker(object):
                         dt_conclusion=datetime.now(),
                         resulting_dataset=e.dataset
                     )
+
                     message = e.dataset
+
+                    if entry.result_fields:
+                        message = {k: v for k, v in e.dataset if k in entry.result_fields}
+
                     # todo Que erro deve ser enviado ? Deve ser enviado o nome da exception tb ?
                     message.update(error=str(e.cause))
                 finally:

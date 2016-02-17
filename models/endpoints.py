@@ -15,4 +15,7 @@ def _lazy():
         return [APIRequest.controller_for_rewrited_URL(request, datasource, lazy=True)]
 
 model_creator = JSONModelCreator(request.folder + 'private/models.json')
-endpoints = Endpoints(datasource, schema='DBSM', lazy_tables=_lazy(), observer=model_creator)
+
+endpoints = Endpoints(datasource, schema='DBSM', lazy_tables=_lazy())
+endpoints.add_observer(model_creator)
+endpoints.define_tables()

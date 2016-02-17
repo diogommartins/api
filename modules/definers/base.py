@@ -1,5 +1,7 @@
 # coding=utf-8
 import abc
+
+from abstracts import Observable
 from gluon import current, HTTP
 from gluon.dal import Field
 import threading
@@ -52,10 +54,10 @@ class DefinerThreadWorker():
             thread.join()
 
 
-class BaseTableDefiner(object):
+class BaseTableDefiner(Observable):
     types = {}
 
-    def __init__(self, datasource, schema, cache_model=current.cache.ram, cache_time=86400, lazy_tables=None, observer=None):
+    def __init__(self, datasource, schema, cache_model=current.cache.ram, cache_time=86400, lazy_tables=None):
         """
         This is an abstract class used as a base for table model definer classes.
         The default object initialization would result in defining all endpoints for the selected `schema`
@@ -75,11 +77,9 @@ class BaseTableDefiner(object):
         self.cache = cache_model
         self.cache_time = cache_time
         self.lazy_tables = lazy_tables
-        self.observer = observer
         self.tables = lambda: self.cache(self.db._uri_hash, lambda: self._fetch_columns(), time_expire=self.cache_time)
         self.indexes = lambda: self.cache(self.db._uri_hash + 'indexes', lambda: self._fetch_indexes(), time_expire=self.cache_time)
         self._define_source_tables()
-        self._define_tables()
 
     def _define_source_tables(self):
         """
@@ -87,11 +87,10 @@ class BaseTableDefiner(object):
         """
         raise NotImplementedError
 
-    def _define_tables(self):
+    def define_tables(self):
         field_collection = self.tables()
 
-        if isinstance(self.observer, TableDefinerObserver):
-            self.observer.source_tables_did_load(field_collection)
+        self.notify_obervers('source_tables_did_load', TableDefinerObserver, field_collection)
 
         indexes = self.indexes()
 

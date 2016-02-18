@@ -111,7 +111,3 @@ class DB2TableDefiner(BaseTableDefiner):
                                                                                                col.TABNAME,
                                                                                                col.TYPENAME)
         return tables
-
-    def refresh_cache(self):
-        # TODO Escrever método para dar refresh na lista de tabelas para atualizar alterações feitas na estrutura sem que seja necessário reiniciar o webserver
-        raise NotImplementedError

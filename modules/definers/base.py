@@ -57,7 +57,7 @@ class DefinerThreadWorker():
 class BaseTableDefiner(Observable):
     types = {}
 
-    def __init__(self, datasource, schema, cache_model=current.cache.ram, cache_time=86400, lazy_tables=None):
+    def __init__(self, datasource, schema, cache_model=current.cache.ram, cache_time=86400):
         """
         This is an abstract class used as a base for table model definer classes.
         The default object initialization would result in defining all endpoints for the selected `schema`
@@ -76,9 +76,12 @@ class BaseTableDefiner(Observable):
         self.schema = schema
         self.cache = cache_model
         self.cache_time = cache_time
-        self.lazy_tables = lazy_tables
-        self.tables = lambda: self.cache(self.db._uri_hash, lambda: self._fetch_columns(), time_expire=self.cache_time)
-        self.indexes = lambda: self.cache(self.db._uri_hash + 'indexes', lambda: self._fetch_indexes(), time_expire=self.cache_time)
+        self.tables = lambda: self.cache(self.db._uri_hash,
+                                         lambda: self._fetch_columns(),
+                                         time_expire=self.cache_time)
+        self.indexes = lambda: self.cache(self.db._uri_hash + 'indexes',
+                                          lambda: self._fetch_indexes(),
+                                          time_expire=self.cache_time)
         self._define_source_tables()
 
     def _define_source_tables(self):
@@ -88,6 +91,9 @@ class BaseTableDefiner(Observable):
         raise NotImplementedError
 
     def define_tables(self):
+        """
+        Resumidamente, chamará define_table de self.db para cada uma das tabelas contidas em self.db
+        """
         field_collection = self.tables()
 
         self.notify_obervers('source_tables_did_load', TableDefinerObserver, field_collection)
@@ -105,11 +111,11 @@ class BaseTableDefiner(Observable):
                 except KeyError:
                     pkey = []
                 try:
-                    self.db.define_table(table, *field_collection[table], migrate=False, primarykey=pkey)
+                    self.db.define_table(table, *field_collection[table], migrate=False, primarykey=pkey, redefine=True)
                 except KeyError:
                     raise HTTP(404, "Recurso requisitado é inválido: %s" % table)
 
-        tables = self.lazy_tables or field_collection.keys()
+        tables = field_collection.keys()
 
         if len(tables) < DefinerThreadWorker.TABLES_PER_THREAD:
             _define(tables)
@@ -137,7 +143,8 @@ class BaseTableDefiner(Observable):
         raise NotImplementedError
 
     def refresh_cache(self):
-        raise NotImplementedError
+        self.cache(self.db._uri_hash, None)
+        self.cache(self.db._uri_hash + 'indexes', None)
 
 
 class InformationSchema(BaseTableDefiner):
@@ -239,10 +246,6 @@ class InformationSchema(BaseTableDefiner):
             indexes[index.table_constraints.table_name].append(index.key_column_usage.column_name)
 
         return indexes
-
-    def refresh_cache(self):
-        #TODO Escrever método para dar refresh na lista de tabelas para atualizar alterações feitas na estrutura sem que seja necessário reiniciar o webserver
-        raise NotImplementedError
 
 
 class TableDefinerObserver(object):

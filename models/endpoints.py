@@ -1,7 +1,7 @@
 # coding=utf-8
 from api.request import APIRequest
 from definers import Endpoints
-from modelers import JSONModelCreator
+from modelers import JSONModelCreator, Web2pyModelCreator
 
 
 def _lazy():
@@ -14,8 +14,17 @@ def _lazy():
     if request.controller == 'rest':
         return [APIRequest.controller_for_rewrited_URL(request, datasource, lazy=True)]
 
-model_creator = JSONModelCreator(request.folder + 'private/models.json')
 
-endpoints = Endpoints(datasource, schema='DBSM', lazy_tables=_lazy())
-endpoints.add_observer(model_creator)
-endpoints.define_tables()
+endpoints_definer = Endpoints(datasource, schema='DBSM')
+
+
+def load_endpoints(write_models=False, refresh_cache=False):
+    if write_models:
+        endpoints_definer.add_observer(JSONModelCreator(request.folder + 'private/models.json'))
+        endpoints_definer.add_observer(Web2pyModelCreator(request.folder + 'models/'))
+
+    endpoints_definer.define_tables()
+
+
+if not _lazy():
+    load_endpoints()

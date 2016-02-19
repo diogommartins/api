@@ -69,8 +69,6 @@ class BaseTableDefiner(Observable):
         :type datasource: gluon.dal.base.DAL
         :type schema: str
         :type cache_time: int
-        :type lazy_tables: list or tuple
-        :type observer: TableDefinerObserver
         """
         self.db = datasource
         self.schema = schema
@@ -92,13 +90,14 @@ class BaseTableDefiner(Observable):
 
     def define_tables(self):
         """
-        Resumidamente, chamará define_table de self.db para cada uma das tabelas contidas em self.db
+        Basically, this method will call DAL.define_table of the given datasource, for each of the tables at self.tables
+        Also, a 'source_tables_did_load' notification is published to registered observers.
         """
         field_collection = self.tables()
 
-        self.notify_obervers('source_tables_did_load', TableDefinerObserver, field_collection)
-
         indexes = self.indexes()
+
+        self.notify_obervers('source_tables_did_load', TableDefinerObserver, (field_collection, indexes))
 
         def _define(tables):
             for table in tables:
@@ -255,5 +254,5 @@ class TableDefinerObserver(object):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def source_tables_did_load(self, tables):
+    def source_tables_did_load(self, metadata):
         raise NotImplementedError

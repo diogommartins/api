@@ -23,11 +23,11 @@ class ModelCreator(TableDefinerObserver):
     def _writer(self, data):
         raise NotImplementedError
 
-    def source_tables_did_load(self, tables):
+    def source_tables_did_load(self, metadata):
         if self._should_write():
             work = threading.Thread(name=self.__class__.__name__,
                                     target=self._writer,
-                                    args=(self._parsed_data(tables),))
+                                    args=(self._parsed_data(metadata),))
             work.start()
 
 
@@ -48,7 +48,8 @@ class JSONModelCreator(ModelCreator):
             print('Model file created at "{path}".'.format(path=self.file_path))
 
     def _parsed_data(self, data):
-        return {k: {field.name: field.type for field in v} for k, v in data.iteritems()}
+        tables, indexes = data
+        return {k: {field.name: field.type for field in v} for k, v in tables.iteritems()}
 
 
 class Web2pyModelCreator(ModelCreator):
@@ -61,7 +62,7 @@ class Web2pyModelCreator(ModelCreator):
     def _should_write(self):
         return True
 
-    def __model_str(self, table, fields):
+    def __model_str(self, table, fields, pkey):
         """
         :type fields: list[Field]
         """
@@ -69,7 +70,7 @@ class Web2pyModelCreator(ModelCreator):
             db_name=self.db_name,
             table=table,
             fields=",\n".join(["Field('{name}', '{type}')".format(name=f.name, type=f.type) for f in fields]),
-            pkey="['FAKE_PKEY']"
+            pkey=pkey
         )
 
     def _writer(self, data):
@@ -81,4 +82,5 @@ class Web2pyModelCreator(ModelCreator):
                 fp.write(model_str)
 
     def _parsed_data(self, data):
-        return {k: self.__model_str(k, v) for k, v in data.iteritems()}
+        tables, indexes = data
+        return {table: self.__model_str(table, fields, indexes.get(table, [])) for table, fields in tables.iteritems()}

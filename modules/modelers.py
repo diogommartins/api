@@ -66,7 +66,7 @@ class Web2pyModelCreator(ModelCreator):
         """
         :type fields: list[Field]
         """
-        return "{db_name}.define_table('{table}',\n{fields},\nmigrate=True,\nredefine=True,\nprimarykey={pkey})".format(
+        return "{db_name}.define_table('{table}',\n{fields},\nmigrate=False,\nredefine=True,\nprimarykey={pkey})".format(
             db_name=self.db_name,
             table=table,
             fields=",\n".join(["Field('{name}', '{type}')".format(name=f.name, type=f.type) for f in fields]),

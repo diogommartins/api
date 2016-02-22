@@ -8,6 +8,7 @@ from datetime import datetime, date
 from gluon import current, HTTP
 import abc
 from gluon.serializers import json
+import gambiarras
 
 try:
     import httplib as http
@@ -126,7 +127,8 @@ class APIAlterOperation(APIOperation):
         """
         return tuple(field for field in parameters['valid'] if self.table[field].type == 'blob')
 
-    def blob_values(self, parameters, fields):
+    @staticmethod
+    def blob_values(parameters, fields):
         """
         Retorna uma tupla de valores correpondentes aos campos blob a serem usados em um prepared statement
         :type parameters: dict
@@ -384,7 +386,7 @@ class APIInsert(APIAlterOperation):
                 new_id = self.table.insert(**parameters)[self._unique_identifier_column]
             else:
                 stmt = self.table._insert(**parameters)
-                # Essa inserção não funcionará. É necessário reinserir pelo Java.
+                # Essa inserção funcionará. É necessário reinserir pelo Java pois o arquivo ficará corrompido
                 self.db.executesql(stmt, blob_values)
                 new_id = parameters[self._unique_identifier_column]
 
@@ -403,7 +405,8 @@ class APIInsert(APIAlterOperation):
         else:
             self.db.commit()
             if new_id and blob_fields:
-                self.insert_blob_fields_callback(new_id, zip(blob_fields, blob_values))  # Reinsere blobs pelo JAVA
+                gambiarras.insert_blob(new_id, zip(blob_fields, blob_values), self.table, self._unique_identifier_column)
+                # self.insert_blob_fields_callback(new_id, zip(blob_fields, blob_values))  # Reinsere blobs pelo JAVA
             headers = {
                 "Location": "%s?%s=%i" % (self.base_endpoint_URI, self._unique_identifier_column, new_id),
                 "id": new_id

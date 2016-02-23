@@ -124,7 +124,7 @@ class APIKeyPermissions(object):
         self.http_method = APIKeyPermissions.http_method_with_name(self.request.env.request_method)
         self.hash = self.request.vars.API_KEY
         self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select(cache=self.cache, cacheable=True).first()
-        self.table_name = APIRequest.controller_for_rewrited_URL(self.request, current.datasource)
+        self.table_name = APIRequest.controller_for_rewrited_URL(self.request)
 
     @staticmethod
     def http_method_with_name(method):

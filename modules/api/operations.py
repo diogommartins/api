@@ -485,9 +485,6 @@ class APIUpdate(APIAlterOperation):
             else:
                 self.db.rollback()
             raise HTTP(http.UNPROCESSABLE_ENTITY, "Algum parâmetro possui tipo inválido")
-
-        if affected_rows == 0:
-            raise HTTP(http.NOT_FOUND, "Ooops... A princesa está em um castelo com outro ID.")
         else:
             self.db.commit()
 

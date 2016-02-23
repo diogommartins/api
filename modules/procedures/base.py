@@ -1,6 +1,48 @@
 # coding=utf-8
 import abc
-from datetime import datetime
+from datetime import datetime, date
+from gluon import current
+from .exceptions import ProcedureDatasetException
+
+
+def updates_super(func):
+    """
+    Invokes method with the same name from super class, that should return a dict, updates it with
+    the return from the decorated method and than returns it.
+
+    self_dict = {1:'a', 2: 'b'}
+    super_dict = {3:'c'}
+    decorated_return = {1:'a', 2: 'b', 3:'c'}
+
+    :param func:
+    :return: Dictionary updated with the k:v pairs from super method
+    :rtype: dict
+    """
+    # Todo: Não funciona se encadear decorator em subclasses
+    def wrapped(self):
+        super_func = getattr(super(self.__class__, self), func.__name__, None)
+        super_dict = super_func() if callable(super_func) else {}
+        func_dict = func(self)
+        func_dict.update(super_dict)
+        return func_dict
+    return wrapped
+
+
+def as_transaction(fn):
+    def decorator(self, dataset, commit=True):
+        def controlled_execution():
+            try:
+                resulting_dataset = fn(self, dataset, commit)
+                if commit:
+                    self.datasource.commit()
+                    self.on_commit()
+                return resulting_dataset
+            except Exception as e:
+                self.datasource.rollback()
+                self.on_rollback()
+                raise ProcedureDatasetException(dataset, e, "Transaction error.")
+        return controlled_execution()
+    return decorator
 
 
 class ProcedureDatasetValidator(object):
@@ -17,10 +59,32 @@ class ProcedureDatasetValidator(object):
         Checks if every item in the data parameter contains the required field for the requested procedure
         :raises ValueError: If a row has an incorrect set of parameters
         """
+
         required_fields = self.procedure.required_fields
-        if required_fields <= frozenset(dataset.keys()):
+        required_set = frozenset(required_fields.keys())
+        # Constant values arent
+        required_set -= frozenset(self.procedure.constants)
+        given_set = frozenset(dataset.keys())
+
+        if required_set.issubset(given_set):
+            # for k, v in dataset:
+            #     if type(v).__name__ == required_fields[k]:
+            #         pass
+            #     else:
+            #         try:
+            #             _type = getattr(__builtins__, required_fields[k])
+            #             _type(v)
+            #         except ValueError:
+            #             raise TypeError("{field} should be of type {given}, should be {expected}".format(
+            #                 field=k,
+            #                 given=type(v).__name__,
+            #                 expected=required_fields[k]
+            #             ))
+
             return True
-        raise ValueError("Every data row passed should contain the required fields: %s" % str(required_fields))
+        else:
+            missing_fields = ','.join(required_set - given_set)
+            raise ValueError("Dataset missing required fields: " + missing_fields)
 
 
 class BaseProcedure(object):
@@ -28,22 +92,30 @@ class BaseProcedure(object):
 
     def __init__(self, datasource):
         """
-
         :type datasource: gluon.dal.DAL
         """
         self.datasource = datasource
 
     @abc.abstractproperty
+    def constants(self):
+        """
+        A dict of constant parameters that should be present on the procedure but shouldn't be set by the user
+
+        :rtype: dict
+        """
+        raise NotImplementedError("Should be implemented on subclasses")
+
+    @abc.abstractproperty
     def required_fields(self):
         """
-        A frozenset of required dictionary keys
+        A dict of required dataset k:v parameters
 
-        :rtype : frozenset
+        :rtype : dict
         """
         raise NotImplementedError("Should be implemented on subclasses")
 
     @abc.abstractmethod
-    def perform_work(self, dataset):
+    def perform_work(self, dataset, commit=True):
         """
         Something that should be done with dataset
 
@@ -73,10 +145,39 @@ class BaseProcedure(object):
                 raise ValueError('"%s" is not a valid date format.' % date)  # Impossible to deal with
         return input_date.strftime(output_format)
 
+    def on_commit(self):
+        """
+        Something that should be done after a commit is performed
+        :return:
+        """
+        pass
+
+    def on_rollback(self):
+        """
+        Something that should be done after a rollback is performed
+        :return:
+        """
+        pass
+
 
 class BaseSIEProcedure(BaseProcedure):
     # todo esta classe provavelmente não deveria estar no mesmo arquivo
     __metaclass__ = abc.ABCMeta
+    cache = (current.cache.ram, 86400)
+
+    @property
+    def constants(self):
+        return {
+            "DT_ALTERACAO": str(date.today()),
+            "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
+            "CONCORRENCIA": 999
+        }
+
+    @property
+    def required_fields(self):
+        return {
+            'COD_OPERADOR': 'int'
+        }
 
     def _next_value_for_sequence(self, table):
         """
@@ -94,8 +195,12 @@ class BaseSIEProcedure(BaseProcedure):
         :type table: gluon.dal.Table
         :type dataset: dict
         """
+        def has_composite_primary_key(t):
+            return len(t._primarykey) > 1
+
         # todo Deveria estar atualizando o dataset aqui? Isso ta cheirando mal....
-        dataset.update({table._primarykey[0]: self._next_value_for_sequence(table)})
+        if not has_composite_primary_key(table):
+            dataset[table._primarykey[0]] = self._next_value_for_sequence(table)
         table_dataset = {k: v for k, v in dataset.iteritems() if k in table.fields}
 
         return table_dataset

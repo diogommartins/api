@@ -23,8 +23,7 @@ class ProcedureWorker(object):
         self.db = db
         self.datasource = datasource
         self.name = name
-        callable_procedure = Procedure()(self.name)
-        self.procedure = callable_procedure(datasource=self.datasource)
+        self.procedure = Procedure(self.name, self.datasource)
         self.ws = websocket
         self.sleep_time = sleep_time
         self.queue = []
@@ -98,7 +97,12 @@ class ProcedureWorker(object):
                         dt_conclusion=datetime.now(),
                         resulting_dataset=e.dataset
                     )
+
                     message = e.dataset
+
+                    if entry.result_fields:
+                        message = {k: v for k, v in e.dataset if k in entry.result_fields}
+
                     # todo Que erro deve ser enviado ? Deve ser enviado o nome da exception tb ?
                     message.update(error=str(e.cause))
                 finally:

@@ -91,7 +91,8 @@ def membership():
 
 @auth.requires(auth.has_membership('Desenvolvedor'))
 def permissions():
-    db.api_group_permissions.table_name.requires = IS_IN_SET(sorted(datasource.tables))
+    endpoints = sorted(datasource.tables)
+    db.api_group_permissions.table_name.requires = IS_IN_SET(endpoints)
     grid = SQLFORM.grid(
         query=db.api_group_permissions,
         editable=False,

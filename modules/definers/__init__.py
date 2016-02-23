@@ -1,3 +1,4 @@
+from .base import BaseTableDefiner
 from .db2 import DB2TableDefiner
 from .mysql import MySQLTableDefiner
 from .mssql import MSSQLTableDefiner
@@ -13,10 +14,11 @@ DEFINERS = {
 
 
 class Endpoints(object):
-    def __init__(self, datasource, **kwargs):
-        self.datasource = datasource
+    def __new__(cls, datasource, **kwargs):
+        """
+        :rtype: BaseTableDefiner
+        """
+        if datasource._dbname not in DEFINERS:
+            raise SyntaxError("Database %s not supported for auto definition of endpoints." % datasource._dbname)
 
-        if not self.datasource._dbname in DEFINERS:
-            raise SyntaxError("Database %s not supported for auto definition of endpoints." % self.datasource._dbname)
-
-        self._table_definer = DEFINERS[self.datasource._dbname](self.datasource, **kwargs)
+        return DEFINERS[datasource._dbname](datasource, **kwargs)

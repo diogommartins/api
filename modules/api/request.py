@@ -37,7 +37,7 @@ class APIRequest(object):
         self.datasource = current.datasource
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.api_key = api_key
-        self.endpoint = self.controller_for_rewrited_URL(self.request, self.datasource)
+        self.endpoint = self.controller_for_rewrited_URL(self.request)
         if not self.endpoint:
             raise HTTP(404, "Recurso requisitado é inválido")
 
@@ -51,7 +51,7 @@ class APIRequest(object):
         }
 
     @staticmethod
-    def controller_for_rewrited_URL(request, db, lazy=False):
+    def controller_for_rewrited_URL(request):
         """
         O método retorna o nome do controller requisitado, antes do URL Rewrite realizado
         pelo `routes.py`. Na API, um controller é mapeado diretamente a uma tabela modelado
@@ -65,9 +65,9 @@ class APIRequest(object):
         :return: Nome original do controller requisitado
         """
         path_list = request.env.PATH_INFO.split("/")
-        resource = path_list[len(path_list)-1]
-        if resource in db or lazy:
-            return resource
+        endpoint = path_list[len(path_list)-1]
+
+        return endpoint
 
     def __is_notifyable_operation(self, operation):
         # todo: Isso deveria estar aqui?

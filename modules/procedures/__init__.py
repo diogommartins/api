@@ -1,24 +1,32 @@
+# coding=utf-8
+from .exceptions import UndefinedProcedureException
 from .matricula import MatricularAlunos
-from .projetos import CadastrarProjeto
+from .projetos import CriarProjetoPesquisa, RegistroProjetoPesquisa
+from .documento import CriarDocumentoProjetoPesquisa
+from .base import BaseProcedure
+from inspect import isclass
 
 
-PROCEDURES = {
-    'MatricularAlunos': MatricularAlunos,
-    # 'CadastrarProjeto': CadastrarProjeto
-}
+def is_callable_procedure(t):
+    """
+    :type t: type
+    """
+    return isclass(t) and issubclass(t, BaseProcedure) and t != BaseProcedure
+
+PROCEDURES = {k: v for k, v in globals().iteritems() if is_callable_procedure(v)}
 
 
 class Procedure(object):
-    def __call__(self, name):
+    def __new__(cls, name, datasource):
         """
         Simple `Factory` class for BaseProcedure subclasses that returns a class reference
 
-        :rtype : .base.BaseProcedure
+        :type datasource: gluon.dal.DAL
         :param name: The name of a BaseProcedure subclass
         :raise SyntaxError: Raised when trying to call a nonexistent procedure
+        :rtype: BaseProcedure
         """
-        self.name = name
-        if self.name not in PROCEDURES:
-            raise SyntaxError("Procedure %s not supported." % self.name)
-
-        return PROCEDURES[self.name]
+        try:
+            return PROCEDURES[name](datasource)
+        except KeyError as e:
+            raise UndefinedProcedureException("Procedure %s not supported." % name, e)

@@ -491,8 +491,7 @@ class APIUpdate(APIAlterOperation):
             self.db.commit()
 
             if self.observer:
-                # todo: Vai quebrar precisa usar identifiers_values
-                parameters[self.p_key_columns] = self.pkey_value
+                parameters.update(self.identifiers_values)
                 self.observer.did_finish_successfully(self, parameters)
 
             headers = {"Affected": affected_rows}

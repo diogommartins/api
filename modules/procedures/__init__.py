@@ -1,15 +1,19 @@
+# coding=utf-8
 from .exceptions import UndefinedProcedureException
 from .matricula import MatricularAlunos
-from .projetos import CadastrarProjeto
+from .projetos import CriarProjetoPesquisa, RegistroProjetoPesquisa
 from .documento import CriarDocumentoProjetoPesquisa
 from .base import BaseProcedure
+from inspect import isclass
 
 
-PROCEDURES = {
-    'MatricularAlunos': MatricularAlunos,
-    # 'CadastrarProjeto': CadastrarProjeto
-    'CriarDocumentoProjetoPesquisa': CriarDocumentoProjetoPesquisa
-}
+def is_callable_procedure(t):
+    """
+    :type t: type
+    """
+    return isclass(t) and issubclass(t, BaseProcedure) and t != BaseProcedure
+
+PROCEDURES = {k: v for k, v in globals().iteritems() if is_callable_procedure(v)}
 
 
 class Procedure(object):

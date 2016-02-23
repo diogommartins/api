@@ -35,10 +35,12 @@ def as_transaction(fn):
                 resulting_dataset = fn(self, dataset, commit)
                 if commit:
                     self.datasource.commit()
+                    self.on_commit()
                 return resulting_dataset
             except Exception as e:
-                self.datasource.rollback()  # todo: Verificar por commit? Acho que não deve ser necessário
-                raise ProcedureDatasetException(dataset, e)
+                self.datasource.rollback()
+                self.on_rollback()
+                raise ProcedureDatasetException(dataset, e, "Transaction error.")
         return controlled_execution()
     return decorator
 
@@ -57,11 +59,32 @@ class ProcedureDatasetValidator(object):
         Checks if every item in the data parameter contains the required field for the requested procedure
         :raises ValueError: If a row has an incorrect set of parameters
         """
+
         required_fields = self.procedure.required_fields
-        if required_fields <= frozenset(dataset.keys()):
+        required_set = frozenset(required_fields.keys())
+        # Constant values arent
+        required_set -= frozenset(self.procedure.constants)
+        given_set = frozenset(dataset.keys())
+
+        if required_set.issubset(given_set):
+            # for k, v in dataset:
+            #     if type(v).__name__ == required_fields[k]:
+            #         pass
+            #     else:
+            #         try:
+            #             _type = getattr(__builtins__, required_fields[k])
+            #             _type(v)
+            #         except ValueError:
+            #             raise TypeError("{field} should be of type {given}, should be {expected}".format(
+            #                 field=k,
+            #                 given=type(v).__name__,
+            #                 expected=required_fields[k]
+            #             ))
+
             return True
-        missing_fields = ','.join(required_fields - frozenset(dataset.keys()))
-        raise ValueError("Dataset missing required fields: " + missing_fields)
+        else:
+            missing_fields = ','.join(required_set - given_set)
+            raise ValueError("Dataset missing required fields: " + missing_fields)
 
 
 class BaseProcedure(object):
@@ -121,6 +144,20 @@ class BaseProcedure(object):
             except ValueError:
                 raise ValueError('"%s" is not a valid date format.' % date)  # Impossible to deal with
         return input_date.strftime(output_format)
+
+    def on_commit(self):
+        """
+        Something that should be done after a commit is performed
+        :return:
+        """
+        pass
+
+    def on_rollback(self):
+        """
+        Something that should be done after a rollback is performed
+        :return:
+        """
+        pass
 
 
 class BaseSIEProcedure(BaseProcedure):

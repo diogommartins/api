@@ -29,26 +29,39 @@ def index():
     for dataset in params['data']:
         if validator.is_valid_dataset(dataset):
             if params['async']:
-                try:
-                    dataset.update({
-                        "DT_ALTERACAO": str(date.today()),
-                        "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
-                        "ENDERECO_FISICO": request.env.remote_addr
-                    })
-
-                    db.api_procedure_queue.insert(
-                        name=procedure_name,
-                        json_data=json(dataset)
-                    )
-                except Exception as e:
-                    raise NotImplementedError("Pode haver alguma? O que fazer neste caso ?")
+                _async(dataset, params, procedure_name)
             else:
-                try:
-                    result_dataset = procedure.perform_work(dataset)
-                    raise HTTP(http.CREATED, json(result_dataset))
-                except ProcedureException as e:
-                    headers = {'error': e.cause}
-                    raise HTTP(http.INTERNAL_SERVER_ERROR, json(dataset), **headers)
+                _sync(dataset, params, procedure)
 
         else:
             raise NotImplementedError("Possui dataset inválido...")
+
+
+def _async(dataset, params, procedure_name):
+    try:
+        dataset.update({
+            "DT_ALTERACAO": str(date.today()),
+            "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
+            "ENDERECO_FISICO": request.env.remote_addr
+        })
+
+        db.api_procedure_queue.insert(
+                name=procedure_name,
+                json_data=json(dataset),
+                result_fields=params['fields']
+        )
+    except Exception as e:
+        raise NotImplementedError("Pode haver alguma? O que fazer neste caso ?")
+
+
+def _sync(dataset, params, procedure):
+    try:
+        response_dataset = result = procedure.perform_work(dataset)
+
+        if params['fields']:
+            response_dataset = {k: v for k, v in result.iteritems() if k in params['fields']}
+
+        raise HTTP(http.CREATED, json(response_dataset))
+    except ProcedureException as e:
+        headers = {'error': e.cause}
+        raise HTTP(http.INTERNAL_SERVER_ERROR, json(dataset), **headers)

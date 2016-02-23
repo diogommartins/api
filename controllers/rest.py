@@ -8,6 +8,10 @@ except ImportError:
 
 
 def index():
+    endpoint = APIRequest.controller_for_rewrited_URL(request)
+    if endpoint not in datasource:
+        raise HTTP(http.NOT_FOUND, "Endpoint inválido.")
+
     api_key = APIKey(db, request.vars.API_KEY)
     if api_key.auth:
         permissions = APIKeyPermissions(request)

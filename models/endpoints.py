@@ -1,18 +1,23 @@
 # coding=utf-8
 from api.request import APIRequest
 from definers import Endpoints
-from modelers import JSONModelCreator
+from modelers import JSONModelCreator, Web2pyModelCreator
 
 
-def _lazy():
-    """
-    Checks if the requested URL was rewritten in `routes.py`. If so, it assumes the requested controller is an ENDPOINT
-     and that we should use an `on demand` table definition approach
+endpoints_definer = Endpoints(datasource, schema='DBSM')
 
-    :rtype : list
-    """
-    if request.controller == 'rest':
-        return [APIRequest.controller_for_rewrited_URL(request, datasource, lazy=True)]
 
-model_creator = JSONModelCreator(request.folder + 'private/models.json')
-endpoints = Endpoints(datasource, schema='DBSM', lazy_tables=_lazy(), observer=model_creator)
+def load_endpoints(write_models=False, refresh_cache=False):
+    if write_models:
+        endpoints_definer.add_observer(JSONModelCreator(request.folder + 'private/models.json'))
+        endpoints_definer.add_observer(Web2pyModelCreator(request.folder + 'models/endpoints/'))
+
+    endpoints_definer.define_tables()
+
+
+if request.controller == 'rest':
+    endpoint = APIRequest.controller_for_rewrited_URL(request)
+    response.models_to_run += ['^endpoints/{endpoint}/\\w+\\.py$'.format(endpoint=endpoint)]
+else:
+    # if the request isn`t for an endpoint, load everything
+    load_endpoints()

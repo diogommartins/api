@@ -1,5 +1,7 @@
 # coding=utf-8
 import abc
+
+from abstracts import Observable
 from gluon import current, HTTP
 from gluon.dal import Field
 import threading
@@ -52,10 +54,10 @@ class DefinerThreadWorker():
             thread.join()
 
 
-class BaseTableDefiner(object):
+class BaseTableDefiner(Observable):
     types = {}
 
-    def __init__(self, datasource, schema, cache_model=current.cache.ram, cache_time=86400, lazy_tables=None, observer=None):
+    def __init__(self, datasource, schema, cache_model=current.cache.ram, cache_time=86400):
         """
         This is an abstract class used as a base for table model definer classes.
         The default object initialization would result in defining all endpoints for the selected `schema`
@@ -67,19 +69,18 @@ class BaseTableDefiner(object):
         :type datasource: gluon.dal.base.DAL
         :type schema: str
         :type cache_time: int
-        :type lazy_tables: list or tuple
-        :type observer: TableDefinerObserver
         """
         self.db = datasource
         self.schema = schema
         self.cache = cache_model
         self.cache_time = cache_time
-        self.lazy_tables = lazy_tables
-        self.observer = observer
-        self.tables = lambda: self.cache(self.db._uri_hash, lambda: self._fetch_columns(), time_expire=self.cache_time)
-        self.indexes = lambda: self.cache(self.db._uri_hash + 'indexes', lambda: self._fetch_indexes(), time_expire=self.cache_time)
+        self.tables = lambda: self.cache(self.db._uri_hash,
+                                         lambda: self._fetch_columns(),
+                                         time_expire=self.cache_time)
+        self.indexes = lambda: self.cache(self.db._uri_hash + 'indexes',
+                                          lambda: self._fetch_indexes(),
+                                          time_expire=self.cache_time)
         self._define_source_tables()
-        self._define_tables()
 
     def _define_source_tables(self):
         """
@@ -87,13 +88,16 @@ class BaseTableDefiner(object):
         """
         raise NotImplementedError
 
-    def _define_tables(self):
+    def define_tables(self):
+        """
+        Basically, this method will call DAL.define_table of the given datasource, for each of the tables at self.tables
+        Also, a 'source_tables_did_load' notification is published to registered observers.
+        """
         field_collection = self.tables()
 
-        if isinstance(self.observer, TableDefinerObserver):
-            self.observer.source_tables_did_load(field_collection)
-
         indexes = self.indexes()
+
+        self.notify_obervers('source_tables_did_load', TableDefinerObserver, (field_collection, indexes))
 
         def _define(tables):
             for table in tables:
@@ -106,11 +110,11 @@ class BaseTableDefiner(object):
                 except KeyError:
                     pkey = []
                 try:
-                    self.db.define_table(table, *field_collection[table], migrate=False, primarykey=pkey)
+                    self.db.define_table(table, *field_collection[table], migrate=False, primarykey=pkey, redefine=True)
                 except KeyError:
                     raise HTTP(404, "Recurso requisitado é inválido: %s" % table)
 
-        tables = self.lazy_tables or field_collection.keys()
+        tables = field_collection.keys()
 
         if len(tables) < DefinerThreadWorker.TABLES_PER_THREAD:
             _define(tables)
@@ -138,7 +142,8 @@ class BaseTableDefiner(object):
         raise NotImplementedError
 
     def refresh_cache(self):
-        raise NotImplementedError
+        self.cache(self.db._uri_hash, None)
+        self.cache(self.db._uri_hash + 'indexes', None)
 
 
 class InformationSchema(BaseTableDefiner):
@@ -241,10 +246,6 @@ class InformationSchema(BaseTableDefiner):
 
         return indexes
 
-    def refresh_cache(self):
-        #TODO Escrever método para dar refresh na lista de tabelas para atualizar alterações feitas na estrutura sem que seja necessário reiniciar o webserver
-        raise NotImplementedError
-
 
 class TableDefinerObserver(object):
     """
@@ -253,5 +254,5 @@ class TableDefinerObserver(object):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def source_tables_did_load(self, tables):
+    def source_tables_did_load(self, metadata):
         raise NotImplementedError

@@ -17,7 +17,7 @@ def index():
 
     """
     params = loads_json(request.body.read())
-    procedure_name = APIRequest.controller_for_rewrited_URL(request, datasource, True)
+    procedure_name = APIRequest.controller_for_rewrited_URL(request)
 
     try:
         procedure = Procedure(procedure_name, datasource)

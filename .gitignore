@@ -1,6 +1,6 @@
 controllers/sandbox.py
 databases
-errors
+errors/*
 models/0.py
 models/1_dbconn.py
 models/db.py
@@ -13,3 +13,4 @@ views/sandbox/*
 *.bak
 private/*
 *sandbox*
+cache/*

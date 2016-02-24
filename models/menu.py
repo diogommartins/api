@@ -29,12 +29,16 @@ response.menu = [
     (T('Sobre'), False, URL('default', 'sobre'), [])
 ]
 
-adminMenu = [('Administração', False, False,[
-    ('Gerar nova chave de sistema', False, URL('user', 'create_system_key')),
-    ('Usuários', False, URL('user', 'user')),
-    ('Gerenciar Grupos', False, URL('user', 'membership')),
-    ('Gerenciar permissões', False, URL('user', 'permissions'))
-])]
+adminMenu = [
+    ('Administração', False, False, (
+        ('Atualizar definições', False, URL('admin', 'refresh_cache')),
+        ('Gerar nova chave de sistema', False, URL('admin', 'create_system_key')),
+        ('Usuários', False, URL('admin', 'user')),
+        ('Gerenciar Grupos', False, URL('admin', 'membership')),
+        ('Gerenciar Permissões de Endpoints', False, URL('admin', 'permissions_endpoints')),
+        ('Gerenciar Permissões de Procedures', False, URL('admin', 'permissions_procedures')),
+    ))
+]
 
 
 if auth.has_membership('Desenvolvedor'):

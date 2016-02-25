@@ -1,4 +1,5 @@
 # coding=utf-8
+from api.key import APIKey, APIProcedurePermissions
 from api.request import APIRequest
 from procedures.base import ProcedureDatasetValidator
 from gluon.serializers import json, loads_json
@@ -22,19 +23,27 @@ def index():
     try:
         procedure = Procedure(procedure_name, datasource)
     except UndefinedProcedureException as e:
-        raise HTTP(http.BAD_REQUEST, e.msg)
+        raise HTTP(http.NOT_FOUND, e.msg)
+
+    api_key = APIKey(db, params['API_KEY'])
+    if not api_key.auth:
+        raise HTTP(http.UNAUTHORIZED, "API Key inválida ou inativa")
+
+    if not APIProcedurePermissions(api_key, procedure_name).can_perform_api_call():
+        raise HTTP(http.UNAUTHORIZED, "Nao pode.")
 
     validator = ProcedureDatasetValidator(procedure)
 
     for dataset in params['data']:
-        if validator.is_valid_dataset(dataset):
-            if params['async']:
-                _async(dataset, params, procedure_name)
-            else:
-                _sync(dataset, params, procedure)
-
-        else:
-            raise NotImplementedError("Possui dataset inválido...")
+        try:
+            if validator.is_valid_dataset(dataset):
+                if params['async']:
+                    _async(dataset, params, procedure_name)
+                else:
+                    _sync(dataset, params, procedure)
+        except ValueError as e:
+            # Invalid dataset
+            raise HTTP(http.BAD_REQUEST, e.message)
 
 
 def _async(dataset, params, procedure_name):

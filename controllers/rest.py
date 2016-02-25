@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from api.key import APIKey, APIKeyPermissions
+from api.key import APIKey, APIEndpointPermissions
 from api.request import APIRequest
 try:
     import httplib as http
@@ -18,7 +18,7 @@ def index():
     if not api_key.auth:
         raise HTTP(http.UNAUTHORIZED, "API Key inválida ou inativa")
 
-    permissions = APIKeyPermissions(request)
+    permissions = APIEndpointPermissions(request)
     if permissions.can_perform_api_call():
         api_request = APIRequest(api_key, request)
         return api_request.perform_request()

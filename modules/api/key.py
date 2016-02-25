@@ -29,6 +29,11 @@ class APIKey(object):
         if auth_key_owner:
             return auth_key_owner.user_id
 
+    @property
+    def group_id(self):
+        membership = self.db(self.db.auth_membership.user_id == self.auth.user_id).select().first()
+        return membership.group_id
+
     def _make_hash(self, username):
         """
         Método utilizado para criar um novo hash a ser utilizado como API Key para o usuário
@@ -111,7 +116,7 @@ class APIKey(object):
 class APIKeyPermissions(object):
     cache = (current.cache.ram, 86400)
 
-    def __init__(self, request):
+    def __init__(self):
         """
         TODO: modificar atributos hash e key para receber um objeto do tipo APIKey
         :type self: object
@@ -119,12 +124,6 @@ class APIKeyPermissions(object):
         """
         self.db = current.db
         self.datasource = current.datasource
-        self.request = request
-        self.fields = self.request.vars["FIELDS"].split(",") if self.request.vars["FIELDS"] else []
-        self.http_method = APIKeyPermissions.http_method_with_name(self.request.env.request_method)
-        self.hash = self.request.vars.API_KEY
-        self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select(cache=self.cache, cacheable=True).first()
-        self.table_name = APIRequest.controller_for_rewrited_URL(self.request)
 
     @staticmethod
     def http_method_with_name(method):
@@ -256,3 +255,27 @@ class APIKeyPermissions(object):
         )
 
         return reduce(lambda a, b: (a & b), conditions)
+
+
+class APIEndpointPermissions(APIKeyPermissions):
+    def __init__(self, request):
+        super(APIEndpointPermissions, self).__init__()
+        self.request = request
+        self.fields = self.request.vars["FIELDS"].split(",") if self.request.vars["FIELDS"] else []
+        self.http_method = APIKeyPermissions.http_method_with_name(self.request.env.request_method)
+        self.hash = self.request.vars.API_KEY
+        self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select(cache=self.cache, cacheable=True).first()
+        self.table_name = APIRequest.controller_for_rewrited_URL(self.request)
+
+
+class APIProcedurePermissions(APIKeyPermissions):
+    def __init__(self, api_key, procedure_name):
+        super(APIProcedurePermissions, self).__init__()
+        self.api_key = api_key
+        self.procedure_name = procedure_name
+
+    def can_perform_api_call(self):
+        table = self.db.api_procedure_permissions
+        condition = self.db((table.name == self.procedure_name) &
+                            (table.group_id == self.api_key.group_id)).select(cache=self.cache, cacheable=True).first()
+        return condition

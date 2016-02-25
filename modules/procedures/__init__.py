@@ -4,6 +4,7 @@ from .matricula import MatricularAlunos
 from .projetos import CriarProjetoPesquisa, RegistroProjetoPesquisa
 from .documento import CriarDocumentoProjetoPesquisa
 from .base import BaseProcedure
+from .test import FooProcedure
 from inspect import isclass
 
 

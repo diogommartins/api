@@ -142,6 +142,17 @@ class APIKeyPermissions(object):
         else:
             raise HTTP(405, "Método requisitado não é suportado.")
 
+
+class APIEndpointPermissions(APIKeyPermissions):
+    def __init__(self, request):
+        super(APIEndpointPermissions, self).__init__()
+        self.request = request
+        self.fields = self.request.vars["FIELDS"].split(",") if self.request.vars["FIELDS"] else []
+        self.http_method = APIKeyPermissions.http_method_with_name(self.request.env.request_method)
+        self.hash = self.request.vars.API_KEY
+        self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select(cache=self.cache, cacheable=True).first()
+        self.table_name = APIRequest.controller_for_rewrited_URL(self.request)
+
     def can_perform_api_call(self):
         """
         Método responsável por verificar se a chave está ativa e a quantidade de requisições
@@ -255,17 +266,6 @@ class APIKeyPermissions(object):
         )
 
         return reduce(lambda a, b: (a & b), conditions)
-
-
-class APIEndpointPermissions(APIKeyPermissions):
-    def __init__(self, request):
-        super(APIEndpointPermissions, self).__init__()
-        self.request = request
-        self.fields = self.request.vars["FIELDS"].split(",") if self.request.vars["FIELDS"] else []
-        self.http_method = APIKeyPermissions.http_method_with_name(self.request.env.request_method)
-        self.hash = self.request.vars.API_KEY
-        self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select(cache=self.cache, cacheable=True).first()
-        self.table_name = APIRequest.controller_for_rewrited_URL(self.request)
 
 
 class APIProcedurePermissions(APIKeyPermissions):

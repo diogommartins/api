@@ -64,17 +64,21 @@ def membership():
 
 @auth.requires_membership('Desenvolvedor')
 def permissions_endpoints():
-    endpoints = sorted(datasource.tables)
-    db.api_group_permissions.table_name.requires = IS_IN_SET(endpoints)
-    grid = SQLFORM.grid(
-        query=db.api_group_permissions,
-        editable=False,
-        deletable=False,
-        csv=False
-    )
-    return dict(grid=grid)
+    return _permissions_grid(db.api_group_permissions, 'table_name', sorted(datasource.tables))
 
 
 @auth.requires_membership('Desenvolvedor')
 def permissions_procedures():
-    return dict()
+    return _permissions_grid(db.api_procedure_permissions, 'name', sorted(PROCEDURES.keys()))
+
+
+def _permissions_grid(table, field, options):
+    table[field].requires = IS_IN_SET(options)
+    grid = SQLFORM.grid(
+        query=table,
+        editable=False,
+        deletable=False,
+        csv=False
+    )
+
+    return dict(grid=grid)

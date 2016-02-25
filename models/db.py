@@ -78,4 +78,9 @@ db.define_table("api_procedure_queue",
                 Field("result_fields", "list:string", label="list of fields that should be returned")
                 )
 
+db.define_table("api_procedure_permissions",
+                Field("name", label="Procedure name"),
+                Field("group_id", db.auth_group),
+                Field("unique_validator", unique=True, compute=lambda r: r.name + str(r.group_id)))
+
 db.api_group_permissions.http_method.requires = IS_IN_DB(db, db.api_methods.id, '%(http_method)s')

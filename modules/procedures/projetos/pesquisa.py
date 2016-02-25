@@ -168,6 +168,8 @@ class CriarProjetoPesquisa(CadastrarProjeto):
 
         self.__salvar_arquivo(dataset, 'PROJETO_', self.ITEM_TIPO_ARQUIVO_PROJETO)
 
+        return dataset
+
     def on_commit(self):
         for func in list(self.__post_commit_functions):
             func()

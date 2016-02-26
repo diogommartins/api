@@ -19,6 +19,8 @@ def index():
         raise HTTP(http.UNAUTHORIZED, "API Key inválida ou inativa")
 
     permissions = APIEndpointPermissions(request)
-    if permissions.can_perform_api_call():
-        api_request = APIRequest(api_key, request)
-        return api_request.perform_request()
+    if not permissions.can_perform_api_call():
+        raise HTTP(http.UNAUTHORIZED, "Nao pode.")
+
+    api_request = APIRequest(api_key, request)
+    return api_request.perform_request()

@@ -1,6 +1,7 @@
 # coding=utf-8
 from api.key import APIKey, APIProcedurePermissions
 from api.request import APIRequest
+from logger import TicketLogger
 from procedures.base import ProcedureDatasetValidator
 from gluon.serializers import json, loads_json
 from procedures import Procedure
@@ -32,18 +33,17 @@ def index():
     if not APIProcedurePermissions(api_key, procedure_name).can_perform_api_call():
         raise HTTP(http.UNAUTHORIZED, "Nao pode.")
 
-    validator = ProcedureDatasetValidator(procedure)
+    try:
+        validator = ProcedureDatasetValidator(procedure)
+        valid_datasets = tuple(dataset for dataset in params['data'] if validator.is_valid_dataset(dataset))
+    except ValueError as e:
+        raise HTTP(http.BAD_REQUEST, e.message)  # Invalid dataset
 
-    for dataset in params['data']:
-        try:
-            if validator.is_valid_dataset(dataset):
-                if params['async']:
-                    _async(dataset, params, procedure_name)
-                else:
-                    _sync(dataset, params, procedure)
-        except ValueError as e:
-            # Invalid dataset
-            raise HTTP(http.BAD_REQUEST, e.message)
+    for dataset in valid_datasets:
+        if params['async']:
+            _async(dataset, params, procedure_name)
+        else:
+            _sync(dataset, params, procedure)
 
 
 def _async(dataset, params, procedure_name):
@@ -55,12 +55,12 @@ def _async(dataset, params, procedure_name):
         })
 
         db.api_procedure_queue.insert(
-                name=procedure_name,
-                json_data=json(dataset),
-                result_fields=params['fields']
+            name=procedure_name,
+            json_data=json(dataset),
+            result_fields=params['fields']
         )
     except Exception as e:
-        raise NotImplementedError("Pode haver alguma? O que fazer neste caso ?")
+        TicketLogger.log_exception(__file__)  # "Pode haver alguma? O que fazer neste caso ?"
 
 
 def _sync(dataset, params, procedure):

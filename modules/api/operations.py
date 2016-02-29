@@ -481,12 +481,11 @@ class APIUpdate(APIAlterOperation):
         except Exception as e:
             if self.observer:
                 self.observer.did_finish_with_error(self, parameters, e)
+            self.db.rollback()
             if isinstance(e, SyntaxError):
-                self.db.rollback()
                 raise HTTP(http.NO_CONTENT, "Nenhum conteúdo foi passado")
             else:
-                self.db.rollback()
-            raise HTTP(http.UNPROCESSABLE_ENTITY, "Algum parâmetro possui tipo inválido")
+                raise HTTP(http.UNPROCESSABLE_ENTITY, "Algum parâmetro possui tipo inválido")
         else:
             self.db.commit()
 

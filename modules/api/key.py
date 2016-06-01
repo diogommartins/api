@@ -165,16 +165,14 @@ class APIEndpointPermissions(APIKeyPermissions):
         :raise HTTP: 429 caso tenha estrapolado o número máximo de requisições para o tipo de chave
         :raise HTTP: 403 se a chave não estiver mais ativa
         """
-        if self.key.active:
-            if self.key.total_requests < self.key.max_requests:
-                if self._has_permission_to_request_fields():
-                    return True
-                else:
-                    raise HTTP(403, "APIKey não possui permissão para acessar o recurso requisitado.")
-            else:
-                raise HTTP(429, "Número máximo de requisições esgotado.")
-        else:
+        if not self.key.active:
             raise HTTP(403, "Chave inativa")
+        if not self.key.total_requests < self.key.max_requests:
+            raise HTTP(429, "Número máximo de requisições esgotado.")
+        if not self._has_permission_to_request_fields():
+            raise HTTP(403, "APIKey não possui permissão para acessar o recurso requisitado.")
+
+        return True
 
     def _has_permission_to_request_fields(self):
         """

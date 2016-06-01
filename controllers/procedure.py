@@ -39,6 +39,8 @@ def index():
     except ValueError as e:
         raise HTTP(http.BAD_REQUEST, e.message)  # Invalid dataset
 
+    response.view = 'generic.json'
+
     for dataset in valid_datasets:
         if params['async']:
             _async(dataset, params, procedure_name)

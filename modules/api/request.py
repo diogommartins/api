@@ -37,7 +37,7 @@ class APIRequest(object):
         self.datasource = current.datasource
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.api_key = api_key
-        self.endpoint = self.controller_for_rewrited_URL(self.request)
+        self.endpoint = self.controller_for_path(self.request.env.PATH_INFO)
         if not self.endpoint:
             raise HTTP(404, "Recurso requisitado é inválido")
 
@@ -51,7 +51,7 @@ class APIRequest(object):
         }
 
     @staticmethod
-    def controller_for_rewrited_URL(request):
+    def controller_for_path(path):
         """
         O método retorna o nome do controller requisitado, antes do URL Rewrite realizado
         pelo `routes.py`. Na API, um controller é mapeado diretamente a uma tabela modelado
@@ -59,13 +59,16 @@ class APIRequest(object):
 
         Ex.:
             Dada uma requisição `https://myurl.com/api/ENDPOINT?API_KEY=xyz`
-            request.env.PATH_INFO == '/api/ENDPOINT' -> 'ENDPOINT'
+            request.env.PATH_INFO == path == '/api/ENDPOINT' -> 'ENDPOINT'
+
+        >>> APIRequest.controller_for_path('/api/UNIT_TEST/123')
+        "UNIT_TEST"
 
         :rtype : str
         :return: Nome original do controller requisitado
         """
-        path_list = request.env.PATH_INFO.split("/")
-        endpoint = path_list[len(path_list)-1]
+        path_list = path.split("/")  # ["", "api", "UNIT_TEST", "123"]
+        endpoint = path_list[2]
 
         return endpoint
 

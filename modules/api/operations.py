@@ -161,7 +161,7 @@ class APIQuery(APIOperation):
         super(APIQuery, self).__init__(request)
         self.fields = self.request.parameters['valid']
         self.special_fields = self.request.parameters['special']
-        self.request_vars = self.request.request.vars
+        self.request_vars = self.request.lower_vars
         # type: key.APIKey
         self.api_key = self.request.api_key
         self.return_fields = self.request.return_fields
@@ -183,6 +183,11 @@ class APIQuery(APIOperation):
         :return: Uma lista de parâmetros processados de consulta
         """
         conditions = []
+
+        if not self.fields and self.request.id_from_path:
+            conditions.append(self.table[self._unique_identifier_column] == self.request.id_from_path)
+            return conditions
+
         # Consultas normais
         for field in self.fields:
             if self.table[field].type == 'string':
@@ -205,11 +210,11 @@ class APIQuery(APIOperation):
         for special_field in self.special_fields:
             field = self.request.special_field_chop(special_field)
             if field:
-                if special_field.endswith('_MIN'):
+                if special_field.endswith('_min'):
                     conditions.append(self.table[field] > self.request_vars[special_field])
-                elif special_field.endswith('_MAX'):
+                elif special_field.endswith('_max'):
                     conditions.append(self.table[field] < self.request_vars[special_field])
-                elif special_field.endswith('_SET'):
+                elif special_field.endswith('_set'):
                     conditions.append(self.table[field].belongs(self.request_vars[special_field]))
 
         return conditions
@@ -505,7 +510,7 @@ class APIDelete(APIAlterOperation):
         :type request: APIRequest
         """
         super(APIDelete, self).__init__(request)
-        if not self.primary_key_in_parameters(self.parameters):
+        if not self.primary_key_in_parameters(self.parameters) and not self.request.id_from_path:
             raise HTTP(http.BAD_REQUEST, "Não é possível remover um conteúdo sem sua chave primária.")
         self.identifiers_values = [(column, self.request.request.vars[column]) for column in self.p_key_columns]
 

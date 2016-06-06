@@ -22,11 +22,12 @@ class APIRequest(object):
         'HTML': 'generic.html',
         'DEFAULT': 'generic.json'
     }
-    valid_parameters = ('FORMAT', 'FIELDS', 'API_KEY', 'LMIN', 'LMAX', 'ORDERBY', 'SORT')
+    valid_parameters = ('format', 'fields', 'api_key', 'lmin', 'lmax', 'orderby', 'sort')
 
-    def __init__(self, api_key, request):
+    def __init__(self, api_key, request, endpoint, lower_vars):
         """
 
+        :type endpoint: str
         :type request: Request
         :type api_key: key.APIKey
         """
@@ -37,10 +38,11 @@ class APIRequest(object):
         self.datasource = current.datasource
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.api_key = api_key
-        self.endpoint = self.controller_for_rewrited_URL(self.request)
+        self.path_info = self.request.env.PATH_INFO
+        self.endpoint = endpoint
         if not self.endpoint:
             raise HTTP(404, "Recurso requisitado é inválido")
-
+        self.lower_vars = lower_vars
         self.parameters = self._validate_fields()
         self.return_fields = self._validate_return_fields()
         self.valid_content_types = {
@@ -50,8 +52,22 @@ class APIRequest(object):
             'DEFAULT':  'application/json; charset=%s' % self.datasource._db_codec
         }
 
+    @property
+    def id_from_path(self):
+        """
+
+        :param path: url path
+        :return: Um id a ser usado pela chave primária ou None
+        """
+        path_list = self.path_info.split("/")  # ["", "api", "UNIT_TEST", "123"]
+        try:
+            uid = path_list[3]  # IndexError = Não tem id.
+            return int(uid)     # ValueError = Não é int
+        except (IndexError, ValueError):
+            return None
+
     @staticmethod
-    def controller_for_rewrited_URL(request):
+    def endpoint_for_path(path):
         """
         O método retorna o nome do controller requisitado, antes do URL Rewrite realizado
         pelo `routes.py`. Na API, um controller é mapeado diretamente a uma tabela modelado
@@ -59,15 +75,23 @@ class APIRequest(object):
 
         Ex.:
             Dada uma requisição `https://myurl.com/api/ENDPOINT?API_KEY=xyz`
-            request.env.PATH_INFO == '/api/ENDPOINT' -> 'ENDPOINT'
+            request.env.PATH_INFO == path == '/api/ENDPOINT' -> 'ENDPOINT'
 
+        >>> APIRequest.endpoint_for_path('/api/UNIT_TEST/123')
+        "UNIT_TEST"
+        >>> APIRequest.endpoint_for_path('/api/UNIT_TEST')
+        "UNIT_TEST"
+        >>> APIRequest.endpoint_for_path('/api/procedure/FooProcedure')
+        "FooProcedure"
+
+        :param path: url path
         :rtype : str
         :return: Nome original do controller requisitado
         """
-        path_list = request.env.PATH_INFO.split("/")
-        endpoint = path_list[len(path_list)-1]
+        path_list = path.split("/")  # ["", "api", "UNIT_TEST", "123"]
+        endpoint = path_list[2]
 
-        return endpoint
+        return endpoint.lower()
 
     def __is_notifyable_operation(self, operation):
         # todo: Isso deveria estar aqui?
@@ -154,7 +178,7 @@ class APIRequest(object):
         endpoint_fields = self.datasource[self.endpoint].fields
         fields = {"valid": [], "special": []}
         invalid_fields = []
-        for k, v in self.request.vars.iteritems():
+        for k in self.lower_vars.keys():
             if k in endpoint_fields:
                 fields['valid'].append(k)
             elif self._is_valid_field_with_sufix(k):
@@ -176,8 +200,8 @@ class APIRequest(object):
         :rtype : list
         :return: Retorna uma lista contendo somente os itens da lista que forem colunas na tabela requisitada
         """
-        if self.request.vars["FIELDS"]:
-            requested_fields = self.request.vars["FIELDS"].split(",")
+        if self.request.vars.fields:
+            requested_fields = self.request.fields.split(",")
             return [field for field in requested_fields if field in self.datasource[self.endpoint].fields]
         else:
             return []

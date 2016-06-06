@@ -67,12 +67,18 @@ class DB2TableDefiner(BaseTableDefiner):
             primarykey=['TABSCHEMA', 'TABNAME']
         )
 
+    def __colnames_parser(self, keys, separator='+'):
+        """
+        Chaves primárias são separadas por '+' -> Exemplo +ID_DOCUMENTO+ID_APLIC_ACAO
+        """
+        return [k.lower() for k in keys.split(separator)[1:]]
+
     def _fetch_indexes(self):
         rows = self.db((self.db.INDEXES.TABSCHEMA == self.schema) & (self.db.INDEXES.UNIQUERULE == 'P')).select(
             self.db.INDEXES.TABNAME,
             self.db.INDEXES.COLNAMES
         )
-        return {table.TABNAME: table.COLNAMES.split('+')[1:] for table in rows}
+        return {table.TABNAME.lower(): self.__colnames_parser(table.COLNAMES) for table in rows}
 
     @property
     def _tables(self):
@@ -80,7 +86,7 @@ class DB2TableDefiner(BaseTableDefiner):
         :rtype : dict
         """
         table_names = self.db(self.db.TABLES.TABSCHEMA == self.schema).select(self.db.TABLES.TABNAME)
-        return {table.TABNAME: [] for table in table_names}
+        return {table.TABNAME.lower(): [] for table in table_names}
 
     def _fetch_columns(self):
         tables = self._tables.copy()
@@ -100,12 +106,18 @@ class DB2TableDefiner(BaseTableDefiner):
 
         for col in cols:
             try:
-                tables[col.TABNAME].append(Field(col.COLNAME, __type(col), length=col.LENGTH, label=col.REMARKS))
+                tables[col.TABNAME.lower()].append(Field(col.COLNAME.lower(), __type(col), length=col.LENGTH, label=col.REMARKS))
             except SyntaxError:
-                # Some colnames may have non-ascii characters, wich needs to be removed and passed as rname
-                normalized_name = normalize('NFKD', col.COLNAME.decode(self.db._db_codec)).encode('ASCII', 'ignore')
-                tables[col.TABNAME].append(Field(normalized_name, __type(col),
-                                                 length=col.LENGTH, label=col.REMARKS, rname=col.COLNAME))
+                try:
+                    # Some colnames may have non-ascii characters, wich needs to be removed and passed as rname
+                    normalized_name = normalize('NFKD', col.COLNAME.decode(self.db._db_codec)).encode('ASCII', 'ignore')
+                    tables[col.TABNAME.lower()].append(Field(normalized_name.lower(), __type(col),
+                                                             length=col.LENGTH, label=col.REMARKS, rname=col.COLNAME))
+                except SyntaxError as e:
+                    # É ascii e ainda sim é funny name. provavelemnte é palavra reservado no python e
+                    # fere a regra REGEX_PYTHON_KEYWORDS
+                    # todo: É a melhor abordagem? Estamos ignorando por enquanto
+                    print e
             except KeyError:
                 print "Não foi possível adicionar a coluna %s de %s - tipo %s desconhecido" % (col.COLNAME,
                                                                                                col.TABNAME,

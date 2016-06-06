@@ -183,6 +183,11 @@ class APIQuery(APIOperation):
         :return: Uma lista de parâmetros processados de consulta
         """
         conditions = []
+
+        if not self.fields and self.request.id_from_path:
+            conditions.append(self.table[self._unique_identifier_column] == self.request.id_from_path)
+            return conditions
+
         # Consultas normais
         for field in self.fields:
             if self.table[field].type == 'string':
@@ -505,7 +510,7 @@ class APIDelete(APIAlterOperation):
         :type request: APIRequest
         """
         super(APIDelete, self).__init__(request)
-        if not self.primary_key_in_parameters(self.parameters):
+        if not self.primary_key_in_parameters(self.parameters) and not self.request.id_from_path:
             raise HTTP(http.BAD_REQUEST, "Não é possível remover um conteúdo sem sua chave primária.")
         self.identifiers_values = [(column, self.request.request.vars[column]) for column in self.p_key_columns]
 

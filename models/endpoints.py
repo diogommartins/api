@@ -16,7 +16,7 @@ def load_endpoints(write_models=False, refresh_cache=False):
 
 
 if request.controller == 'rest':
-    endpoint = APIRequest.controller_for_path(request.env.PATH_INFO)
+    endpoint = APIRequest.endpoint_for_path(request.env.PATH_INFO)
     response.models_to_run += ['^endpoints/{endpoint}/\\w+\\.py$'.format(endpoint=endpoint)]
 else:
     # if the request isn`t for an endpoint, load everything

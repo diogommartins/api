@@ -8,7 +8,7 @@ except ImportError:
 
 
 def index():
-    endpoint = APIRequest.controller_for_path(request.env.PATH_INFO)
+    endpoint = APIRequest.endpoint_for_path(request.env.PATH_INFO)
 
     if endpoint not in datasource:
         raise HTTP(http.NOT_FOUND, "Recurso requisitado é inválido")

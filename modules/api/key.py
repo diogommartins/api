@@ -151,7 +151,7 @@ class APIEndpointPermissions(APIKeyPermissions):
         self.http_method = APIKeyPermissions.http_method_with_name(self.request.env.request_method)
         self.hash = self.request.vars.API_KEY
         self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select(cache=self.cache, cacheable=True).first()
-        self.table_name = APIRequest.controller_for_path(self.request.env.PATH_INFO)
+        self.table_name = APIRequest.endpoint_for_path(self.request.env.PATH_INFO)
 
     def can_perform_api_call(self):
         """

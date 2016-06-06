@@ -7,7 +7,7 @@ from modelers import JSONModelCreator, Web2pyModelCreator
 endpoints_definer = Endpoints(datasource, schema='DBSM')
 
 
-def load_endpoints(write_models=False, refresh_cache=False):
+def load_endpoints(write_models=True):
     if write_models:
         endpoints_definer.add_observer(JSONModelCreator(request.folder + 'private/models.json'))
         endpoints_definer.add_observer(Web2pyModelCreator(request.folder + 'models/endpoints/'))

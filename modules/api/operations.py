@@ -161,7 +161,7 @@ class APIQuery(APIOperation):
         super(APIQuery, self).__init__(request)
         self.fields = self.request.parameters['valid']
         self.special_fields = self.request.parameters['special']
-        self.request_vars = self.request.request.vars
+        self.request_vars = self.request.lower_vars
         # type: key.APIKey
         self.api_key = self.request.api_key
         self.return_fields = self.request.return_fields
@@ -210,11 +210,11 @@ class APIQuery(APIOperation):
         for special_field in self.special_fields:
             field = self.request.special_field_chop(special_field)
             if field:
-                if special_field.endswith('_MIN'):
+                if special_field.endswith('_min'):
                     conditions.append(self.table[field] > self.request_vars[special_field])
-                elif special_field.endswith('_MAX'):
+                elif special_field.endswith('_max'):
                     conditions.append(self.table[field] < self.request_vars[special_field])
-                elif special_field.endswith('_SET'):
+                elif special_field.endswith('_set'):
                     conditions.append(self.table[field].belongs(self.request_vars[special_field]))
 
         return conditions

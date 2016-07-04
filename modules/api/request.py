@@ -15,7 +15,7 @@ __all__ = ['APIRequest']
 
 class APIRequest(object):
     DEFAULT_SUFIX_SIZE = 4
-    valid_sufixes = ('_MIN', '_MAX', '_BET', '_SET',)
+    valid_sufixes = ('_min', '_max', '_bet', '_set',)
     valid_response_formats = {
         'JSON': 'generic.json',
         'XML': 'generic.xml',
@@ -81,8 +81,6 @@ class APIRequest(object):
         "UNIT_TEST"
         >>> APIRequest.endpoint_for_path('/api/UNIT_TEST')
         "UNIT_TEST"
-        >>> APIRequest.endpoint_for_path('/api/procedure/FooProcedure')
-        "FooProcedure"
 
         :param path: url path
         :rtype : str
@@ -92,6 +90,20 @@ class APIRequest(object):
         endpoint = path_list[2]
 
         return endpoint.lower()
+
+    @staticmethod
+    def procedure_for_path(path):
+        """
+
+        >>> APIRequest.procedure_for_path('/api/procedure/FooProcedure')
+        "FooProcedure"
+        """
+        path_list = path.split("/")  # ["", "api", "UNIT_TEST", "123"]
+        app_name, controller, procedure_name = path_list[1:]
+
+        assert controller == 'procedure'
+
+        return procedure_name
 
     def __is_notifyable_operation(self, operation):
         # todo: Isso deveria estar aqui?

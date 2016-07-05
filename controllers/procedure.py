@@ -16,6 +16,15 @@ def index():
     """
     Responde a requisições do tipo POST para endpoints `procedure/*`
 
+    Dados da requisição devem ter:
+    "API_KEY" -> key para obter acesso aos dados.
+    "data" -> Lista de dicionários, onde cada dicionário é usado como argumento para execução de uma procedure.
+
+    Opcionalmente pode conter:
+
+    'async' -> se requisição será processada de forma assíncrona.
+    'fields' - > campos que serão retornados.
+
     """
     params = loads_json(request.body.read())
     procedure_name = APIRequest.procedure_for_path(request.env.PATH_INFO)

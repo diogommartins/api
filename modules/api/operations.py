@@ -458,7 +458,7 @@ class APIUpdate(APIAlterOperation):
 
         :rtype : dict
         """
-        content = {column: current.request.vars[column] for column in self.parameters['valid'] if
+        content = {column: self.request.lower_vars[column] for column in self.parameters['valid'] if
                         column not in self.p_key_columns}
         content.update({k: v for k, v in self.default_fields_for_sie_tables.iteritems() if k in self.table.fields})
         return content

@@ -212,9 +212,9 @@ class APIRequest(object):
         :rtype : list
         :return: Retorna uma lista contendo somente os itens da lista que forem colunas na tabela requisitada
         """
-        if self.request.vars.fields:
-            requested_fields = self.request.fields.split(",")
-            return [field for field in requested_fields if field in self.datasource[self.endpoint].fields]
+        if self.lower_vars.fields:
+            requested_fields = self.lower_vars.fields.split(",")
+            return [field.lower() for field in requested_fields if field.lower() in self.datasource[self.endpoint].fields]
         else:
             return []
 

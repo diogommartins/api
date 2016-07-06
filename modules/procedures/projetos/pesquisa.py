@@ -204,13 +204,10 @@ class FechaAvaliacaoProjetosPesquisa(BaseSIEProcedure):
     def __atualizar_projetos_para_suspenso(self, dataset):
 
         dataset.update(self.constants)
-        dataset.update({"SITUACAO_ITEM": self.SITUACAO_SUSPENSO})
+        dataset.update({"situacao_item": self.SITUACAO_SUSPENSO})
 
-
-        # table = self.datasource.PROJETOS
-        # self.datasource(table.AVALIACAO_ITEM == self.STATUS_AVALIACAO_NAO_AVALIADO).update(**dataset)
-
-        print "Haalloo, procedures!!"
+        table = self.datasource.projetos
+        self.datasource(table.avaliacao_item == self.STATUS_AVALIACAO_NAO_AVALIADO).update(**dataset)
 
 
     @as_transaction
@@ -246,21 +243,20 @@ class AbrirAvaliacaoProjetosPesquisa(BaseSIEProcedure):
         required = super(AbrirAvaliacaoProjetosPesquisa, self).required_fields
 
         required.update({
-            'DT_INICIAL_MAX': 'date'
+            'dt_inicial_max': 'date'
         })
         return required
 
     def __atualizar_projetos_para_nao_avaliado(self, dataset):
 
         dataset.update(self.constants)
-        dataset.update({"AVALIACAO_ITEM": self.STATUS_AVALIACAO_NAO_AVALIADO})
+        dataset.update({"avaliacao_item": self.STATUS_AVALIACAO_NAO_AVALIADO})
 
+        data_limite = dataset['dt_inicial_max']
+        del dataset["dt_inicial_max"]
 
-        # table = self.datasource.PROJETOS
-        # self.datasource(table.SITUACAO_ITEM.belongs(self.situacao_projetos_ativos)).update(**dataset)
-
-        print "Haalloo, procedures 2!!"
-
+        table = self.datasource.projetos
+        self.datasource(table.situacao_item.belongs(self.situacao_projetos_ativos) & (table.dt_inicial < data_limite)).update(**dataset)
 
     @as_transaction
     def perform_work(self, dataset, commit=True):

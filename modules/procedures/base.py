@@ -168,15 +168,15 @@ class BaseSIEProcedure(BaseProcedure):
     @property
     def constants(self):
         return {
-            "DT_ALTERACAO": str(date.today()),
-            "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
-            "CONCORRENCIA": 999
+            "dt_alteracao": str(date.today()),
+            "hr_alteracao": datetime.now().time().strftime("%H:%M:%S"),
+            "concorrencia": 999
         }
 
     @property
     def required_fields(self):
         return {
-            'COD_OPERADOR': 'int'
+            'cod_operador': 'int'
         }
 
     def _next_value_for_sequence(self, table):

@@ -86,6 +86,15 @@ class ProcedureDatasetValidator(object):
             missing_fields = ','.join(required_set - given_set)
             raise ValueError("Dataset missing required fields: " + missing_fields)
 
+    @staticmethod
+    def lower_dataset_keys(a_dict):
+        """
+        Recursivamente lowercaiserifica as chaves de um dicionários e seus "filhos"
+
+        :type a_dict: dict
+        """
+        return {k.lower(): (v if not isinstance(v, dict) else ProcedureDatasetValidator.lower_dataset_keys(v)) for k, v in a_dict.iteritems()}
+
 
 class BaseProcedure(object):
     __metaclass__ = abc.ABCMeta

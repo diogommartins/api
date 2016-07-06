@@ -45,6 +45,7 @@ def index():
 
     for dataset in params['data']:
         try:
+            dataset = ProcedureDatasetValidator.lower_dataset_keys(dataset)
             if validator.is_valid_dataset(dataset):
                 if params['async']:
                     _async(dataset, params, procedure_name)
@@ -58,9 +59,9 @@ def index():
 def _async(dataset, params, procedure_name):
     try:
         dataset.update({
-            "DT_ALTERACAO": str(date.today()),
-            "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
-            "ENDERECO_FISICO": request.env.remote_addr
+            "dt_alteracao": str(date.today()),
+            "hr_alteracao": datetime.now().time().strftime("%H:%M:%S"),
+            "endereco_fisico": request.env.remote_addr
         })
 
         db.api_procedure_queue.insert(

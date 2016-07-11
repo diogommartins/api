@@ -61,9 +61,9 @@ class ProcedureDatasetValidator(object):
         """
 
         required_fields = self.procedure.required_fields
-        required_set = frozenset(required_fields.keys())
+        required_set = frozenset(k.lower() for k in required_fields.keys())
         # Constant values arent
-        required_set -= frozenset(self.procedure.constants)
+        required_set -= frozenset(k.lower() for k in self.procedure.constants)
         given_set = frozenset(dataset.keys())
 
         if required_set.issubset(given_set):

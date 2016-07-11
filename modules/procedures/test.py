@@ -9,7 +9,7 @@ class FooProcedure(BaseProcedure):
     @property
     def required_fields(self):
         return {
-            'ID_UNIT_TEST': 'int'
+            'id_unit_test': 'int'
         }
 
     @property

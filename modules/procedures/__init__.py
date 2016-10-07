@@ -3,6 +3,7 @@ from .exceptions import UndefinedProcedureException
 from .matricula import MatricularAlunos
 from .projetos import CriarProjetoPesquisa, RegistroProjetoPesquisa, FechaAvaliacaoProjetosPesquisa, AbrirAvaliacaoProjetosPesquisa
 from .documento import CriarDocumentoProjetoPesquisa
+from .enderecos import CriarEndereco
 from .grafos import TramitacoesComoGrafo
 from .base import BaseProcedure
 from .test import FooProcedure

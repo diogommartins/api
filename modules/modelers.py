@@ -12,7 +12,7 @@ class ModelCreator(TableDefinerObserver):
         self.dir_path = dir_path
 
         if not os.path.isdir(self.dir_path):
-                os.mkdir(self.dir_path)
+            os.mkdir(self.dir_path)
 
     @abc.abstractmethod
     def _should_write(self):
@@ -36,8 +36,10 @@ class ModelCreator(TableDefinerObserver):
 
 class JSONModelCreator(ModelCreator):
     """
-    Class responsible for parsing and serializing the list of tables and columns as JSON
+    Class responsible for parsing and serializing the list of
+    tables and columns as JSON
     """
+
     def __init__(self, dir_path, file_name):
         super(JSONModelCreator, self).__init__(dir_path)
         self.file_path = os.path.join(self.dir_path, file_name)
@@ -56,7 +58,8 @@ class JSONModelCreator(ModelCreator):
 
     def _parsed_data(self, data):
         tables, indexes = data
-        return {k: {field.name: field.type for field in v} for k, v in tables.iteritems()}
+        return {k: {field.name: field.type for field in v} for k, v in
+                tables.iteritems()}
 
 
 class Web2pyModelCreator(ModelCreator):
@@ -69,16 +72,28 @@ class Web2pyModelCreator(ModelCreator):
     def _should_write(self):
         return True
 
+    def _replace_quotes(self, a_str):
+        return a_str.replace('"', "'")
+
+    def __field_str(self, field):
+        template = 'Field("{name}", "{type}", ' \
+                   'length="{length}", label="{label}", notnull={notnull})'
+        return template.format(name=field.name,
+                               type=field.type,
+                               length=field.length,
+                               label=self._replace_quotes(field.label),
+                               notnull=field.notnull)
+
     def __model_str(self, table, fields, pkey):
         """
         :type fields: list[Field]
         """
-        return "{db_name}.define_table('{table}',\n{fields},\nmigrate=False,\nredefine=True,\nprimarykey={pkey})".format(
-            db_name=self.db_name,
-            table=table,
-            fields=",\n".join(["Field('{name}', '{type}')".format(name=f.name, type=f.type) for f in fields]),
-            pkey=pkey
-        )
+        return "{db_name}.define_table('{table}',\n{fields},\n" \
+               "migrate=False,\nredefine=True,\nprimarykey={pkey})".format(
+                db_name=self.db_name,
+                table=table,
+                fields=",\n".join(self.__field_str(field) for field in fields),
+                pkey=pkey)
 
     def _writer(self, data):
         for table, model_str in data.iteritems():
@@ -86,8 +101,10 @@ class Web2pyModelCreator(ModelCreator):
             if not os.path.isdir(model_dir):
                 os.mkdir(model_dir)
             with open(os.path.join(model_dir, self.model_file_name), 'w') as fp:
+                fp.write("# coding=utf-8\n")
                 fp.write(model_str)
 
     def _parsed_data(self, data):
         tables, indexes = data
-        return {table: self.__model_str(table, fields, indexes.get(table, [])) for table, fields in tables.iteritems()}
+        return {table: self.__model_str(table, fields, indexes.get(table, []))
+                for table, fields in tables.iteritems()}

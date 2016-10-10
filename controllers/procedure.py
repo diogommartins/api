@@ -17,9 +17,18 @@ def index():
     """
     Responde a requisições do tipo POST para endpoints `procedure/*`
 
+    Dados da requisição devem ter:
+    "API_KEY" -> key para obter acesso aos dados.
+    "data" -> Lista de dicionários, onde cada dicionário é usado como argumento para execução de uma procedure.
+
+    Opcionalmente pode conter:
+
+    'async' -> se requisição será processada de forma assíncrona.
+    'fields' - > campos que serão retornados.
+
     """
     params = loads_json(request.body.read())
-    procedure_name = APIRequest.controller_for_rewrited_URL(request)
+    procedure_name = APIRequest.procedure_for_path(request.env.PATH_INFO)
 
     try:
         procedure = Procedure(procedure_name, datasource)
@@ -32,6 +41,8 @@ def index():
 
     if not APIProcedurePermissions(api_key, procedure_name).can_perform_api_call():
         raise HTTP(http.UNAUTHORIZED, "Nao pode.")
+
+    validator = ProcedureDatasetValidator(procedure)
 
     try:
         validator = ProcedureDatasetValidator(procedure)
@@ -51,9 +62,9 @@ def index():
 def _async(dataset, params, procedure_name):
     try:
         dataset.update({
-            "DT_ALTERACAO": str(date.today()),
-            "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
-            "ENDERECO_FISICO": request.env.remote_addr
+            "dt_alteracao": str(date.today()),
+            "hr_alteracao": datetime.now().time().strftime("%H:%M:%S"),
+            "endereco_fisico": request.env.remote_addr
         })
 
         db.api_procedure_queue.insert(

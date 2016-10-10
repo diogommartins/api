@@ -8,7 +8,9 @@ class FooProcedure(BaseProcedure):
     """
     @property
     def required_fields(self):
-        return {}
+        return {
+            'id_unit_test': 'int'
+        }
 
     @property
     def constants(self):

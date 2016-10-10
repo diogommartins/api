@@ -144,14 +144,19 @@ class APIKeyPermissions(object):
 
 
 class APIEndpointPermissions(APIKeyPermissions):
-    def __init__(self, request):
+    def __init__(self, endpoint, key, method, fields):
+        """
+        :type endpoint: str
+        :type key: APIKey
+        :type method: str
+        :type fields: list
+        """
         super(APIEndpointPermissions, self).__init__()
-        self.request = request
-        self.fields = self.request.vars["FIELDS"].split(",") if self.request.vars["FIELDS"] else []
-        self.http_method = APIKeyPermissions.http_method_with_name(self.request.env.request_method)
-        self.hash = self.request.vars.API_KEY
+        self.endpoint = endpoint
+        self.fields = fields
+        self.http_method = APIKeyPermissions.http_method_with_name(method)
+        self.hash = key.hash
         self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select(cache=self.cache, cacheable=True).first()
-        self.table_name = APIRequest.controller_for_rewrited_URL(self.request)
 
     def can_perform_api_call(self):
         """
@@ -165,16 +170,14 @@ class APIEndpointPermissions(APIKeyPermissions):
         :raise HTTP: 429 caso tenha estrapolado o número máximo de requisições para o tipo de chave
         :raise HTTP: 403 se a chave não estiver mais ativa
         """
-        if self.key.active:
-            if self.key.total_requests < self.key.max_requests:
-                if self._has_permission_to_request_fields():
-                    return True
-                else:
-                    raise HTTP(403, "APIKey não possui permissão para acessar o recurso requisitado.")
-            else:
-                raise HTTP(429, "Número máximo de requisições esgotado.")
-        else:
+        if not self.key.active:
             raise HTTP(403, "Chave inativa")
+        if not self.key.total_requests < self.key.max_requests:
+            raise HTTP(429, "Número máximo de requisições esgotado.")
+        if not self._has_permission_to_request_fields():
+            raise HTTP(403, "APIKey não possui permissão para acessar o recurso requisitado.")
+
+        return True
 
     def _has_permission_to_request_fields(self):
         """
@@ -193,12 +196,12 @@ class APIEndpointPermissions(APIKeyPermissions):
         if len(self.fields) > 0:
             valid_fields = self._validate_return_fields(self.fields)
             has_permission = self.db(
-                    self.__can_request_columns_from_table(self.table_name, valid_fields)).select(
+                    self.__can_request_columns_from_table(self.endpoint, valid_fields)).select(
                     self.db.api_group_permissions.id, cache=self.cache)
             if has_permission:
                 return True
         else:
-            has_permission = self.db(self.__can_request_any_column_from_table(self.table_name)).select(
+            has_permission = self.db(self.__can_request_any_column_from_table(self.endpoint)).select(
                     self.db.api_group_permissions.id, cache=self.cache)
             if has_permission:
                 return True
@@ -212,7 +215,7 @@ class APIEndpointPermissions(APIKeyPermissions):
         :param fields: Lista de fields requisitados
         :return: Retorna uma lista com os FIELDS válidos ou uma lista vazia, que é interpretada como todas as colunas
         """
-        return [field for field in fields if field in self.datasource[self.table_name].fields]
+        return [field for field in fields if field in self.datasource[self.endpoint].fields]
 
     def __can_request_column_from_table(self, table, column):
         """
@@ -223,8 +226,8 @@ class APIEndpointPermissions(APIKeyPermissions):
         :return:
         """
         conditions = (
-            (self.db.api_group_permissions.column_name == column),
-            (self.db.api_group_permissions.table_name == table),
+            (self.db.api_group_permissions.column_name.lower() == column),
+            (self.db.api_group_permissions.table_name.lower() == table),
             (self.db.api_group_permissions.group_id == self.key.group_id),
             (self.db.api_group_permissions.http_method == self.http_method)
         )
@@ -259,7 +262,7 @@ class APIEndpointPermissions(APIKeyPermissions):
         :param table: Uma string referente a uma tabela
         """
         conditions = (
-            (self.db.api_group_permissions.table_name == table),
+            (self.db.api_group_permissions.table_name.lower() == table),
             (self.db.api_group_permissions.group_id == self.key.group_id),
             (self.db.api_group_permissions.http_method == self.http_method),
             (self.db.api_group_permissions.all_columns == True)

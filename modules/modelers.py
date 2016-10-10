@@ -8,8 +8,11 @@ import os
 class ModelCreator(TableDefinerObserver):
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, file_path):
-        self.file_path = file_path
+    def __init__(self, dir_path):
+        self.dir_path = dir_path
+
+        if not os.path.isdir(self.dir_path):
+                os.mkdir(self.dir_path)
 
     @abc.abstractmethod
     def _should_write(self):
@@ -35,6 +38,10 @@ class JSONModelCreator(ModelCreator):
     """
     Class responsible for parsing and serializing the list of tables and columns as JSON
     """
+    def __init__(self, dir_path, file_name):
+        super(JSONModelCreator, self).__init__(dir_path)
+        self.file_path = os.path.join(self.dir_path, file_name)
+
     def _should_write(self):
         """
         Returns whether or not to write the output file.
@@ -55,8 +62,8 @@ class JSONModelCreator(ModelCreator):
 class Web2pyModelCreator(ModelCreator):
     model_file_name = 'definition.py'
 
-    def __init__(self, file_path, db_name="datasource"):
-        super(Web2pyModelCreator, self).__init__(file_path)
+    def __init__(self, dir_path, db_name="datasource"):
+        super(Web2pyModelCreator, self).__init__(dir_path)
         self.db_name = db_name
 
     def _should_write(self):
@@ -75,7 +82,7 @@ class Web2pyModelCreator(ModelCreator):
 
     def _writer(self, data):
         for table, model_str in data.iteritems():
-            model_dir = self.file_path + table
+            model_dir = self.dir_path + table
             if not os.path.isdir(model_dir):
                 os.mkdir(model_dir)
             with open(os.path.join(model_dir, self.model_file_name), 'w') as fp:

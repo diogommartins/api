@@ -129,6 +129,7 @@
 'Layouts': 'Layouts',
 'Live chat': 'Live chat',
 'Live Chat': 'Live Chat',
+'Log In': 'Log In',
 'Logged in': 'Logged in',
 'login': 'Entrar',
 'Login': 'Autentique-se',

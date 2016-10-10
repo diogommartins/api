@@ -69,10 +69,10 @@ class APIOperation(object):
         :return: Um dicionário de parãmetros padrões
         """
         opcoes_default = {
-            "CONCORRENCIA": 999,  # Pode ser qualquer valor aqui segundo consultoria feita junto à Sintese.
-            "DT_ALTERACAO": str(date.today()),
-            "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
-            "ENDERECO_FISICO": current.request.env.remote_addr
+            "concorrencia": 999,  # Pode ser qualquer valor aqui segundo consultoria feita junto à Sintese.
+            "dt_alteracao": str(date.today()),
+            "hr_alteracao": datetime.now().time().strftime("%H:%M:%S"),
+            "endereco_fisico": current.request.env.remote_addr
         }
 
         if not self.request.request.post_vars.COD_OPERADOR:
@@ -161,7 +161,7 @@ class APIQuery(APIOperation):
         super(APIQuery, self).__init__(request)
         self.fields = self.request.parameters['valid']
         self.special_fields = self.request.parameters['special']
-        self.request_vars = self.request.request.vars
+        self.request_vars = self.request.lower_vars
         # type: key.APIKey
         self.api_key = self.request.api_key
         self.return_fields = self.request.return_fields
@@ -183,6 +183,11 @@ class APIQuery(APIOperation):
         :return: Uma lista de parâmetros processados de consulta
         """
         conditions = []
+
+        if not self.fields and self.request.id_from_path:
+            conditions.append(self.table[self._unique_identifier_column] == self.request.id_from_path)
+            return conditions
+
         # Consultas normais
         for field in self.fields:
             if self.table[field].type == 'string':
@@ -205,11 +210,11 @@ class APIQuery(APIOperation):
         for special_field in self.special_fields:
             field = self.request.special_field_chop(special_field)
             if field:
-                if special_field.endswith('_MIN'):
+                if special_field.endswith('_min'):
                     conditions.append(self.table[field] > self.request_vars[special_field])
-                elif special_field.endswith('_MAX'):
+                elif special_field.endswith('_max'):
                     conditions.append(self.table[field] < self.request_vars[special_field])
-                elif special_field.endswith('_SET'):
+                elif special_field.endswith('_set'):
                     conditions.append(self.table[field].belongs(self.request_vars[special_field]))
 
         return conditions
@@ -224,7 +229,7 @@ class APIQuery(APIOperation):
             return [self.table.ALL]
 
     def _subset_is_defined(self):
-        return {'LMIN', 'LMAX'}.issubset(self.request_vars)
+        return {'lmin', 'lmax'}.issubset(self.request_vars)
 
     def _get_records_subset(self):
         """
@@ -238,8 +243,8 @@ class APIQuery(APIOperation):
             "max": self.ENTRIES_PER_QUERY_DEFAULT
         }
         if self._subset_is_defined():
-            _min = int(self.request_vars['LMIN'])
-            _max = int(self.request_vars['LMAX'])
+            _min = int(self.request_vars['lmin'])
+            _max = int(self.request_vars['lmax'])
 
             entries_to_limit = self.api_key.max_entries - _max - _min
             limits['max'] = _max if entries_to_limit > 0 else _max + entries_to_limit
@@ -253,7 +258,7 @@ class APIQuery(APIOperation):
         :rtype : gluon.DAL.Field
         :return: A forma
         """
-        if self.request_vars["DISTINCT"]:
+        if self.request_vars["distinct"]:
             return True
 
     def __orderby(self):
@@ -261,10 +266,11 @@ class APIQuery(APIOperation):
         :raises HTTP: http.BAD_REQUEST
         :rtype: str
         """
-        order_field = self.request_vars["ORDERBY"]
-        sort_order = self.request_vars['SORT'] or 'ASC'
+        order_field = self.request_vars["orderby"]
+        sort_order = self.request_vars['sort'] or 'ASC'
 
         if order_field:
+            order_field = order_field.lower()  # todo: Essa é a melhor forma ?
             if order_field not in self.table.fields:
                 headers = {"InvalidParameters": json(order_field)}
                 raise HTTP(http.BAD_REQUEST, "%s não é um campo válido para ordenação." % order_field, **headers)
@@ -355,7 +361,7 @@ class APIInsert(APIAlterOperation):
 
         :rtype : dict
         """
-        content = {column: current.request.vars[column] for column in self.parameters['valid']}
+        content = {column: self.request.lower_vars[column] for column in self.parameters['valid']}
         content.update({k: v for k, v in self.default_fields_for_sie_insert.iteritems() if k in self.table.fields})
         return content
 
@@ -442,7 +448,7 @@ class APIUpdate(APIAlterOperation):
         if not self.primary_key_in_parameters(self.parameters):
             raise HTTP(http.BAD_REQUEST, "Não é possível atualizar um conteúdo sem sua chave primária.")
 
-        self.identifiers_values = [(column, request.request.vars[column]) for column in self.p_key_columns]
+        self.identifiers_values = [(column, request.lower_vars[column]) for column in self.p_key_columns]
 
     @property
     def content_with_valid_parameters(self):
@@ -452,7 +458,7 @@ class APIUpdate(APIAlterOperation):
 
         :rtype : dict
         """
-        content = {column: current.request.vars[column] for column in self.parameters['valid'] if
+        content = {column: self.request.lower_vars[column] for column in self.parameters['valid'] if
                         column not in self.p_key_columns}
         content.update({k: v for k, v in self.default_fields_for_sie_tables.iteritems() if k in self.table.fields})
         return content
@@ -481,12 +487,11 @@ class APIUpdate(APIAlterOperation):
         except Exception as e:
             if self.observer:
                 self.observer.did_finish_with_error(self, parameters, e)
+            self.db.rollback()
             if isinstance(e, SyntaxError):
-                self.db.rollback()
                 raise HTTP(http.NO_CONTENT, "Nenhum conteúdo foi passado")
             else:
-                self.db.rollback()
-            raise HTTP(http.UNPROCESSABLE_ENTITY, "Algum parâmetro possui tipo inválido")
+                raise HTTP(http.UNPROCESSABLE_ENTITY, "Algum parâmetro possui tipo inválido")
         else:
             self.db.commit()
 
@@ -506,9 +511,9 @@ class APIDelete(APIAlterOperation):
         :type request: APIRequest
         """
         super(APIDelete, self).__init__(request)
-        if not self.primary_key_in_parameters(self.parameters):
+        if not self.primary_key_in_parameters(self.parameters) and not self.request.id_from_path:
             raise HTTP(http.BAD_REQUEST, "Não é possível remover um conteúdo sem sua chave primária.")
-        self.identifiers_values = [(column, self.request.request.vars[column]) for column in self.p_key_columns]
+        self.identifiers_values = [(column, self.request.lower_vars[column]) for column in self.p_key_columns]
 
     def execute(self):
         """

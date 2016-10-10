@@ -190,3 +190,74 @@ class RegistroProjetoPesquisa(BaseSIEProcedure):
         self.__criar_documento(dataset)
 
         self.__atualizar_projeto(dataset)
+
+
+class FechaAvaliacaoProjetosPesquisa(BaseSIEProcedure):
+    """
+    Procedure que atualiza os projetos.
+
+    """
+
+    SITUACAO_SUSPENSO = 4
+    STATUS_AVALIACAO_NAO_AVALIADO = 1
+
+    def __atualizar_projetos_para_suspenso(self, dataset):
+
+        dataset.update(self.constants)
+        dataset.update({"situacao_item": self.SITUACAO_SUSPENSO})
+
+        table = self.datasource.projetos
+        self.datasource(table.avaliacao_item == self.STATUS_AVALIACAO_NAO_AVALIADO).update(**dataset)
+
+
+    @as_transaction
+    def perform_work(self, dataset, commit=True):
+        self.__atualizar_projetos_para_suspenso(dataset)
+
+
+class AbrirAvaliacaoProjetosPesquisa(BaseSIEProcedure):
+    """
+    Procedure que atualiza os projetos.
+
+    """
+
+    SITUACAO_PROJETO_SUSPENSO = 4
+    SITUACAO_PROJETO_RENOVADO = 6
+    SITUACAO_PROJETO_ANDAMENTO = 2
+    SITUACAO_PROJETO_TRAMITE_REGISTRO = 8
+    STATUS_AVALIACAO_NAO_AVALIADO = 1
+
+    @property
+    def situacao_projetos_ativos(self):
+
+        return [
+            self.SITUACAO_PROJETO_SUSPENSO,
+            self.SITUACAO_PROJETO_ANDAMENTO,
+            self.SITUACAO_PROJETO_RENOVADO,
+            self.SITUACAO_PROJETO_TRAMITE_REGISTRO  # TODO: também?
+        ]
+
+
+    @property
+    def required_fields(self):
+        required = super(AbrirAvaliacaoProjetosPesquisa, self).required_fields
+
+        required.update({
+            'dt_inicial_max': 'date'
+        })
+        return required
+
+    def __atualizar_projetos_para_nao_avaliado(self, dataset):
+
+        dataset.update(self.constants)
+        dataset.update({"avaliacao_item": self.STATUS_AVALIACAO_NAO_AVALIADO})
+
+        data_limite = dataset['dt_inicial_max']
+        del dataset["dt_inicial_max"]
+
+        table = self.datasource.projetos
+        self.datasource(table.situacao_item.belongs(self.situacao_projetos_ativos) & (table.dt_inicial < data_limite)).update(**dataset)
+
+    @as_transaction
+    def perform_work(self, dataset, commit=True):
+        self.__atualizar_projetos_para_nao_avaliado(dataset)

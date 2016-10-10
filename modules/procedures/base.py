@@ -61,9 +61,9 @@ class ProcedureDatasetValidator(object):
         """
 
         required_fields = self.procedure.required_fields
-        required_set = frozenset(required_fields.keys())
+        required_set = frozenset(k.lower() for k in required_fields.keys())
         # Constant values arent
-        required_set -= frozenset(self.procedure.constants)
+        required_set -= frozenset(k.lower() for k in self.procedure.constants)
         given_set = frozenset(dataset.keys())
 
         if required_set.issubset(given_set):
@@ -85,6 +85,15 @@ class ProcedureDatasetValidator(object):
         else:
             missing_fields = ','.join(required_set - given_set)
             raise ValueError("Dataset missing required fields: " + missing_fields)
+
+    @staticmethod
+    def lower_dataset_keys(a_dict):
+        """
+        Recursivamente lowercaiserifica as chaves de um dicionários e seus "filhos"
+
+        :type a_dict: dict
+        """
+        return {k.lower(): (v if not isinstance(v, dict) else ProcedureDatasetValidator.lower_dataset_keys(v)) for k, v in a_dict.iteritems()}
 
 
 class BaseProcedure(object):
@@ -168,15 +177,15 @@ class BaseSIEProcedure(BaseProcedure):
     @property
     def constants(self):
         return {
-            "DT_ALTERACAO": str(date.today()),
-            "HR_ALTERACAO": datetime.now().time().strftime("%H:%M:%S"),
-            "CONCORRENCIA": 999
+            "dt_alteracao": str(date.today()),
+            "hr_alteracao": datetime.now().time().strftime("%H:%M:%S"),
+            "concorrencia": 999
         }
 
     @property
     def required_fields(self):
         return {
-            'COD_OPERADOR': 'int'
+            'cod_operador': 'int'
         }
 
     def _next_value_for_sequence(self, table):

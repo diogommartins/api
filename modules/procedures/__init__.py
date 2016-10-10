@@ -1,8 +1,10 @@
 # coding=utf-8
 from .exceptions import UndefinedProcedureException
 from .matricula import MatricularAlunos
-from .projetos import CriarProjetoPesquisa, RegistroProjetoPesquisa
+from .projetos import CriarProjetoPesquisa, RegistroProjetoPesquisa, FechaAvaliacaoProjetosPesquisa, AbrirAvaliacaoProjetosPesquisa
 from .documento import CriarDocumentoProjetoPesquisa
+from .enderecos import CriarEndereco
+from .grafos import TramitacoesComoGrafo
 from .base import BaseProcedure
 from .test import FooProcedure
 from inspect import isclass

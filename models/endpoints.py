@@ -4,7 +4,8 @@ from definers import Endpoints
 from modelers import JSONModelCreator, Web2pyModelCreator
 
 
-endpoints_definer = Endpoints(datasource, schema='DBSM')
+prefixes = (p.prefix for p in db().select(db.api_blacklist.prefix))
+endpoints_definer = Endpoints(datasource, schema='DBSM', blacklist=prefixes)
 
 
 def load_endpoints(write_models=True):

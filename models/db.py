@@ -83,4 +83,10 @@ db.define_table("api_procedure_permissions",
                 Field("group_id", db.auth_group),
                 Field("unique_validator", unique=True, compute=lambda r: r.name + str(r.group_id)))
 
+db.define_table("api_blacklist",
+                Field("prefix", label="Prefixo", unique=True),
+                Field("creator", db.auth_user, default=auth.user_id, writable=False),
+                Field('created_on', 'datetime', default=request.now, writable=False)
+                )
+
 db.api_group_permissions.http_method.requires = IS_IN_DB(db, db.api_methods.id, '%(http_method)s')

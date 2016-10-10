@@ -1,6 +1,7 @@
 # coding=utf-8
 from api.key import APIKey, APIProcedurePermissions
 from api.request import APIRequest
+from logger import TicketLogger
 from procedures.base import ProcedureDatasetValidator
 from gluon.serializers import json, loads_json
 from procedures import Procedure
@@ -63,14 +64,11 @@ def _async(dataset, params, procedure_name):
             "hr_alteracao": datetime.now().time().strftime("%H:%M:%S"),
             "endereco_fisico": request.env.remote_addr
         })
-
-        db.api_procedure_queue.insert(
-                name=procedure_name,
-                json_data=json(dataset),
-                result_fields=params['fields']
-        )
+        db.api_procedure_queue.insert(name=procedure_name,
+                                      json_data=json(dataset),
+                                      result_fields=params['fields'])
     except Exception as e:
-        raise NotImplementedError("Pode haver alguma? O que fazer neste caso ?")
+        TicketLogger.log_exception(__file__)  # "Pode haver alguma? O que fazer neste caso ?"
 
 
 def _sync(dataset, params, procedure):

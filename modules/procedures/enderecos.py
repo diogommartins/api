@@ -10,17 +10,19 @@ class CriarEndereco(BaseSIEProcedure):
     1 ou 2 endereços para os respectivos tipo_origem_item.
 
     """
+    methods = ("POST",)
+
     COD_TABELA_TIPO_ENDERECO = 240
     COD_TABELA_TIPO_ORIGEM = 141
     RESIDENCIAL = 'R'
     RESIDENCIAL_ITEM = 1
     SEM_CEP = 'N'
     TIPO_ORIGEM_ITEM_ALUNO = 11
-    TIPO_ORIGEM_ITEM_SERVIDOR = 2
+    TIPO_ORIGEM_ITEM_FUNCIONARIO = 2
 
     origens = {
         'id_aluno': TIPO_ORIGEM_ITEM_ALUNO,
-        'id_funcionario': TIPO_ORIGEM_ITEM_SERVIDOR
+        'id_funcionario': TIPO_ORIGEM_ITEM_FUNCIONARIO
     }
 
     @property
@@ -118,7 +120,7 @@ class CriarEndereco(BaseSIEProcedure):
                 yield tipo_origem
 
     @as_transaction
-    def perform_work(self, dataset, commit=False):
+    def perform_work(self, dataset, commit):
         dataset.update(self.constants)
         dataset['id_pessoa'] = self._id_pessoa_de_cpf(dataset['cpf'])
 
@@ -126,6 +128,7 @@ class CriarEndereco(BaseSIEProcedure):
         tipos_origem = self.__origens_para_endereco(endereco)
 
         self.__remover_ind_corresp(ids=self.__ids_de_endereco(endereco))
-        new_ids = tuple(self.__criar_enderecos(dataset, tipos_origem))
-        dataset['new_ids'] = new_ids
+        dataset['id_endereco'] = tuple(self.__criar_enderecos(dataset,
+                                                              tipos_origem))
+
         return dataset

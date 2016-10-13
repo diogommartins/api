@@ -75,7 +75,8 @@ def _async(dataset, params, procedure_name):
 
 def _sync(dataset, params, procedure):
     try:
-        response_dataset = result = procedure.perform_work(dataset)
+        response_dataset = result = procedure.perform_work(dataset,
+                                                           commit=True)
 
         if params['fields']:
             response_dataset = {k: v for k, v in result.iteritems() if k in params['fields']}

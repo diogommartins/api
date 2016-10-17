@@ -7,7 +7,7 @@
 
 response.logo = A("DTIC/UNIRIO",
                   _class="brand",_href="http://www.unirio.br/dtic")
-response.title = request.application.replace('_',' ').title()
+response.title = request.application.replace('_', ' ').title()
 response.subtitle = ''
 
 ## read more at http://dev.w3.org/html5/markup/meta.name.html
@@ -37,6 +37,7 @@ adminMenu = [
         ('Gerenciar Grupos', False, URL('admin', 'membership')),
         ('Gerenciar Permissões de Endpoints', False, URL('admin', 'permissions_endpoints')),
         ('Gerenciar Permissões de Procedures', False, URL('admin', 'permissions_procedures')),
+        ('Blacklist', False, URL('admin', 'blacklist'))
     ))
 ]
 

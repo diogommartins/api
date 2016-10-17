@@ -7,6 +7,7 @@ from .enderecos import CriarEndereco
 from .grafos import TramitacoesComoGrafo
 from .base import BaseProcedure
 from .test import FooProcedure
+from .pessoas import *
 from inspect import isclass
 
 

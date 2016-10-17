@@ -29,13 +29,18 @@ def updates_super(func):
 
 
 def as_transaction(fn):
-    def decorator(self, dataset, commit=True):
+    def decorator(self, dataset, commit):
         def controlled_execution():
             try:
+                self.datasource.commit()
                 resulting_dataset = fn(self, dataset, commit)
                 if commit:
                     self.datasource.commit()
                     self.on_commit()
+                else:
+                    self.datasource.rollback()
+                    self.on_rollback()
+
                 return resulting_dataset
             except Exception as e:
                 self.datasource.rollback()
@@ -124,10 +129,12 @@ class BaseProcedure(object):
         raise NotImplementedError("Should be implemented on subclasses")
 
     @abc.abstractmethod
-    def perform_work(self, dataset, commit=True):
+    def perform_work(self, dataset, commit):
         """
         Something that should be done with dataset
 
+        :param commit: Signals whether it should or not commit after
+        :type commit: bool
         :returns A json serializable object
         :type dataset: dict
         """
@@ -168,6 +175,14 @@ class BaseProcedure(object):
         """
         pass
 
+    @property
+    def methods(self):
+        """
+        :return: A tuple of accepted procedure methods
+        :rtype: tuple
+        """
+        raise NotImplementedError("Should be implemented on subclasses")
+
 
 class BaseSIEProcedure(BaseProcedure):
     # todo esta classe provavelmente não deveria estar no mesmo arquivo
@@ -204,12 +219,13 @@ class BaseSIEProcedure(BaseProcedure):
         :type table: gluon.dal.Table
         :type dataset: dict
         """
-        def has_composite_primary_key(t):
-            return len(t._primarykey) > 1
+        def has_composite_primary_key(table):
+            return len(table._primarykey) > 1
 
-        # todo Deveria estar atualizando o dataset aqui? Isso ta cheirando mal....
-        if not has_composite_primary_key(table):
-            dataset[table._primarykey[0]] = self._next_value_for_sequence(table)
         table_dataset = {k: v for k, v in dataset.iteritems() if k in table.fields}
+
+        if not has_composite_primary_key(table):
+            pkey = table._primarykey[0]
+            table_dataset[pkey] = self._next_value_for_sequence(table)
 
         return table_dataset

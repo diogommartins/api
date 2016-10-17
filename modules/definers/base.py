@@ -57,7 +57,7 @@ class DefinerThreadWorker():
 class BaseTableDefiner(Observable):
     types = {}
 
-    def __init__(self, datasource, schema, cache_model=current.cache.ram, cache_time=86400):
+    def __init__(self, datasource, schema, cache_model=current.cache.ram, cache_time=86400, blacklist=None):
         """
         This is an abstract class used as a base for table model definer classes.
         The default object initialization would result in defining all endpoints for the selected `schema`
@@ -74,6 +74,7 @@ class BaseTableDefiner(Observable):
         self.schema = schema
         self.cache = cache_model
         self.cache_time = cache_time
+        self.blacklist = blacklist or tuple()
         self.tables = lambda: self.cache(self.db._uri_hash,
                                          lambda: self._fetch_columns(),
                                          time_expire=self.cache_time)
@@ -81,6 +82,10 @@ class BaseTableDefiner(Observable):
                                           lambda: self._fetch_indexes(),
                                           time_expire=self.cache_time)
         self._define_source_tables()
+
+    def not_in_blacklist_condition(self, field):
+        conditions = reduce(lambda a, b: (a & b), (~field.lower().startswith(prefix.lower()) for prefix in self.blacklist))
+        return conditions
 
     def _define_source_tables(self):
         """
@@ -234,12 +239,14 @@ class InformationSchema(BaseTableDefiner):
 
     def _fetch_indexes(self):
         indexes = self._tables.copy()
+        constraints = self.db.table_constraints
 
-        rows = self.db((self.db.table_constraints.table_schema == self.schema) &
-                       (self.db.table_constraints.table_name == self.db.key_column_usage.table_name) &
-                       (self.db.table_constraints.constraint_name == self.db.key_column_usage.constraint_name) &
-                       (self.db.table_constraints.constraint_type == 'PRIMARY KEY')).select(
-            self.db.table_constraints.table_name, self.db.key_column_usage.column_name)
+        usage = self.db.key_column_usage
+        rows = self.db((constraints.table_schema == self.schema) &
+                       (constraints.table_name == usage.table_name) &
+                       (constraints.constraint_name == usage.constraint_name) &
+                       (constraints.constraint_type == 'PRIMARY KEY')).select(
+            constraints.table_name, usage.column_name)
 
         for index in rows:
             indexes[index.table_constraints.table_name].append(index.key_column_usage.column_name)

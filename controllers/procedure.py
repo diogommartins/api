@@ -44,17 +44,19 @@ def index():
 
     validator = ProcedureDatasetValidator(procedure)
 
-    for dataset in params['data']:
-        try:
-            dataset = ProcedureDatasetValidator.lower_dataset_keys(dataset)
-            if validator.is_valid_dataset(dataset):
-                if params['async']:
-                    _async(dataset, params, procedure_name)
-                else:
-                    _sync(dataset, params, procedure)
-        except ValueError as e:
-            # Invalid dataset
-            raise HTTP(http.BAD_REQUEST, e.message)
+    try:
+        validator = ProcedureDatasetValidator(procedure)
+        valid_datasets = tuple(dataset for dataset in params['data'] if validator.is_valid_dataset(dataset))
+    except ValueError as e:
+        raise HTTP(http.BAD_REQUEST, e.message)  # Invalid dataset
+
+    response.view = 'generic.json'
+
+    for dataset in valid_datasets:
+        if params['async']:
+            _async(dataset, params, procedure_name)
+        else:
+            _sync(dataset, params, procedure)
 
 
 def _async(dataset, params, procedure_name):
@@ -66,12 +68,12 @@ def _async(dataset, params, procedure_name):
         })
 
         db.api_procedure_queue.insert(
-                name=procedure_name,
-                json_data=json(dataset),
-                result_fields=params['fields']
+            name=procedure_name,
+            json_data=json(dataset),
+            result_fields=params['fields']
         )
     except Exception as e:
-        raise NotImplementedError("Pode haver alguma? O que fazer neste caso ?")
+        TicketLogger.log_exception(__file__)  # "Pode haver alguma? O que fazer neste caso ?"
 
 
 def _sync(dataset, params, procedure):

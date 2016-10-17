@@ -6,6 +6,7 @@ from api.key import Key
 def refresh_cache():
     endpoints_definer.refresh_cache()
     load_endpoints(write_models=True)
+    cache.ram.clear()
 
     return dict()
 
@@ -82,3 +83,8 @@ def _permissions_grid(table, field, options):
     )
 
     return dict(grid=grid)
+
+
+def blacklist():
+    return dict(form=SQLFORM.grid(db.api_blacklist, deletable=False))
+

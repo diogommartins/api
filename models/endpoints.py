@@ -1,5 +1,5 @@
 # coding=utf-8
-from api.request import APIRequest
+from api.request import Request
 from definers import Endpoints
 from modelers import JSONModelCreator, Web2pyModelCreator
 
@@ -16,7 +16,7 @@ def load_endpoints(write_models=True):
 
 
 if request.controller == 'rest':
-    endpoint = APIRequest.endpoint_for_path(request.env.PATH_INFO)
+    endpoint = Request.endpoint_for_path(request.env.PATH_INFO)
     response.models_to_run += ['^endpoints/{endpoint}/\\w+\\.py$'.format(endpoint=endpoint)]
 else:
     # if the request isn`t for an endpoint, load everything

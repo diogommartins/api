@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from .cipher import AESCipher
-from .request import APIRequest
+from .request import Request
 from gluon import current, HTTP
 
 
-class APIKey(object):
+class Key(object):
     def __init__(self, db, hash=None):
         """
         :type db: gluon.DAL
@@ -113,7 +113,7 @@ class APIKey(object):
         return limits.max_requests, limits.max_entries
 
 
-class APIKeyPermissions(object):
+class KeyPermissions(object):
     cache = (current.cache.ram, 86400)
 
     def __init__(self):
@@ -136,25 +136,25 @@ class APIKeyPermissions(object):
         """
         db = current.db
         valid_method = db(db.api_methods.http_method == method).select(db.api_methods.id,
-                                                                       cache=APIKeyPermissions.cache).first()
+                                                                       cache=KeyPermissions.cache).first()
         if valid_method:
             return valid_method.id
         else:
             raise HTTP(405, "Método requisitado não é suportado.")
 
 
-class APIEndpointPermissions(APIKeyPermissions):
+class EndpointPermissions(KeyPermissions):
     def __init__(self, endpoint, key, method, fields):
         """
         :type endpoint: str
-        :type key: APIKey
+        :type key: Key
         :type method: str
         :type fields: list
         """
-        super(APIEndpointPermissions, self).__init__()
+        super(EndpointPermissions, self).__init__()
         self.endpoint = endpoint
         self.fields = fields
-        self.http_method = APIKeyPermissions.http_method_with_name(method)
+        self.http_method = KeyPermissions.http_method_with_name(method)
         self.hash = key.hash
         self.key = self.db(self.db.v_api_calls.auth_key == self.hash).select(cache=self.cache, cacheable=True).first()
 
@@ -271,9 +271,9 @@ class APIEndpointPermissions(APIKeyPermissions):
         return reduce(lambda a, b: (a & b), conditions)
 
 
-class APIProcedurePermissions(APIKeyPermissions):
+class ProcedurePermissions(KeyPermissions):
     def __init__(self, api_key, procedure_name):
-        super(APIProcedurePermissions, self).__init__()
+        super(ProcedurePermissions, self).__init__()
         self.api_key = api_key
         self.procedure_name = procedure_name
 

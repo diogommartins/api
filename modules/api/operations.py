@@ -15,17 +15,17 @@ try:
 except ImportError:
     import http.client as http
 
-__all__ = ['APIDelete', 'APIInsert', 'APIQuery', 'APIUpdate']
+__all__ = ['Delete', 'Insert', 'Select', 'Update', 'AlterOperation']
 
 
-class APIOperationObserver(object):
+class OperationObserver(object):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def did_finish_successfully(self, sender, parameters):
         """
         :param sender: The APIOperation that triggered the websocket notification
-        :type sender: APIOperation
+        :type sender: Operation
         :type parameters: dict
         """
         raise NotImplementedError
@@ -34,14 +34,14 @@ class APIOperationObserver(object):
     def did_finish_with_error(self, sender, parameters, error):
         """
         :param sender: The APIOperation that triggered the websocket notification
-        :type sender: APIOperation
+        :type sender: Operation
         :type parameters: dict
         :type error: Exception
         """
         raise NotImplementedError
 
 
-class APIOperation(object):
+class Operation(object):
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, request):
@@ -91,13 +91,13 @@ class APIOperation(object):
         raise NotImplementedError("Should be implemented on subclasses")
 
 
-class APIAlterOperation(APIOperation):
+class AlterOperation(Operation):
     __metaclass__ = abc.ABCMeta
 
-    observer = None  # type: APIOperationObserver
+    observer = None  # type: OperationObserver
 
     def __init__(self, request):
-        super(APIAlterOperation, self).__init__(request)
+        super(AlterOperation, self).__init__(request)
         self.parameters = self.request.parameters
         try:
             self.p_key_fields = {column:self.table[column] for column in self.table._primarykey}
@@ -146,7 +146,7 @@ class APIAlterOperation(APIOperation):
         return tuple(base64.b64decode(parameters[k]) for k in fields)
 
 
-class APIQuery(APIOperation):
+class Select(Operation):
     ENTRIES_PER_QUERY_DEFAULT = 10
 
     __sorting_options = ("ASC", "DESC",)
@@ -158,11 +158,11 @@ class APIQuery(APIOperation):
         :var endpoint: string relativa ao nome da tabela modela no banco datasource
         :var fields: Uma lista de colunas que devem ser retornadas pela consulta
         """
-        super(APIQuery, self).__init__(request)
+        super(Select, self).__init__(request)
         self.fields = self.request.parameters['valid']
         self.special_fields = self.request.parameters['special']
         self.request_vars = self.request.lower_vars
-        # type: key.APIKey
+        # type: key.Key
         self.api_key = self.request.api_key
         self.return_fields = self.request.return_fields
 
@@ -312,7 +312,7 @@ class APIQuery(APIOperation):
             return {"content": rows, "subset": records_subset, "fields": self.table.fields}
 
 
-class APIInsert(APIAlterOperation):
+class Insert(AlterOperation):
     def __init__(self, request):
         """
         Classe responsável por lidar com requisições do tipo POST, que serão transformadas
@@ -321,7 +321,7 @@ class APIInsert(APIAlterOperation):
 
         :type request: APIRequest
         """
-        super(APIInsert, self).__init__(request)
+        super(Insert, self).__init__(request)
         if self.has_composite_primary_key and not self.primary_key_in_parameters(self.parameters):
             raise HTTP(http.BAD_REQUEST, "Não é possível inserir um conteúdo sem sua chave primária composta.")
         if not self.has_composite_primary_key and self.primary_key_in_parameters(self.parameters):
@@ -435,7 +435,7 @@ class APIInsert(APIAlterOperation):
             raise HTTP(http.CREATED, "Conteúdo inserido com sucesso.", **headers)
 
 
-class APIUpdate(APIAlterOperation):
+class Update(AlterOperation):
     def __init__(self, request):
         """
         Classe responsável por lidar com requisições do tipo PUT, que serão transformadas
@@ -444,7 +444,7 @@ class APIUpdate(APIAlterOperation):
 
         :raises HTTP: 400 O dicionário `parameters` deve conter obrigatoriamente a primary key da tabela `tablename`
         """
-        super(APIUpdate, self).__init__(request)
+        super(Update, self).__init__(request)
         if not self.primary_key_in_parameters(self.parameters):
             raise HTTP(http.BAD_REQUEST, "Não é possível atualizar um conteúdo sem sua chave primária.")
 
@@ -503,14 +503,14 @@ class APIUpdate(APIAlterOperation):
             raise HTTP(http.OK, "Conteúdo atualizado com sucesso", **headers)
 
 
-class APIDelete(APIAlterOperation):
+class Delete(AlterOperation):
     def __init__(self, request):
         """
         Classe responsável por lidar com requisições do tipo DELETE, que serão transformadas
         em um DELETE no banco de dados e retornarão uma resposta HTTP adequada a remoção de um recurso.
         :type request: APIRequest
         """
-        super(APIDelete, self).__init__(request)
+        super(Delete, self).__init__(request)
         if not self.primary_key_in_parameters(self.parameters) and not self.request.id_from_path:
             raise HTTP(http.BAD_REQUEST, "Não é possível remover um conteúdo sem sua chave primária.")
         self.identifiers_values = [(column, self.request.lower_vars[column]) for column in self.p_key_columns]

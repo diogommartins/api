@@ -1,5 +1,5 @@
 # coding=utf-8
-from api.key import APIKey
+from api.key import Key
 
 
 @auth.requires_membership('Desenvolvedor')
@@ -24,8 +24,8 @@ def create_system_key():
     )
 
     if form.validate():
-        api_key = APIKey(db)
-        current_key = APIKey.get_current_active_key_for_user(form.vars.user_id)
+        api_key = Key(db)
+        current_key = Key.get_current_active_key_for_user(form.vars.user_id)
 
         # Se ainda não existir uma chave válida
         if not current_key:

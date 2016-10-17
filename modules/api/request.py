@@ -3,17 +3,17 @@ from datetime import datetime
 import thread
 from gluon import current, HTTP
 from gluon.serializers import json
-from .operations import APIInsert, APIQuery, APIDelete, APIUpdate, APIAlterOperation
+from .operations import *
 from .websockets import WebsocketNotificator
 try:
     import httplib as http
 except ImportError:
     import http.client as http
 
-__all__ = ['APIRequest']
+__all__ = ['Request']
 
 
-class APIRequest(object):
+class Request(object):
     DEFAULT_SUFIX_SIZE = 4
     valid_sufixes = ('_min', '_max', '_bet', '_set',)
     valid_response_formats = {
@@ -77,9 +77,9 @@ class APIRequest(object):
             Dada uma requisição `https://myurl.com/api/ENDPOINT?API_KEY=xyz`
             request.env.PATH_INFO == path == '/api/ENDPOINT' -> 'ENDPOINT'
 
-        >>> APIRequest.endpoint_for_path('/api/UNIT_TEST/123')
+        >>> Request.endpoint_for_path('/api/UNIT_TEST/123')
         "UNIT_TEST"
-        >>> APIRequest.endpoint_for_path('/api/UNIT_TEST')
+        >>> Request.endpoint_for_path('/api/UNIT_TEST')
         "UNIT_TEST"
 
         :param path: url path
@@ -95,7 +95,7 @@ class APIRequest(object):
     def procedure_for_path(path):
         """
 
-        >>> APIRequest.procedure_for_path('/api/procedure/FooProcedure')
+        >>> Request.procedure_for_path('/api/procedure/FooProcedure')
         "FooProcedure"
         """
         path_list = path.split("/")  # ["", "api", "UNIT_TEST", "123"]
@@ -107,7 +107,7 @@ class APIRequest(object):
 
     def __is_notifyable_operation(self, operation):
         # todo: Isso deveria estar aqui?
-        return isinstance(operation, APIAlterOperation)
+        return isinstance(operation, AlterOperation)
 
     def perform_request(self):
         """
@@ -117,10 +117,10 @@ class APIRequest(object):
         """
         try:
             methods = {
-                'GET':      APIQuery,
-                'POST':     APIInsert,
-                'PUT':      APIUpdate,
-                'DELETE':   APIDelete
+                'GET':      Select,
+                'POST':     Insert,
+                'PUT':      Update,
+                'DELETE':   Delete
             }
             operation = methods[self.HTTPMethod](self)
         except KeyError:
@@ -241,5 +241,5 @@ class APIRequest(object):
         :param field: Uma string reference a um campo, com sufixo
         :return: Uma string relativa a um campo, sem sufixo
         """
-        if field.endswith(APIRequest.valid_sufixes):
-            return field[:-APIRequest.DEFAULT_SUFIX_SIZE]
+        if field.endswith(Request.valid_sufixes):
+            return field[:-Request.DEFAULT_SUFIX_SIZE]

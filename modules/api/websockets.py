@@ -2,10 +2,10 @@
 from gluon.contrib.websocket_messaging import websocket_send
 from gluon.serializers import json
 from gluon import current
-from .operations import APIOperationObserver
+from .operations import OperationObserver
 
 
-class WebsocketNotificator(APIOperationObserver):
+class WebsocketNotificator(OperationObserver):
 
     def __init__(self, verbose=True):
         assert current.ws_server

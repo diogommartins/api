@@ -1,6 +1,6 @@
 # coding=utf-8
-from api.key import APIKey, APIProcedurePermissions
-from api.request import APIRequest
+from api.key import Key, ProcedurePermissions
+from api.request import Request
 from procedures.base import ProcedureDatasetValidator
 from gluon.serializers import json, loads_json
 from procedures import Procedure
@@ -18,7 +18,8 @@ def index():
 
     Dados da requisição devem ter:
     "API_KEY" -> key para obter acesso aos dados.
-    "data" -> Lista de dicionários, onde cada dicionário é usado como argumento para execução de uma procedure.
+    "data" -> Lista de dicionários, onde cada dicionário é usado como argumento
+    para execução de uma procedure.
 
     Opcionalmente pode conter:
 
@@ -27,18 +28,18 @@ def index():
 
     """
     params = loads_json(request.body.read())
-    procedure_name = APIRequest.procedure_for_path(request.env.PATH_INFO)
+    procedure_name = Request.procedure_for_path(request.env.PATH_INFO)
 
     try:
         procedure = Procedure(procedure_name, datasource)
     except UndefinedProcedureException as e:
         raise HTTP(http.NOT_FOUND, e.msg)
 
-    api_key = APIKey(db, params['API_KEY'])
+    api_key = Key(db, params['API_KEY'])
     if not api_key.auth:
         raise HTTP(http.UNAUTHORIZED, "API Key inválida ou inativa")
 
-    if not APIProcedurePermissions(api_key, procedure_name).can_perform_api_call():
+    if not ProcedurePermissions(api_key, procedure_name).can_perform_api_call():
         raise HTTP(http.UNAUTHORIZED, "Nao pode.")
 
     validator = ProcedureDatasetValidator(procedure)

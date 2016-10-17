@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from api.key import APIKey
+from api.key import Key
 
 
 @auth.requires_login()
@@ -18,8 +18,8 @@ def index():
 
 @auth.requires_login()
 def create_user_key():
-    api_key = APIKey(db)
-    current_key = APIKey.get_current_active_key_for_user(auth.user.id)
+    api_key = Key(db)
+    current_key = Key.get_current_active_key_for_user(auth.user.id)
 
     if not current_key:
         current_key = api_key.genarate_new_key_for_user(auth.user.id)

@@ -207,21 +207,27 @@ class CriarFuncionarioProfExterno(CriarFuncionario):
 
         return self.TIPO_ADMISSAO_PRIMEIRO_EMPREGO
 
-    def gerar_id_cargo_vaga(self, dataset):
+    def __proxima_vaga(self, dataset):
         view = self.datasource.v_papeis_docentes
+        # todo: Existe outra condição ?
+        conditions = (view.id_plano == dataset['id_plano'])
+        vaga = self.datasource(conditions).select()
 
+        if not vaga:
+            raise NotImplementedError("Banco está desatualizado")
 
-        # todo: `avisar dpg` == enviar alerta ?
-        raise NotImplementedError("CONTRATOS_RH.ID_CARGO_VAGA (pegar o primeiro"
-                                  " que tenha disponível. Se não houver, "
-                                  "informar para que a DPG aumente o no de "
-                                  "vagas disponíveis)")
+        vaga_livre = vaga.id_cargo_vaga_livre
+        if not vaga_livre:
+            raise ProcedureException("Não existem mais vagas disponíveis")
+
+        return vaga_livre
 
     @as_transaction
     def perform_work(self, dataset, commit):
         try:
             super(CriarFuncionarioProfExterno, self).perform_work(dataset,
                                                                   commit=False)
+            dataset.update(self.constants)
 
             dataset['dt_desligamento'] = dataset['dt_fim']
 
@@ -232,7 +238,7 @@ class CriarFuncionarioProfExterno(CriarFuncionario):
             dataset['tipo_admissao_item'] = admissao
 
             dataset['matr_externa'] = self.__proxima_matricula()
-            dataset.update(self.constants)
+            dataset['id_cargo_vaga'] = self.__proxima_vaga(dataset)
 
             raise Exception()
         except Exception as e:

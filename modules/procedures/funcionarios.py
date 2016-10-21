@@ -186,7 +186,7 @@ class CriarFuncionarioProfExterno(CriarFuncionario):
 
         matricula = str(matricula)
         proximo_n = int(matricula[len(self.MASCARA):]) + 1
-        matricula = "99{:05d}".format(proximo_n)
+        matricula = "{}{:05d}".format(self.MASCARA, proximo_n)
 
         if not int(matricula) > self.MAX_MATR_PROF_EXTERNO:
             return matricula

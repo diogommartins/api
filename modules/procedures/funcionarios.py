@@ -2,7 +2,7 @@
 from datetime import date
 
 from procedures.base import BaseSIEProcedure, as_transaction
-from procedures.exceptions import ProcedureException
+from procedures.exceptions import ProcedureException, InvalidDatasetException
 
 
 __all__ = ("CriarFuncionario", "CriarFuncionarioProfExterno")
@@ -100,8 +100,7 @@ class CriarFuncionarioProfExterno(CriarFuncionario):
     TIPO_DESLIGAMENTO_ERROR_DE_CADASTRO = 1208
     TIPO_DESLIGAMENTO_FALTA_DE_RECADASTRAMENTO = 1222
 
-    # todo: achar ID_CARGO em CARGOS_RH
-    ID_CARGO_PROF_EXTERNO = NotImplemented
+    ID_CARGO_PROF_EXTERNO = 1362
 
     DATAS_INICIO = ('dt_admissao_cargo',
                     'dt_admissao_inst',
@@ -211,8 +210,9 @@ class CriarFuncionarioProfExterno(CriarFuncionario):
         view = self.datasource.v_papeis_docentes
         # todo: Existe outra condição ?
         conditions = (view.id_plano == dataset['id_plano'])
-        vaga = self.datasource(conditions).select()
+        vaga = self.datasource(conditions).select().first()
 
+        # todo: Isso deve sumir
         if not vaga:
             raise NotImplementedError("Banco está desatualizado")
 
@@ -222,12 +222,22 @@ class CriarFuncionarioProfExterno(CriarFuncionario):
 
         return vaga_livre
 
+    def planos_possiveis(self):
+        view = self.datasource.v_papeis_docentes
+        condition = (view.id_cargo == self.ID_CARGO_PROF_EXTERNO)
+        planos = self.datasource(condition).select(view.id_plano)
+
+        return (p.id_plano for p in planos)
+
     @as_transaction
     def perform_work(self, dataset, commit):
         try:
             super(CriarFuncionarioProfExterno, self).perform_work(dataset,
                                                                   commit=False)
             dataset.update(self.constants)
+
+            if dataset['id_plano'] not in self.planos_possiveis():
+                raise InvalidDatasetException(dataset, msg="id_plano inválido")
 
             dataset['dt_desligamento'] = dataset['dt_fim']
 

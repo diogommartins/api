@@ -8,6 +8,8 @@ class CriarEndereco(BaseSIEProcedure):
     endereços da pessoa e, caso existam, remove os respectivos IND_CORRESP;
     Atende aos casos de pessoa aluno, servidor e aluno que é servidor, criando
     1 ou 2 endereços para os respectivos tipo_origem_item.
+    Aluno = ID_ALUNO
+    Funcionario, Entidade Externa = ID_PESSOA
 
     """
     methods = ("POST",)

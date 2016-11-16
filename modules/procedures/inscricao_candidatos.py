@@ -53,7 +53,48 @@ class InscricaoCandidatoPosGraduacao(BaseSIEProcedure):
 
         return required
 
-
+    def schema(self):
+        schema = {
+            "type": "object",
+            "properties": {
+                # CANDIDATOS
+                "cpf": {"type": "string"},
+                "id_concurso": {"type": "integer"},
+                "id_conc_edicao": {"type": "integer"},
+                "id_opcao": {"type": "integer"},
+                "id_cota_edicao": {"type": "integer"},
+                "nome_pessoa": {"type": "string"},
+                "dt_nascimento": {"type": "date"},
+                "estado_civil_item": {"type": "integer"},
+                "sexo": {"type": "string"},
+                "nome_pai": {"type": "string"},
+                "nome_mae": {"type": "string"},
+                "nacionalidade_item": {"type": "integer"},
+                "deficiencia_item": {"type": "integer"},
+                "tipo_sanguineo": {"type": "string"},
+                "fator_rh": {"type": "string"},
+                "cor_item": {"type": "integer"},
+                "uf_item": {"type": "integer"},
+                "id_naturalidade": {"type": "integer"},
+                "ano_conclusao": {"type": "integer"},
+                "instituicao_conclusao": {"type": "string"},
+                "foto": {"type": "blob"},
+                "conteudo_arquivo": {"type": "blob"},
+                "nome_arquivo": {"type": "string"},
+                "ind_concluido": {"type": "boolean"},
+                "ind_declara_veracidade": {"type": "boolean"},
+                "link_lattes": {"type": "string"}
+            },
+            "required": ["cpf", "id_concurso", "id_conc_edicao", "id_opcao",
+                         "id_cota_edicao", "nome_pessoa", "dt_nascimento",
+                         "estado_civil_item", "sexo", "nome_pai", "nome_mae",
+                         "nacionalidade_item", "deficiencia_item",
+                         "tipo_sanguineo", "fator_rh", "cor_item", "uf_item",
+                         "id_naturalidade", "ano_conclusao",
+                         "instituicao_conclusao", "foto", "conteudo_arquivo",
+                         "nome_arquivo", "ind_concluido",
+                         "ind_declara_veracidade"]
+        }
 
     @property
     def constants(self):

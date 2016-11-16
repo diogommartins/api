@@ -43,12 +43,17 @@ class InscricaoCandidatoPosGraduacao(BaseSIEProcedure):
             'instituicao_conclusao': 'string',
             'foto': 'blob',
             # arquivos_inscricoes
-            'conteudo_arquivo': 'blob'
+            'conteudo_arquivo': 'blob',
+            'nome_arquivo': 'string',
+            'ind_concluido': 'boolean',
+            'ind_declara_veracidade': 'boolean'
 
         }
         required.update(super_required)
 
         return required
+
+
 
     @property
     def constants(self):

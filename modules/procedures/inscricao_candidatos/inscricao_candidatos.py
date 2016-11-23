@@ -1,4 +1,6 @@
 # coding=utf-8
+import json
+
 from procedures.base import BaseSIEProcedure, as_transaction
 from procedures.exceptions import InvalidDatasetException
 from datetime import date
@@ -15,40 +17,14 @@ class InscricaoCandidatoPosGraduacao(BaseSIEProcedure):
     TIPO_ARQUIVO_PROJETO = 1
 
     @property
-    def required_fields(self):
-        super_required = super(InscricaoCandidatoPosGraduacao,
-                               self).required_fields
-        required = {
-            'cpf': 'string',  # candidatos
-            'id_concurso': 'int',  # inscricoes
-            'id_conc_edicao': 'int',  # inscricoes
-            'id_opcao': 'int',  # inscricoes
-            'id_cota_edicao': 'int',
+    def schema(self):
+        super_schema = super(InscricaoCandidatoPosGraduacao, self).schema
+        with open('./schema.json') as fp:
+            schema = json.load(fp)
+        schema['properties'].update(super_schema['properties'])
+        schema['required'] += super_schema['required']
 
-            'nome_pessoa': 'string',
-            'dt_nascimento': 'date',
-            'estado_civil_item': 'int',
-            'sexo': 'string',
-            'nome_pai': 'string',
-            'nome_mae': 'string',
-            'nacionalidade_item': 'int',
-            'deficiencia_item': 'int',
-            'tipo_sanguineo': 'string',
-            'fator_rh': 'string',
-            'cor_item': 'int',
-            'uf_item': 'int',
-            'id_naturalidade': 'int',
-            # candidatos_comp
-            'ano_conclusao': 'int',
-            'instituicao_conclusao': 'string',
-            'foto': 'blob',
-            # arquivos_inscricoes
-            'conteudo_arquivo': 'blob'
-
-        }
-        required.update(super_required)
-
-        return required
+        return schema
 
     @property
     def constants(self):
@@ -93,9 +69,30 @@ class InscricaoCandidatoPosGraduacao(BaseSIEProcedure):
 
     @as_transaction
     def perform_work(self, dataset, commit=False):
-
+        schema = self.schema
         self._inserir_info_complementares(dataset)
         self._inserir_arquivo_projeto(dataset)
-        raise NotImplementedError("Precisa ser implementado")
 
         return dataset
+
+
+class BaseSchema(object):
+    pass
+
+class DatasetSchema(BaseSchema):
+    pass
+
+
+class Mock(object):
+    def __getattr__(self, item):
+        return Mock()
+
+    def __getitem__(self, item):
+        return Mock()
+
+    def __call__(self, *args, **kwargs):
+        return Mock()
+
+
+procedure = InscricaoCandidatoPosGraduacao(Mock())
+procedure.perform_work({}, commit=False)

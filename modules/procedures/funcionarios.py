@@ -17,8 +17,8 @@ class CriarFuncionario(BaseSIEProcedure):
     ETNIA_TAB = 509
 
     @property
-    def required_fields(self):
-        super_required = super(CriarFuncionario, self).required_fields
+    def schema(self):
+        super_required = super(CriarFuncionario, self).schema
         required = {
             # "nome_funcionario": "string",
             "sexo": "string",
@@ -113,7 +113,7 @@ class CriarFuncionarioProfExterno(CriarFuncionario):
     MAX_MATR_PROF_EXTERNO = 9999999
 
     @property
-    def required_fields(self):
+    def schema(self):
         """
         Segundo documento `PROCESSO DE GESTÃO DOS CURSOS DE PÓS-GRADUAÇÃO
         CADASTRAMENTO DE PROFESSORES EXTERNOS`
@@ -124,7 +124,7 @@ class CriarFuncionarioProfExterno(CriarFuncionario):
         * Solicitar o papel do docente
 
         """
-        super_required = super(CriarFuncionarioProfExterno, self).required_fields
+        super_required = super(CriarFuncionarioProfExterno, self).schema
         required = {
             'id_plano': 'int',
             'id_lot_oficial': 'int',

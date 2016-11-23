@@ -5,8 +5,8 @@ from procedures.exceptions import ProcedureDatasetException
 
 class TramitacoesComoGrafo(BaseSIEProcedure):
     @property
-    def required_fields(self):
-        super_required = super(TramitacoesComoGrafo, self).required_fields
+    def schema(self):
+        super_required = super(TramitacoesComoGrafo, self).schema
         required = {
             'ID_DOCUMENTO': 'int'
         }

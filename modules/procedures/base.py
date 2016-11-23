@@ -3,6 +3,7 @@ import abc
 from datetime import datetime, date
 from gluon import current
 from .exceptions import ProcedureDatasetException
+# import jsonschema
 
 
 def updates_super(func):
@@ -65,31 +66,12 @@ class ProcedureDatasetValidator(object):
         :raises ValueError: If a row has an incorrect set of parameters
         """
 
-        required_fields = self.procedure.required_fields
-        required_set = frozenset(k.lower() for k in required_fields.keys())
-        # Constant values arent
-        required_set -= frozenset(k.lower() for k in self.procedure.constants)
-        given_set = frozenset(dataset.keys())
+        schema = self.procedure.schema
 
-        if required_set.issubset(given_set):
-            # for k, v in dataset:
-            #     if type(v).__name__ == required_fields[k]:
-            #         pass
-            #     else:
-            #         try:
-            #             _type = getattr(__builtins__, required_fields[k])
-            #             _type(v)
-            #         except ValueError:
-            #             raise TypeError("{field} should be of type {given}, should be {expected}".format(
-            #                 field=k,
-            #                 given=type(v).__name__,
-            #                 expected=required_fields[k]
-            #             ))
+        jsonschema.validate(dataset, schema)
 
-            return True
-        else:
-            missing_fields = ','.join(required_set - given_set)
-            raise ValueError("Dataset missing required fields: " + missing_fields)
+        missing_fields = ','.join(required_set - given_set)
+        raise ValueError("Dataset missing required fields: " + missing_fields)
 
     @staticmethod
     def lower_dataset_keys(a_dict):
@@ -120,7 +102,7 @@ class BaseProcedure(object):
         raise NotImplementedError("Should be implemented on subclasses")
 
     @abc.abstractproperty
-    def required_fields(self):
+    def schema(self):
         """
         A dict of required dataset k:v parameters
 
@@ -187,7 +169,7 @@ class BaseProcedure(object):
 class BaseSIEProcedure(BaseProcedure):
     # todo esta classe provavelmente não deveria estar no mesmo arquivo
     __metaclass__ = abc.ABCMeta
-    cache = (current.cache.ram, 86400)
+    # cache = (current.cache.ram, 86400)
 
     @property
     def constants(self):
@@ -198,13 +180,17 @@ class BaseSIEProcedure(BaseProcedure):
         }
 
     @property
-    def required_fields(self):
+    def schema(self):
         return {
-            'cod_operador': 'int'
+            'type': 'object',
+            'properties': {
+                'cod_operador': {'type': 'int'}
+            },
+            'required': ['cod_operador']
         }
 
     def _next_value_for_sequence(self, table):
-        """
+        """e
         Por uma INFELIZ particularidade do DB2 de não possuir auto increment, ao inserir algum novo conteúdo em uma
         tabela, precisamos passar manualmente qual será o valor da nossa surrogate key. O DB2 nos provê a possibilidade
         de uso de SEQUECENCE. A nomenclatura padrão é composta do prefixo `SEQ_` acrescido do nome da tabela relacionada.

@@ -63,8 +63,8 @@ class CriarProjetoPesquisa(CadastrarProjeto):
         return consts
 
     @property
-    def required_fields(self):
-        super_required = super(CriarProjetoPesquisa, self).required_fields
+    def schema(self):
+        super_required = super(CriarProjetoPesquisa, self).schema
         required = {
             'CARGA_HORARIA': 'int',
             'ID_CONTRATO_RH': 'int',
@@ -239,8 +239,8 @@ class AbrirAvaliacaoProjetosPesquisa(BaseSIEProcedure):
 
 
     @property
-    def required_fields(self):
-        required = super(AbrirAvaliacaoProjetosPesquisa, self).required_fields
+    def schema(self):
+        required = super(AbrirAvaliacaoProjetosPesquisa, self).schema
 
         required.update({
             'dt_inicial_max': 'date'

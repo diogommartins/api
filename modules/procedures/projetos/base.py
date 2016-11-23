@@ -6,8 +6,8 @@ class CadastrarProjeto(CriarDocumentoProjetoPesquisa):
     __metaclass__ = abc.ABCMeta
 
     @property
-    def required_fields(self):
-        super_required = super(CriarDocumentoProjetoPesquisa, self).required_fields
+    def schema(self):
+        super_required = super(CriarDocumentoProjetoPesquisa, self).schema
         required = {
             'TITULO': 'string',
             'DT_INICIAL': 'date',

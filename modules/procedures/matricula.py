@@ -1,8 +1,7 @@
 # coding=utf-8
 from datetime import date, datetime
-from .base import BaseSIEProcedure, as_transaction
-from .exceptions import DateConversionException, InvalidDatasetException
-from br_documents import CPF
+from procedures.base import BaseSIEProcedure, as_transaction
+from procedures.exceptions import DateConversionException, InvalidDatasetException
 
 
 class MatricularAlunos(BaseSIEProcedure):

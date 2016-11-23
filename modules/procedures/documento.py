@@ -32,8 +32,8 @@ class CriarDocumento(BaseSIEProcedure):
                                   "portanto, devem ter um atributo TIPO_DOCUMENTO")
 
     @property
-    def required_fields(self):
-        super_required = super(CriarDocumento, self).required_fields
+    def schema(self):
+        super_required = super(CriarDocumento, self).schema
         required = {
             'ID_CRIADOR': 'int',  # ID_USUARIO
             'ID_INTERESSADO': 'int',  # ID_CONTRATO_RH
@@ -183,8 +183,8 @@ class CriarDocumentoProjetoPesquisa(CriarDocumento):
     ITEM_SITUACAO_DOCUMENTO_ATIVO = 1
 
     @property
-    def required_fields(self):
-        super_required = super(CriarDocumentoProjetoPesquisa, self).required_fields
+    def schema(self):
+        super_required = super(CriarDocumentoProjetoPesquisa, self).schema
         required = {
             'TEMPO_ARQUIVAMENTO': 'int'
         }

@@ -7,7 +7,7 @@ class FooProcedure(BaseProcedure):
     Não faz nada e existe somente para fins de teste.
     """
     @property
-    def required_fields(self):
+    def schema(self):
         return {
             'id_unit_test': 'int'
         }

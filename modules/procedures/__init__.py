@@ -7,7 +7,7 @@ from .enderecos import CriarEndereco
 from .grafos import TramitacoesComoGrafo
 from .base import BaseProcedure
 from .test import FooProcedure
-from .pessoas import *
+# from .pessoas import *
 from .funcionarios import *
 from .inscricao_candidatos import *
 from inspect import isclass

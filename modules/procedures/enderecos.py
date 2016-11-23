@@ -32,8 +32,8 @@ class CriarEndereco(BaseSIEProcedure):
         return self.datasource.enderecos
 
     @property
-    def required_fields(self):
-        super_required = super(CriarEndereco, self).required_fields
+    def schema(self):
+        super_required = super(CriarEndereco, self).schema
         required = {
             'cpf': 'string',
             'descr_rua': 'string',
